@@ -25,8 +25,14 @@ pip install -e '.[dev]'
 
 news-digest collect                        # takes ~20s across 22 feeds
 news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)
-open docs/index.html
+make serve                                 # then open http://localhost:8000
 ```
+
+> The page must be served over **http**, not opened as a file. It fetches
+> `index.json` at runtime, and browsers block `fetch()` from `file://` origins,
+> so `open docs/index.html` shows an empty page. `make serve` is just
+> `python3 -m http.server` inside `docs/`. GitHub Pages serves it over http, so
+> this only affects local viewing.
 
 That runs with no API key at all — degraded, but end to end. For the real thing:
 

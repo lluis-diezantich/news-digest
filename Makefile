@@ -1,4 +1,4 @@
-.PHONY: help install test collect digest offline check build stats clean
+.PHONY: help install test collect digest offline check build serve stats clean
 
 help:
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "%-10s %s\n", $$1, $$2}'
@@ -25,6 +25,10 @@ check:  ## fetch every enabled source once and report
 
 build:  ## regenerate docs/ from the database
 	.venv/bin/news-digest build
+
+serve:  ## serve docs/ at http://localhost:8000 (the page needs http, not file://)
+	@echo "open http://localhost:8000"
+	@cd docs && python3 -m http.server 8000
 
 stats:  ## summarize the database
 	.venv/bin/news-digest stats
