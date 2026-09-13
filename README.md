@@ -88,8 +88,14 @@ Detection runs during collection, restricted to the languages you configured —
 asking "en, es or ca?" is a far easier question than picking from 97, and that
 restriction is what makes the es/ca pair reliable. A source's declared
 `languages` both constrains the answer and supplies the fallback when a headline
-is too short to judge. Measured against the sources' own declared languages on
-195 real headlines: **99.5%** agreement.
+is too short to judge.
+
+Measured on 440 collected articles from single-language sources, detecting
+*without* the source constraint and comparing against each source's own
+declaration: **440/440**. (Benchmarking the underlying detector alone on 195
+headlines gave 99.5%; the wrapper's length and confidence guards account for the
+rest. `lingua` was tried and rejected — it scored 99.0% at 307 MB against
+py3langid's 4.6 MB.)
 
 The story-level output names every language and outlet covering an event:
 
