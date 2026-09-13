@@ -1,7 +1,7 @@
 {
  "title": "Weekly Digest",
  "subtitle": "Curated from your sources in English, Spanish and Catalan",
- "generated_at": "2026-09-13T19:06:11+00:00",
+ "generated_at": "2026-09-13T19:30:23+00:00",
  "archive": true,
  "digests": [
   {
@@ -9,18 +9,9 @@
    "label": "7–14 September 2026",
    "period_start": "2026-09-07T00:00:00+00:00",
    "period_end": "2026-09-14T00:00:00+00:00",
-   "generated_at": "2026-09-13T19:06:11+00:00",
+   "generated_at": "2026-09-13T19:30:23+00:00",
    "story_count": 30,
    "article_count": 32
-  },
-  {
-   "id": "2026-W36",
-   "label": "31 Aug – 7 Sep 2026",
-   "period_start": "2026-08-31T00:00:00+00:00",
-   "period_end": "2026-09-07T00:00:00+00:00",
-   "generated_at": "2026-09-13T19:06:09+00:00",
-   "story_count": 12,
-   "article_count": 12
   }
  ]
 }
