@@ -69,7 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     _add_global_args(common, suppress=True)
 
-    subparsers = parser.add_subparsers(dest="command", required=True, parser_class=argparse.ArgumentParser)
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_cmd = subparsers.add_parser("run", parents=[common], help="run the full pipeline")
     run_cmd.add_argument("--no-fetch", action="store_true", help="skip fetching")
