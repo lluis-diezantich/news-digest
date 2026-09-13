@@ -1,5 +1,7 @@
 """RSS adapter tests against a fixture feed -- no network."""
 
+import pytest
+
 from newsdigest.config import Source
 from newsdigest.sources.rss import RSSAdapter
 
@@ -26,18 +28,30 @@ FEED = """<?xml version="1.0" encoding="UTF-8"?>
 </channel></rss>
 """
 
+ATOM = """<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Fixture Atom</title>
+  <entry>
+    <title>Atom entry title</title>
+    <link href="https://atom.example/one"/>
+    <updated>2026-09-11T10:00:00Z</updated>
+    <summary>An atom summary.</summary>
+  </entry>
+</feed>
+"""
+
 
 class FakeResponse:
-    def __init__(self, body: str):
+    def __init__(self, body):
         self.content = body.encode("utf-8")
         self.text = body
         self.url = "https://fixture.example/rss"
 
 
 class FakeFetcher:
-    def __init__(self, body: str):
+    def __init__(self, body):
         self.body = body
-        self.requested: list[str] = []
+        self.requested = []
 
     def get(self, url, **kwargs):
         self.requested.append(url)
@@ -54,32 +68,34 @@ def parse(body=FEED, **overrides):
 def test_normalizes_into_the_common_schema():
     articles, fetcher = parse()
     assert fetcher.requested == ["https://fixture.example/rss"]
-    # The untitled item is skipped.
-    assert len(articles) == 2
+    assert len(articles) == 2                  # the untitled item is skipped
 
     first = articles[0]
     assert first.title == "Central bank raises rates & signals more"
-    assert first.source == "Fixture"
     assert first.url == "https://fixture.example/rates?utm_source=rss"
     # Tracking params are stripped from the identity, not from the link.
     assert first.canonical == "https://fixture.example/rates"
-    assert first.published_at.year == 2026
-    assert first.published_at.hour == 8
+    assert first.published_at.year == 2026 and first.published_at.hour == 8
     assert "Ada Reporter" in first.author
     assert first.description == "The bank moved by half a point."
     assert "world" in first.source_topics and "economics" in first.source_topics
     assert first.source_weight == 1.3
-    assert first.id and len(first.id) == 16
+    assert len(first.id) == 16
+
+
+def test_atom_feeds_work_too():
+    articles, _ = parse(ATOM)
+    assert len(articles) == 1
+    assert articles[0].title == "Atom entry title"
+    assert articles[0].published_at.day == 11
 
 
 def test_missing_date_is_allowed():
-    articles, _ = parse()
-    assert articles[1].published_at is None
+    assert parse()[0][1].published_at is None
 
 
 def test_max_items_is_honoured():
-    articles, _ = parse(max_items=1)
-    assert len(articles) == 1
+    assert len(parse(max_items=1)[0]) == 1
 
 
 def test_excerpt_is_truncated():
@@ -89,7 +105,5 @@ def test_excerpt_is_truncated():
 
 
 def test_unparseable_feed_raises():
-    import pytest
-
     with pytest.raises(ValueError):
         parse("this is not xml at all")

@@ -1,13 +1,14 @@
 """LLM enrichment stage, with the guards that keep it inside a free tier.
 
-Three of them:
-  * a content-hash cache, so text we have already processed is never sent again;
-  * batching, so N articles cost one request instead of N;
-  * a per-run article cap, so a busy news day cannot drain a daily quota.
+Four of them:
+  * it runs weekly, never during daily collection;
+  * only articles in candidate stories are sent, not the whole week;
+  * a content-hash cache means text already processed is never sent again;
+  * requests are batched, and a per-run article cap bounds a busy week.
 
 Failure is never fatal. A quota error stops LLM work for the run, a transport
-error skips one batch, and anything left unenriched is simply picked up next
-run -- the feed still builds from what did succeed.
+error skips one batch, and anything unenriched still reaches the digest with its
+source's own description.
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ from .config import LLMSettings
 from .llm.base import (
     Brief,
     BriefInput,
-    Enrichment,
+    Context,
     EnrichInput,
     LLMError,
     LLMProvider,
@@ -31,15 +32,12 @@ from .text import truncate
 
 log = logging.getLogger(__name__)
 
-# Excerpt length sent per article. Enough to summarize from, small enough that a
-# batch of 8 stays comfortably inside one request.
+#: Excerpt length sent per article.
 EXCERPT_CHARS = 900
-# Give up on the provider after this many consecutive batch failures.
+#: Give up on the provider after this many consecutive batch failures.
 MAX_CONSECUTIVE_FAILURES = 2
-# The per-run cap exists to protect an API quota. Offline enrichment has none,
-# so capping it there just leaves articles showing raw feed categories instead
-# of real topics.
-OFFLINE_BUDGET = 2000
+#: Offline enrichment has no quota to protect, so the per-run cap does not apply.
+OFFLINE_BUDGET = 5000
 
 
 @dataclass
@@ -56,38 +54,46 @@ def _to_input(article: Article) -> EnrichInput:
         id=article.id,
         title=article.title,
         source=article.source,
+        language=article.language,
         published=iso(article.published_at),
-        excerpt=truncate(article.description, EXCERPT_CHARS),
+        excerpt=truncate(article.excerpt(), EXCERPT_CHARS),
     )
 
 
-def enrich_pending(
+def enrich_articles(
     store: Store,
     provider: LLMProvider,
     settings: LLMSettings,
+    context: Context,
+    articles: list[Article],
     *,
-    limit: int | None = None,
+    persist: bool = True,
 ) -> EnrichReport:
-    """Enrich stored articles that have no enrichment yet."""
-    if limit is not None:
-        budget = limit
-    elif provider.name == "none":
-        budget = max(settings.articles_per_run, OFFLINE_BUDGET)
-    else:
-        budget = settings.articles_per_run
-    report = EnrichReport()
-    if budget <= 0:
-        log.info("enrichment budget is 0, skipping")
-        return report
+    """Enrich the given articles, skipping any already done.
 
-    pending = store.articles_needing_enrichment(budget)
+    With `persist=False` the article rows are left alone but the cache is still
+    filled, so a dry run costs API calls once and the real run that follows is
+    free.
+    """
+    report = EnrichReport()
+    pending = [a for a in articles if not a.enriched]
     if not pending:
         log.info("nothing to enrich")
         return report
 
+    budget = OFFLINE_BUDGET if provider.name == "none" else settings.articles_per_run
+    if budget <= 0:
+        log.info("enrichment budget is 0, skipping")
+        return report
+    if len(pending) > budget:
+        log.info("enrichment budget %d of %d candidates", budget, len(pending))
+        pending = pending[:budget]
+
+    cache_key = provider.cache_key(context)
+
     # 1. Cache pass -- free.
-    hashes = {article.id: article.content_hash() for article in pending}
-    cached = store.cached_enrichments(list(hashes.values()))
+    hashes = {a.id: a.content_hash() for a in pending}
+    cached = store.cached_enrichments(list(set(hashes.values())), cache_key)
     remaining: list[Article] = []
     for article in pending:
         hit = cached.get(hashes[article.id])
@@ -95,7 +101,9 @@ def enrich_pending(
             remaining.append(article)
             continue
         hit.id = article.id
-        store.save_enrichment(article.id, hit, f"{provider.name}:cache")
+        if persist:
+            store.save_enrichment(article.id, hit, f"{provider.name}:cache")
+        _apply(article, hit)
         report.cached += 1
 
     if report.cached:
@@ -106,16 +114,14 @@ def enrich_pending(
     # 2. Provider pass -- batched.
     log.info(
         "enriching %d articles via %s in batches of %d",
-        len(remaining),
-        provider.name,
-        settings.batch_size,
+        len(remaining), provider.name, settings.batch_size,
     )
     consecutive_failures = 0
     for batch in _batches(remaining, settings.batch_size):
         try:
-            results = provider.enrich([_to_input(a) for a in batch])
+            results = provider.enrich([_to_input(a) for a in batch], context)
         except LLMQuotaError as exc:
-            log.warning("%s quota exhausted (%s); leaving %d for the next run",
+            log.warning("%s quota exhausted (%s); leaving %d for next run",
                         provider.name, exc, len(batch))
             report.quota_exhausted = True
             break
@@ -134,33 +140,50 @@ def enrich_pending(
         for article in batch:
             enrichment = by_id.get(article.id)
             if enrichment is None:
-                # The provider skipped it; try again next run rather than
-                # writing a placeholder we would never revisit.
                 report.failed += 1
                 continue
-            store.save_enrichment(article.id, enrichment, provider.name)
-            store.cache_enrichment(article.content_hash(), provider.name, enrichment)
+            if persist:
+                store.save_enrichment(article.id, enrichment, provider.name)
+            store.cache_enrichment(article.content_hash(), cache_key, enrichment)
+            _apply(article, enrichment)
             report.enriched += 1
 
     report.calls = provider.calls
     log.info(
-        "enrichment done: %d new, %d cached, %d failed, %d calls",
+        "enrichment: %d new, %d cached, %d failed, %d calls",
         report.enriched, report.cached, report.failed, report.calls,
     )
     return report
 
 
+def _apply(article: Article, enrichment) -> None:
+    """Mirror the stored enrichment onto the in-memory article.
+
+    Clustering and scoring run on these objects in the same process, so without
+    this they would see stale, unenriched copies.
+    """
+    article.summary = enrichment.summary
+    article.why_it_matters = enrichment.why_it_matters
+    article.key_facts = enrichment.key_facts
+    article.topics = enrichment.topics
+    article.entities = enrichment.entities
+    article.importance = enrichment.importance
+    article.relevance = enrichment.relevance
+    article.content_type = enrichment.content_type
+
+
 def write_brief(
     provider: LLMProvider,
+    context: Context,
     story: Story,
     articles: list[Article],
 ) -> Brief | None:
-    """Ask the provider for a merged headline/summary for a multi-source story.
+    """Ask for a merged headline/summary for a story with several publishers.
 
-    Single-source stories never get here -- they reuse the article's own
+    Single-publisher stories never get here -- they reuse the lead article's own
     enrichment, which costs nothing.
     """
-    if len({a.source for a in articles}) < 2:
+    if len({a.publisher for a in articles}) < 2:
         return None
     ordered = sorted(articles, key=lambda a: -(a.importance or 0.0))[:5]
     try:
@@ -169,8 +192,10 @@ def write_brief(
                 story_id=story.id,
                 headlines=[a.title for a in ordered],
                 sources=[a.source for a in ordered],
+                languages=[a.language or "" for a in ordered],
                 excerpts=[truncate(a.best_summary(), 500) for a in ordered],
-            )
+            ),
+            context,
         )
     except LLMQuotaError:
         raise

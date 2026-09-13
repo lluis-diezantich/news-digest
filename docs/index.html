@@ -3,65 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daily Digest</title>
+<title>Weekly Digest</title>
 <link rel="alternate" type="application/rss+xml" title="Digest RSS" href="feed.xml">
 <style>
   :root {
     color-scheme: light dark;
-    --bg: #fbfaf8;
-    --card: #ffffff;
-    --border: #e6e2dc;
-    --text: #1a1917;
-    --muted: #6b665e;
-    --accent: #9a3412;
-    --accent-soft: #fdf0e8;
-    --chip: #f2efea;
-    --radius: 10px;
-    --maxw: 46rem;
+    --bg: #fbfaf8; --card: #fff; --border: #e6e2dc;
+    --text: #1a1917; --muted: #6b665e;
+    --accent: #9a3412; --accent-soft: #fdf0e8; --chip: #f2efea;
+    --radius: 10px; --maxw: 48rem;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #16151a;
-      --card: #1e1d23;
-      --border: #302e37;
-      --text: #eceaf0;
-      --muted: #9b96a3;
-      --accent: #f0906a;
-      --accent-soft: #2b2027;
-      --chip: #282730;
+      --bg: #16151a; --card: #1e1d23; --border: #302e37;
+      --text: #eceaf0; --muted: #9b96a3;
+      --accent: #f0906a; --accent-soft: #2b2027; --chip: #282730;
     }
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    padding-block: 2rem 4rem;
-    padding-inline: 1rem;
-    background: var(--bg);
-    color: var(--text);
+    margin: 0; padding-block: 2rem 4rem; padding-inline: 1rem;
+    background: var(--bg); color: var(--text);
     font: 16px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   .wrap { max-width: var(--maxw); margin: 0 auto; }
 
-  header { border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 1.25rem; }
-  h1 { font-size: 1.6rem; margin: 0 0 .2rem; letter-spacing: -.015em; }
-  .subtitle { color: var(--muted); margin: 0 0 .75rem; }
-  .meta { color: var(--muted); font-size: .8rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
-  .meta a { color: inherit; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.1rem; margin-bottom: 1.1rem; }
+  h1 { font-size: 1.55rem; margin: 0 0 .15rem; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 .7rem; font-size: .95rem; }
+  .period { font-weight: 600; margin: 0 0 .35rem; }
+  .meta { color: var(--muted); font-size: .8rem; display: flex; flex-wrap: wrap; gap: .35rem 1rem; }
 
-  .controls { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; }
-  input[type=search] {
-    width: 100%; padding: .5rem .7rem; font: inherit; font-size: .9rem;
+  .bar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-bottom: 1rem; }
+  select, input[type=search] {
+    font: inherit; font-size: .88rem; padding: .4rem .6rem;
     background: var(--card); color: var(--text);
     border: 1px solid var(--border); border-radius: var(--radius);
   }
-  input[type=search]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .topics { display: flex; flex-wrap: wrap; gap: .35rem; }
+  input[type=search] { flex: 1 1 14rem; min-width: 0; }
+  select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .topics { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: 1.3rem; }
   .topic {
-    font: inherit; font-size: .78rem; cursor: pointer;
-    padding: .2rem .6rem; border-radius: 999px;
-    background: var(--chip); color: var(--muted);
-    border: 1px solid transparent;
+    font: inherit; font-size: .76rem; cursor: pointer;
+    padding: .18rem .55rem; border-radius: 999px;
+    background: var(--chip); color: var(--muted); border: 1px solid transparent;
   }
   .topic[aria-pressed="true"] {
     background: var(--accent-soft); color: var(--accent);
@@ -70,70 +56,80 @@
 
   .story {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1rem 1.1rem; margin-bottom: .85rem;
+    border-radius: var(--radius); padding: 1rem 1.05rem; margin-bottom: .8rem;
   }
-  .story h2 { font-size: 1.06rem; line-height: 1.35; margin: 0 0 .45rem; letter-spacing: -.01em; }
-  .story h2 a { color: inherit; text-decoration: none; }
-  .story h2 a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
-  .summary { margin: 0 0 .5rem; }
-  .why {
-    margin: 0 0 .6rem; padding-left: .7rem;
-    border-left: 2px solid var(--accent);
-    color: var(--muted); font-size: .92rem;
-  }
+  .rank { color: var(--muted); font-size: .74rem; font-variant-numeric: tabular-nums; }
+  .story h2 { font-size: 1.05rem; line-height: 1.35; margin: .15rem 0 .45rem; letter-spacing: -.01em; }
+  .summary { margin: 0 0 .55rem; }
+  .why { margin: 0 0 .6rem; padding-left: .7rem; border-left: 2px solid var(--accent);
+         color: var(--muted); font-size: .92rem; }
   .why b { color: var(--text); font-weight: 600; }
+  .facts { margin: 0 0 .65rem; padding-left: 1.1rem; font-size: .88rem; color: var(--muted); }
+  .facts li { margin-bottom: .15rem; }
 
-  .tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
-  .tag { font-size: .72rem; padding: .1rem .45rem; border-radius: 999px; background: var(--chip); color: var(--muted); }
-  .score { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .tags { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-bottom: .55rem; }
+  .tag { font-size: .71rem; padding: .1rem .45rem; border-radius: 999px;
+         background: var(--chip); color: var(--muted); }
+  .scores { margin-left: auto; font-size: .71rem; color: var(--muted);
+            font-variant-numeric: tabular-nums; }
 
   .sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .3rem; }
-  .sources li { font-size: .84rem; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; }
+  .sources li { font-size: .84rem; display: flex; flex-wrap: wrap; gap: .35rem; align-items: baseline; }
   .sources a { color: var(--accent); text-decoration: none; }
   .sources a:hover { text-decoration: underline; }
-  .outlet { color: var(--muted); flex: 0 0 auto; min-width: 7.5rem; }
-  .when { color: var(--muted); font-size: .76rem; }
-
-  details > summary {
-    cursor: pointer; color: var(--muted); font-size: .82rem;
-    margin-top: .4rem; list-style: none;
+  .lang {
+    font-size: .64rem; font-weight: 700; letter-spacing: .04em;
+    padding: .08rem .3rem; border-radius: 4px;
+    background: var(--chip); color: var(--muted); flex: 0 0 auto;
   }
+  .outlet { color: var(--muted); flex: 0 0 auto; }
+  .when { color: var(--muted); font-size: .75rem; }
+  .kind { color: var(--muted); font-size: .7rem; font-style: italic; }
+
+  details > summary { cursor: pointer; color: var(--muted); font-size: .82rem;
+                      margin-top: .4rem; list-style: none; }
   details > summary::-webkit-details-marker { display: none; }
-  details > summary::before { content: "▸ "; }
-  details[open] > summary::before { content: "▾ "; }
+  details > summary::before { content: "\25B8 "; }
+  details[open] > summary::before { content: "\25BE "; }
 
   .status { color: var(--muted); padding: 2rem 0; text-align: center; }
   .status code { background: var(--chip); padding: .1rem .3rem; border-radius: 4px; }
-  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .78rem; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
+           color: var(--muted); font-size: .78rem; }
   footer p { margin: .3rem 0; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1 id="title">Daily Digest</h1>
+    <h1 id="title">Weekly Digest</h1>
     <p class="subtitle" id="subtitle"></p>
+    <p class="period" id="period"></p>
     <div class="meta" id="meta"></div>
   </header>
 
-  <div class="controls" hidden id="controls">
-    <input type="search" id="search" placeholder="Filter stories by word, entity or outlet…" aria-label="Filter stories">
-    <div class="topics" id="topics" role="group" aria-label="Filter by topic"></div>
+  <div class="bar" hidden id="bar">
+    <label class="sr" for="week" hidden>Week</label>
+    <select id="week" aria-label="Choose a week"></select>
+    <input type="search" id="search" placeholder="Filter by word, entity or outlet…" aria-label="Filter stories">
   </div>
+  <div class="topics" id="topics" role="group" aria-label="Filter by topic"></div>
 
   <main id="stories" aria-live="polite">
     <p class="status">Loading…</p>
   </main>
 
   <footer>
-    <p>Summaries are generated by an LLM from source excerpts and may contain errors —
-       follow the links for the reporting itself. All rights remain with the original publishers.</p>
-    <p><a href="feed.json">feed.json</a> · <a href="feed.xml">RSS</a></p>
+    <p>Summaries are generated by an LLM from short source excerpts and may contain
+       errors — follow the links for the reporting itself. Articles keep their original
+       language and headline; all rights remain with the original publishers.</p>
+    <p><a href="feed.xml">RSS</a> · <a href="index.json">index.json</a></p>
   </footer>
 </div>
 
 <script>
-const state = { feed: null, topic: null, query: "" };
+const state = { index: null, digest: null, topic: null, query: "" };
+const cache = new Map();
 
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
 function ago(iso) {
@@ -146,60 +142,73 @@ function ago(iso) {
   if (Math.abs(hours) < 36) return rtf.format(hours, "hour");
   return rtf.format(Math.round(hours / 24), "day");
 }
+function when(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d) ? "" : d.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
 
 function el(tag, props = {}, ...children) {
   const node = Object.assign(document.createElement(tag), props);
-  for (const child of children.flat()) {
-    if (child != null) node.append(child);
-  }
+  for (const child of children.flat()) if (child != null) node.append(child);
   return node;
 }
 
 function matches(story) {
   if (state.topic && !story.topics.includes(state.topic)) return false;
   if (!state.query) return true;
-  const haystack = [
+  const hay = [
     story.headline, story.summary, story.why_it_matters,
-    story.topics.join(" "), (story.entities || []).join(" "),
-    story.articles.map(a => a.source).join(" "),
+    (story.key_facts || []).join(" "), story.topics.join(" "),
+    (story.entities || []).join(" "), (story.publishers || []).join(" "),
+    story.articles.map(a => a.title).join(" "),
   ].join(" ").toLowerCase();
-  return state.query.split(/\s+/).every(term => haystack.includes(term));
+  return state.query.split(/\s+/).every(term => hay.includes(term));
 }
 
-function renderStory(story) {
+function renderStory(story, position) {
   const lead = story.articles[0] || {};
-  const tags = el("div", { className: "tags" },
-    ...story.topics.map(t => el("span", { className: "tag", textContent: t })),
-    story.source_count > 1
-      ? el("span", { className: "tag", textContent: `${story.source_count} sources` })
-      : null,
-    el("span", { className: "tag score", textContent: `score ${story.score.toFixed(2)}`,
-                 title: `LLM importance ${story.importance}` }),
-  );
-
-  const sources = el("ul", { className: "sources" },
-    ...story.articles.map(a => el("li", {},
-      el("span", { className: "outlet", textContent: a.source }),
-      el("a", { href: a.url, textContent: a.title, rel: "noopener noreferrer", target: "_blank" }),
-      el("span", { className: "when", textContent: ago(a.published_at),
-                   title: a.published_at || "" }),
-    )),
-  );
-
   const article = el("article", { className: "story" },
+    el("div", { className: "rank", textContent: `#${position}` }),
     el("h2", {}, el("a", { href: lead.url || "#", textContent: story.headline,
-                           rel: "noopener noreferrer", target: "_blank" })),
-    tags,
+                           rel: "noopener noreferrer", target: "_blank",
+                           style: "color:inherit;text-decoration:none" })),
+    el("div", { className: "tags" },
+      ...story.topics.map(t => el("span", { className: "tag", textContent: t })),
+      story.publisher_count > 1
+        ? el("span", { className: "tag", textContent: `${story.publisher_count} outlets` })
+        : null,
+      ...(story.languages || []).map(l =>
+        el("span", { className: "lang", textContent: l.toUpperCase() })),
+      el("span", { className: "scores",
+                   textContent: `imp ${story.importance} · rel ${story.relevance} · score ${story.score}` }),
+    ),
     el("p", { className: "summary", textContent: story.summary }),
     story.why_it_matters
       ? el("p", { className: "why" }, el("b", { textContent: "Why it matters: " }),
            story.why_it_matters)
       : null,
+    (story.key_facts && story.key_facts.length)
+      ? el("ul", { className: "facts" },
+          ...story.key_facts.map(f => el("li", { textContent: f })))
+      : null,
   );
 
-  if (story.articles.length > 2) {
+  const sources = el("ul", { className: "sources" },
+    ...story.articles.map(a => el("li", {},
+      a.language ? el("span", { className: "lang", textContent: a.language.toUpperCase() }) : null,
+      el("span", { className: "outlet", textContent: a.publisher || a.source }),
+      el("a", { href: a.url, textContent: a.title, rel: "noopener noreferrer", target: "_blank" }),
+      el("span", { className: "when", textContent: when(a.published_at), title: a.published_at || "" }),
+      a.content_type && a.content_type !== "reporting"
+        ? el("span", { className: "kind", textContent: a.content_type }) : null,
+    )),
+  );
+
+  if (story.articles.length > 3) {
     article.append(el("details", {},
-      el("summary", { textContent: `${story.articles.length} articles` }), sources));
+      el("summary", { textContent: `${story.articles.length} articles from ${story.publisher_count} outlets` }),
+      sources));
   } else {
     article.append(sources);
   }
@@ -209,65 +218,102 @@ function renderStory(story) {
 function render() {
   const main = document.getElementById("stories");
   main.textContent = "";
-  const visible = state.feed.stories.filter(matches);
+  const digest = state.digest;
+  if (!digest || !digest.stories.length) {
+    main.append(el("p", { className: "status", textContent: "No stories in this digest." }));
+    return;
+  }
+  const visible = digest.stories.filter(matches);
   if (!visible.length) {
     main.append(el("p", { className: "status", textContent: "No stories match that filter." }));
     return;
   }
-  main.append(...visible.map(renderStory));
+  main.append(...visible.map((s, i) => renderStory(s, digest.stories.indexOf(s) + 1)));
 }
 
 function renderTopics() {
   const box = document.getElementById("topics");
   box.textContent = "";
-  for (const topic of state.feed.topics) {
+  for (const topic of state.digest.topics || []) {
     const button = el("button", {
       className: "topic", textContent: topic, type: "button",
-      onclick: () => {
-        state.topic = state.topic === topic ? null : topic;
-        renderTopics();
-        render();
-      },
+      onclick: () => { state.topic = state.topic === topic ? null : topic; renderTopics(); render(); },
     });
     button.setAttribute("aria-pressed", String(state.topic === topic));
     box.append(button);
   }
 }
 
+function renderHeader() {
+  const d = state.digest, idx = state.index;
+  document.getElementById("title").textContent = d.title || idx.title || "Weekly Digest";
+  document.title = d.title || "Weekly Digest";
+  document.getElementById("subtitle").textContent = d.subtitle || idx.subtitle || "";
+  document.getElementById("period").textContent = d.label || "";
+  const meta = document.getElementById("meta");
+  meta.textContent = "";
+  meta.append(
+    el("span", { textContent: `${d.story_count} stories from ${d.article_count} articles` }),
+    el("span", { textContent: (d.languages || []).map(l => `${l.code.toUpperCase()} ${l.articles}`).join(" · ") }),
+    el("span", { textContent: `${(d.publishers || []).length} outlets` }),
+    el("span", { textContent: `generated ${ago(d.generated_at)}`, title: d.generated_at || "" }),
+  );
+}
+
+async function loadDigest(id) {
+  if (!cache.has(id)) {
+    const response = await fetch(`digests/${id}.json`, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`digests/${id}.json returned ${response.status}`);
+    cache.set(id, await response.json());
+  }
+  state.digest = cache.get(id);
+  state.topic = null;
+  renderHeader();
+  renderTopics();
+  render();
+}
+
 async function load() {
   const main = document.getElementById("stories");
   try {
-    const response = await fetch("feed.json", { cache: "no-cache" });
-    if (!response.ok) throw new Error(`feed.json returned ${response.status}`);
-    state.feed = await response.json();
+    const response = await fetch("index.json", { cache: "no-cache" });
+    if (!response.ok) throw new Error(`index.json returned ${response.status}`);
+    state.index = await response.json();
   } catch (error) {
     main.textContent = "";
     main.append(el("p", { className: "status" },
-      "Could not load feed.json — ", el("code", { textContent: "news-digest run" }),
-      " has not published a feed yet.",
-    ));
+      "Could not load index.json — ", el("code", { textContent: "news-digest digest" }),
+      " has not published a digest yet."));
     console.error(error);
     return;
   }
 
-  const feed = state.feed;
-  document.title = feed.title;
-  document.getElementById("title").textContent = feed.title;
-  document.getElementById("subtitle").textContent = feed.subtitle || "";
-  document.getElementById("meta").append(
-    el("span", { textContent: `${feed.story_count} stories from ${feed.article_count} articles` }),
-    el("span", { textContent: `${feed.sources.length} sources` }),
-    el("span", { textContent: `updated ${ago(feed.generated_at)}`,
-                 title: feed.generated_at }),
-  );
+  const digests = state.index.digests || [];
+  if (!digests.length) {
+    main.textContent = "";
+    main.append(el("p", { className: "status" },
+      "No digests yet. Collect for a week, then run ",
+      el("code", { textContent: "news-digest digest" }), "."));
+    return;
+  }
 
-  document.getElementById("controls").hidden = false;
+  const picker = document.getElementById("week");
+  picker.textContent = "";
+  for (const entry of digests) {
+    picker.append(el("option", { value: entry.id,
+      textContent: `${entry.label} — ${entry.story_count} stories` }));
+  }
+  picker.hidden = digests.length < 2 || state.index.archive === false;
+  picker.addEventListener("change", (event) => loadDigest(event.target.value));
+
+  document.getElementById("bar").hidden = false;
   document.getElementById("search").addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
     render();
   });
-  renderTopics();
-  render();
+
+  const wanted = location.hash.replace(/^#/, "");
+  await loadDigest(digests.some(d => d.id === wanted) ? wanted : digests[0].id);
 }
 
 load();

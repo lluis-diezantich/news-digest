@@ -1,0 +1,561 @@
+{
+ "id": "2026-W36",
+ "label": "31 Aug – 7 Sep 2026",
+ "period_start": "2026-08-31T00:00:00+00:00",
+ "period_end": "2026-09-07T00:00:00+00:00",
+ "generated_at": "2026-09-13T19:06:09+00:00",
+ "story_count": 12,
+ "article_count": 12,
+ "title": "Weekly Digest",
+ "subtitle": "Curated from your sources in English, Spanish and Catalan",
+ "output_language": "en",
+ "topics": [
+  "general",
+  "politics",
+  "health",
+  "climate",
+  "economics",
+  "ai",
+  "culture"
+ ],
+ "publishers": [
+  {
+   "name": "El País",
+   "articles": 10
+  },
+  {
+   "name": "El Salto",
+   "articles": 1
+  },
+  {
+   "name": "Ara",
+   "articles": 1
+  }
+ ],
+ "languages": [
+  {
+   "code": "es",
+   "articles": 11
+  },
+  {
+   "code": "ca",
+   "articles": 1
+  }
+ ],
+ "stories": [
+  {
+   "id": "sf9f2ed50f46e8a0",
+   "headline": "Bill McKibben, activista: “La luz solar no tiene que pasar por el estrecho de Ormuz”",
+   "summary": "El estadounidense lanza en España un libro en el que defiende que la energía solar y las baterías no solo combaten la crisis climática, también son beneficiosas para la salud y un paso hacia la paz mundial",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "health",
+    "politics"
+   ],
+   "entities": [
+    "Bill McKibben",
+    "Ormuz",
+    "España"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.589,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-06T03:30:01+00:00",
+   "last_published": "2026-09-06T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "f9f2ed50f46e8a04",
+     "title": "Bill McKibben, activista: “La luz solar no tiene que pasar por el estrecho de Ormuz”",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-06/bill-mckibben-activista-la-luz-solar-no-tiene-que-pasar-por-el-estrecho-de-ormuz.html",
+     "language": "es",
+     "published_at": "2026-09-06T03:30:01+00:00",
+     "author": "Clemente Álvarez Andrés",
+     "summary": "El estadounidense lanza en España un libro en el que defiende que la energía solar y las baterías no solo combaten la crisis climática, también son beneficiosas para la salud y un paso hacia la paz mundial",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s4b20550a4141307",
+   "headline": "La toxicidad del embalse gallego de As Conchas llega a Portugal y los vecinos vuelven al juzgado por la inacción de Xunta y Gobierno",
+   "summary": "El pueblo de la presa contaminada por purines de cientos de granjas en Ourense presenta una demanda para la ejecución de la sentencia que condenó hace más de un año a las administraciones por vulnerar el derecho a la vida",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "As Conchas",
+    "Portugal",
+    "Xunta",
+    "Gobierno",
+    "Ourense"
+   ],
+   "importance": 0.47,
+   "relevance": 0.3,
+   "score": 2.461,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-03T08:36:52+00:00",
+   "last_published": "2026-09-03T08:36:52+00:00",
+   "articles": [
+    {
+     "id": "4b20550a41413072",
+     "title": "La toxicidad del embalse gallego de As Conchas llega a Portugal y los vecinos vuelven al juzgado por la inacción de Xunta y Gobierno",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/galicia/2026-09-03/la-toxicidad-del-embalse-gallego-de-as-conchas-llega-a-portugal-y-los-vecinos-vuelven-al-juzgado-por-la-inaccion-de-xunta-y-gobierno.html",
+     "language": "es",
+     "published_at": "2026-09-03T08:36:52+00:00",
+     "author": "Silvia Rodríguez Pontevedra",
+     "summary": "El pueblo de la presa contaminada por purines de cientos de granjas en Ourense presenta una demanda para la ejecución de la sentencia que condenó hace más de un año a las administraciones por vulnerar el derecho a la vida",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s8ef2c98087464e2",
+   "headline": "Furor, Fourier y Foote: el ser humano es capaz de alterar el clima del planeta, y lo está haciendo",
+   "summary": "No hay ninguna persona viva en España que haya conocido un verano tan cálido como el de 2026",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "climate"
+   ],
+   "entities": [
+    "Furor",
+    "Fourier",
+    "Foote",
+    "España"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.391,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-04T03:30:01+00:00",
+   "last_published": "2026-09-04T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "8ef2c98087464e2f",
+     "title": "Furor, Fourier y Foote: el ser humano es capaz de alterar el clima del planeta, y lo está haciendo",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-04/furor-fourier-y-foote-el-ser-humano-es-capaz-de-alterar-el-clima-del-planeta-y-lo-esta-haciendo.html",
+     "language": "es",
+     "published_at": "2026-09-04T03:30:01+00:00",
+     "author": "José Ángel Núñez",
+     "summary": "No hay ninguna persona viva en España que haya conocido un verano tan cálido como el de 2026",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s95da232e7f3dcb8",
+   "headline": "Álvaro Porro: “La alianza con las políticas públicas es multiplicadora”",
+   "summary": "Recorremos la evolución y los retos actuales de la coproducción de políticas públicas desde la economía social y solidaria: los avances de los últimos años, el papel de las instituciones y las alianzas necesarias para seguir consolidando este modelo. Temas principal: Economía…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "economics"
+   ],
+   "entities": [
+    "Porro",
+    "Recorremos",
+    "Temas",
+    "Economía",
+    "Leer"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.253,
+   "publishers": [
+    "El Salto"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-08-31T08:18:00+00:00",
+   "last_published": "2026-08-31T08:18:00+00:00",
+   "articles": [
+    {
+     "id": "95da232e7f3dcb8e",
+     "title": "Álvaro Porro: “La alianza con las políticas públicas es multiplicadora”",
+     "source": "El Salto",
+     "publisher": "El Salto",
+     "url": "https://www.elsaltodiario.com/mecambio/alvaro-porro-alianza-politicas-publicas-es-multiplicadora?utm_source=feed",
+     "language": "es",
+     "published_at": "2026-08-31T08:18:00+00:00",
+     "author": "María Atienza",
+     "summary": "Recorremos la evolución y los retos actuales de la coproducción de políticas públicas desde la economía social y solidaria: los avances de los últimos años, el papel de las instituciones y las alianzas necesarias para seguir consolidando este modelo. Temas principal: Economía…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s85b276db1b59cdd",
+   "headline": "Anar al metge sense cita i sense esperes",
+   "summary": "En un moment en què les llistes d'espera i la dificultat per obtenir una visita mèdica formen part del dia a dia de molts ciutadans, els serveis d'atenció continuada guanyen protagonisme. Sanitas aposta per aquest model amb centres sense cita prèvia que permeten donar una…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Anar",
+    "Sanitas",
+    "Centre Mèdic Sanitas Provença de Barcelona",
+    "Centre Mèdic Sanitas Sabadell"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.119,
+   "publishers": [
+    "Ara"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "ca"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-06T21:59:54+00:00",
+   "last_published": "2026-09-06T21:59:54+00:00",
+   "articles": [
+    {
+     "id": "85b276db1b59cdd7",
+     "title": "Anar al metge sense cita i sense esperes",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/especials/metge-cita-esperes_1_5787217.html",
+     "language": "ca",
+     "published_at": "2026-09-06T21:59:54+00:00",
+     "author": "Redacció",
+     "summary": "En un moment en què les llistes d'espera i la dificultat per obtenir una visita mèdica formen part del dia a dia de molts ciutadans, els serveis d'atenció continuada guanyen protagonisme. Sanitas aposta per aquest model amb centres sense cita prèvia que permeten donar una…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s1cae3f4436b46ae",
+   "headline": "Ciencia, cerdos y dinero: la carrera entre EE UU y China por hacer viables los trasplantes de animales a humanos",
+   "summary": "Técnicas como la edición genética CRISPR ya hacen posibles supervivencias cercanas al año, algo inaudito hasta hace poco",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Ciencia",
+    "EE UU",
+    "China",
+    "Técnicas",
+    "CRISPR"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.069,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-06T03:30:01+00:00",
+   "last_published": "2026-09-06T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "1cae3f4436b46ae4",
+     "title": "Ciencia, cerdos y dinero: la carrera entre EE UU y China por hacer viables los trasplantes de animales a humanos",
+     "source": "El País Ciencia",
+     "publisher": "El País",
+     "url": "https://elpais.com/ciencia/2026-09-06/ciencia-cerdos-y-dinero-la-carrera-entre-ee-uu-y-china-por-hacer-viables-los-trasplantes-de-animales-a-humanos.html",
+     "language": "es",
+     "published_at": "2026-09-06T03:30:01+00:00",
+     "author": "Daniel Mediavilla",
+     "summary": "Técnicas como la edición genética CRISPR ya hacen posibles supervivencias cercanas al año, algo inaudito hasta hace poco",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s04578426822937c",
+   "headline": "Una piara de donantes",
+   "summary": "El viejo sueño de los xenotrasplantes ha alcanzado al fin la madurez científica",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Una"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.069,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-06T03:30:01+00:00",
+   "last_published": "2026-09-06T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "04578426822937ce",
+     "title": "Una piara de donantes",
+     "source": "El País Ciencia",
+     "publisher": "El País",
+     "url": "https://elpais.com/ciencia/2026-09-06/una-piara-de-donantes.html",
+     "language": "es",
+     "published_at": "2026-09-06T03:30:01+00:00",
+     "author": "Javier Sampedro",
+     "summary": "El viejo sueño de los xenotrasplantes ha alcanzado al fin la madurez científica",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "se599aa3e73e5082",
+   "headline": "OpenAI lanza GPT-6 Astra, su modelo más potente, entre especulaciones sobre si han alcanzado la superinteligencia artificial",
+   "summary": "La empresa de Sam Altman, que está preparando su salida a Bolsa, asegura haber desarrollado una IA con capacidad sobrehumana, aunque él mismo dijo que ese término es más marketiniano que real",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "OpenAI",
+    "GPT-6 Astra",
+    "Sam Altman",
+    "Bolsa"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.068,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-04T13:46:11+00:00",
+   "last_published": "2026-09-04T13:46:11+00:00",
+   "articles": [
+    {
+     "id": "e599aa3e73e50823",
+     "title": "OpenAI lanza GPT-6 Astra, su modelo más potente, entre especulaciones sobre si han alcanzado la superinteligencia artificial",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-04/openai-lanza-gpt-6-astra-su-modelo-mas-potente-entre-especulaciones-sobre-si-han-alcanzado-la-superinteligencia-artificial.html",
+     "language": "es",
+     "published_at": "2026-09-04T13:46:11+00:00",
+     "author": "Manu González Pascual",
+     "summary": "La empresa de Sam Altman, que está preparando su salida a Bolsa, asegura haber desarrollado una IA con capacidad sobrehumana, aunque él mismo dijo que ese término es más marketiniano que real",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s04ca9c03a85a9d7",
+   "headline": "España pide una fuerza europea de reacción rápida ante emergencias climáticas financiada con tasas a petroleras y ‘jets’ privados",
+   "summary": "Transición Ecológica envía a Bruselas una propuesta para la creación de un fondo para proteger a la UE frente a los impactos del calentamiento global",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "España",
+    "Transición Ecológica",
+    "Bruselas"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.032,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-04T04:00:00+00:00",
+   "last_published": "2026-09-04T04:00:00+00:00",
+   "articles": [
+    {
+     "id": "04ca9c03a85a9d7d",
+     "title": "España pide una fuerza europea de reacción rápida ante emergencias climáticas financiada con tasas a petroleras y ‘jets’ privados",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-04/espana-pide-una-fuerza-europea-de-reaccion-rapida-ante-emergencias-climaticas-financiada-con-tasas-a-petroleras-y-jets-privados.html",
+     "language": "es",
+     "published_at": "2026-09-04T04:00:00+00:00",
+     "author": "Manuel Planelles",
+     "summary": "Transición Ecológica envía a Bruselas una propuesta para la creación de un fondo para proteger a la UE frente a los impactos del calentamiento global",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s7ffc4cac42a2c24",
+   "headline": "Edgar Gutiérrez-Espeleta, experto en sequías: “Se deben gestionar con anticipación, no de forma reactiva”",
+   "summary": "El investigador trabaja en un índice de resiliencia mundial frente al fenómeno y sugiere que la solución no depende solo de los ministerios de Medio Ambiente o Agricultura",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Edgar Gutiérrez-Espeleta",
+    "Medio Ambiente",
+    "Agricultura"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.031,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-04T03:30:01+00:00",
+   "last_published": "2026-09-04T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "7ffc4cac42a2c242",
+     "title": "Edgar Gutiérrez-Espeleta, experto en sequías: “Se deben gestionar con anticipación, no de forma reactiva”",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-04/edgar-gutierrez-espeleta-experto-en-sequias-se-deben-gestionar-con-anticipacion-no-de-forma-reactiva.html",
+     "language": "es",
+     "published_at": "2026-09-04T03:30:01+00:00",
+     "author": "Ángeles Lucas",
+     "summary": "El investigador trabaja en un índice de resiliencia mundial frente al fenómeno y sugiere que la solución no depende solo de los ministerios de Medio Ambiente o Agricultura",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s260f7309b493026",
+   "headline": "‘El Niño’ alcanzará su apogeo a finales de año y se extenderá hasta febrero: “Está adquiriendo enormes proporciones ante nuestros ojos”",
+   "summary": "La Organización Meteorológica Mundial actualiza sus pronósticos sobre este evento, que se prevé que sea muy intenso",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "El Niño",
+    "Está",
+    "La Organización Meteorológica Mundial"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.019,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-03T06:00:00+00:00",
+   "last_published": "2026-09-03T06:00:00+00:00",
+   "articles": [
+    {
+     "id": "260f7309b493026f",
+     "title": "‘El Niño’ alcanzará su apogeo a finales de año y se extenderá hasta febrero: “Está adquiriendo enormes proporciones ante nuestros ojos”",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-03/el-nino-alcanzara-su-apogeo-a-finales-de-ano-y-se-extendera-al-menos-hasta-febrero.html",
+     "language": "es",
+     "published_at": "2026-09-03T06:00:00+00:00",
+     "author": "Manuel Planelles",
+     "summary": "La Organización Meteorológica Mundial actualiza sus pronósticos sobre este evento, que se prevé que sea muy intenso",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sfc887b8200aa0ec",
+   "headline": "Lucia Rebolino, investigadora del ecocidio en Gaza: “Esas tierras contienen cuerpos, materiales tóxicos y aguas contaminadas”",
+   "summary": "La arquitecta y artista genovesa rastrea, desde Forensic Architecture, las huellas ambientales de la ofensiva de Israel",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "culture"
+   ],
+   "entities": [
+    "Lucia Rebolino",
+    "Gaza",
+    "Esas",
+    "Forensic Architecture",
+    "Israel"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 1.808,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-05T03:30:01+00:00",
+   "last_published": "2026-09-05T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "fc887b8200aa0ecf",
+     "title": "Lucia Rebolino, investigadora del ecocidio en Gaza: “Esas tierras contienen cuerpos, materiales tóxicos y aguas contaminadas”",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/clima-y-medio-ambiente/2026-09-05/lucia-rebolino-investigadora-del-ecocidio-en-gaza-esas-tierras-contienen-cuerpos-materiales-toxicos-y-aguas-contaminadas.html",
+     "language": "es",
+     "published_at": "2026-09-05T03:30:01+00:00",
+     "author": "Selva Vargas Reátegui",
+     "summary": "La arquitecta y artista genovesa rastrea, desde Forensic Architecture, las huellas ambientales de la ofensiva de Israel",
+     "content_type": null
+    }
+   ]
+  }
+ ]
+}

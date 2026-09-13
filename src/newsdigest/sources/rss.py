@@ -8,7 +8,7 @@ import feedparser
 
 from ..config import Source
 from ..models import Article, parse_date
-from ..text import strip_html, truncate
+from ..text import strip_boilerplate, strip_html, truncate
 from .base import SourceAdapter
 
 log = logging.getLogger(__name__)
@@ -99,7 +99,9 @@ class RSSAdapter(SourceAdapter):
                     url=link.strip(),
                     published_at=_published(entry),
                     author=_author(entry),
-                    description=truncate(description, source.excerpt_chars),
+                    description=truncate(
+                        strip_boilerplate(description), source.excerpt_chars
+                    ),
                     source_topics=sorted(set(source.topics + tags[:4])),
                     source_weight=source.weight,
                 )

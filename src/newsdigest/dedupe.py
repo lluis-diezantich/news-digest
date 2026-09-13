@@ -57,7 +57,7 @@ def dedupe(
     # Prefer the earliest-published copy when a batch carries several.
     ordered = sorted(
         articles,
-        key=lambda a: (a.published_at is None, a.published_at or a.fetched_at),
+        key=lambda a: (a.published_at is None, a.published_at or a.collected_at),
     )
     batch_ids: set[str] = set()
     batch_by_source: dict[str, list[tuple[str, str]]] = {}

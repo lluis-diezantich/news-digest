@@ -1,4 +1,4 @@
-.PHONY: help install test run offline check build stats clean
+.PHONY: help install test collect digest offline check build stats clean
 
 help:
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "%-10s %s\n", $$1, $$2}'
@@ -11,16 +11,19 @@ install:  ## create .venv and install the package with dev extras
 test:  ## run the test suite
 	.venv/bin/pytest -q
 
-run:  ## full pipeline using the configured LLM
-	.venv/bin/news-digest run
+collect:  ## daily pipeline: fetch, detect language, dedupe, store (no LLM)
+	.venv/bin/news-digest collect
 
-offline:  ## full pipeline with offline heuristic enrichment, no API key
-	.venv/bin/news-digest run --no-llm
+digest:  ## weekly pipeline: embed, cluster, LLM, rank, publish
+	.venv/bin/news-digest digest
+
+offline:  ## weekly pipeline with no API calls at all
+	.venv/bin/news-digest digest --no-llm --no-embeddings
 
 check:  ## fetch every enabled source once and report
 	.venv/bin/news-digest sources --check
 
-build:  ## regenerate docs/ from the existing database
+build:  ## regenerate docs/ from the database
 	.venv/bin/news-digest build
 
 stats:  ## summarize the database

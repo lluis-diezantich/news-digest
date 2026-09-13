@@ -34,6 +34,53 @@ def strip_html(value: str | None) -> str:
     return _WS_RE.sub(" ", text).strip()
 
 
+#: Markers that begin feed boilerplate: newsletter pitches, app promos and
+#: "read on" links that publishers append to every RSS description. Everything
+#: from the first match onwards is dropped.
+_BOILERPLATE_MARKERS = (
+    r"continue reading\.{0,3}",
+    # Publishers vary the wording -- "Get our breaking news email", "Get our new
+    # political email", "Get our morning app" -- so match the shape, not a phrase.
+    r"get our .{0,40}?(?:email|newsletter|app)\b",
+    r"listen to (?:the|our) .{0,60}?podcast",
+    r"sign up (?:for|to) ",
+    r"subscribe to ",
+    r"read more(?:\s+(?:here|at))?\b",
+    r"the post .{0,80} appeared first on",
+    r"suscr[i\u00ed]bete",
+    r"ap[u\u00fa]ntate a ",
+    r"sigue toda la actualidad",
+    r"segueix[- ]nos",
+    r"subscriu-te",
+)
+_BOILERPLATE_RE = re.compile("|".join(_BOILERPLATE_MARKERS), re.IGNORECASE)
+#: Floor on what stripping may leave. Deliberately low: a terse real excerpt
+#: ("This blog is now closed.") is more useful than a long promotional one, so
+#: this only guards against returning nothing at all.
+_MIN_KEPT_CHARS = 20
+
+
+def strip_boilerplate(value: str) -> str:
+    """Drop trailing newsletter and app promos from a feed description.
+
+    Publishers append the same paragraph to every item, which does three
+    unhelpful things: it shows up verbatim in summaries, it is billed as input
+    tokens on every article, and -- because it is identical across a publisher's
+    whole feed -- it makes unrelated articles from that publisher look alike.
+    Measured on two unrelated Guardian pieces, excerpt similarity fell from 0.099
+    to 0.000 once it was removed.
+    """
+    if not value:
+        return ""
+    match = _BOILERPLATE_RE.search(value)
+    if match is None:
+        return value
+    kept = value[: match.start()].strip(" \u2026-–—:;,")
+    # A marker near the very start means the whole excerpt is promo; in that case
+    # keeping the original is less bad than returning nothing.
+    return kept if len(kept) >= _MIN_KEPT_CHARS else value
+
+
 def truncate(value: str, limit: int) -> str:
     """Cut to `limit` characters on a word boundary, appending an ellipsis."""
     if limit <= 0 or len(value) <= limit:
@@ -106,6 +153,35 @@ def similarity(left: str, right: str) -> float:
     uni = jaccard(set(lt), set(rt))
     bi = jaccard(shingles(lt, 2), shingles(rt, 2))
     return 0.6 * uni + 0.4 * bi
+
+
+#: Below this many characters an excerpt carries no comparable signal.
+MIN_EXCERPT_CHARS = 80
+#: How much of `article_similarity` comes from the headline.
+TITLE_WEIGHT = 0.75
+
+
+def article_similarity(
+    title_a: str, excerpt_a: str, title_b: str, excerpt_b: str
+) -> float:
+    """Similarity between two articles, weighted towards the headline.
+
+    Measured on 37,776 real within-language pairs, both details here matter:
+
+    * The headline carries the signal. Comparing title+excerpt equally let two
+      differing excerpts drown a near-identical headline -- BBC's "Six dead, 130
+      missing after Indonesian ferry capsizes" against the Guardian's "At least
+      six dead and 130 missing after Indonesian ferry capsizes" scored 0.25,
+      below any usable threshold. Weighted, the same pair scores 0.49.
+    * A short excerpt must be ignored, not compared. Hacker News items carry no
+      description, and two empty strings look extremely similar -- which put
+      unrelated HN links at 0.28-0.34, above genuinely-matching articles.
+    """
+    title = similarity(title_a, title_b)
+    left, right = (excerpt_a or "").strip(), (excerpt_b or "").strip()
+    if len(left) < MIN_EXCERPT_CHARS or len(right) < MIN_EXCERPT_CHARS:
+        return title
+    return TITLE_WEIGHT * title + (1.0 - TITLE_WEIGHT) * similarity(left, right)
 
 
 def title_key(title: str) -> str:

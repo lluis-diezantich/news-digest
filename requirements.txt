@@ -4,3 +4,5 @@ PyYAML>=6.0
 requests>=2.32
 python-dateutil>=2.9
 beautifulsoup4>=4.12
+py3langid>=0.3
+numpy>=1.26

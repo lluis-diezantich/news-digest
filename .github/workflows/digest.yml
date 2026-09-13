@@ -1,37 +1,40 @@
-name: Update digest
+name: Build weekly digest
 
-# Runs the whole pipeline and commits the results back to the repository:
-# docs/ is what GitHub Pages serves, data/news.db is the state that makes
-# deduplication and story continuity work across runs.
+# The weekly pipeline: embed, cluster across languages, LLM analysis, rank,
+# publish. This is where every API call happens.
 
 on:
   schedule:
-    # Every three hours, deliberately off the hour -- scheduled jobs on the hour
-    # queue behind everyone else's and can be delayed by many minutes.
-    - cron: "17 */3 * * *"
+    # Monday morning, covering the Monday-to-Sunday week that just finished.
+    # Off the hour: scheduled jobs on the hour queue behind everyone else's.
+    - cron: "41 6 * * 1"
   workflow_dispatch:
     inputs:
+      week:
+        description: "ISO week to build, e.g. 2026-W36 (default: last week)"
+        type: string
+        default: ""
       no_llm:
         description: "Skip the LLM and use offline heuristic enrichment"
         type: boolean
         default: false
-      limit:
-        description: "Max articles to send to the LLM this run"
-        type: string
-        default: ""
+      no_embeddings:
+        description: "Skip embeddings (clustering becomes within-language only)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
-# Two runs writing data/news.db at once would race on the commit.
+# Shares a group with collection: both commit data/news.db.
 concurrency:
-  group: digest
+  group: news-digest-state
   cancel-in-progress: false
 
 jobs:
   digest:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -47,35 +50,41 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Run pipeline
+      - name: Build digest
         env:
           # Add GEMINI_API_KEY under Settings -> Secrets and variables -> Actions.
-          # Without it the run still succeeds, using offline heuristic enrichment.
+          # Without it the run still succeeds: enrichment falls back to offline
+          # heuristics and clustering to within-language text similarity, which
+          # leaves cross-language coverage split. The digest still publishes.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-2.5-flash' }}
-          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '60' }}
+          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '400' }}
+          EMBEDDING_PROVIDER: ${{ vars.EMBEDDING_PROVIDER || 'gemini' }}
+          EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'gemini-embedding-2' }}
+          EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '256' }}
           SITE_URL: ${{ vars.SITE_URL }}
           NEWS_DIGEST_USER_AGENT: >-
-            news-digest/0.1 (+https://github.com/${{ github.repository }})
+            news-digest/0.2 (+https://github.com/${{ github.repository }})
         run: |
-          news-digest run \
+          news-digest digest \
             ${{ inputs.no_llm && '--no-llm' || '' }} \
-            ${{ inputs.limit && format('--limit {0}', inputs.limit) || '' }} \
-            | tee run-summary.txt
+            ${{ inputs.no_embeddings && '--no-embeddings' || '' }} \
+            ${{ inputs.week && format('--week {0}', inputs.week) || '' }} \
+            | tee digest-summary.txt
 
       - name: Job summary
         if: always()
         run: |
           {
-            echo "### Digest run"
+            echo "### Weekly digest"
             echo '```'
-            cat run-summary.txt 2>/dev/null || echo "the pipeline produced no summary"
+            cat digest-summary.txt 2>/dev/null || echo "no summary produced"
             echo '```'
             news-digest stats || true
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit feed and state
+      - name: Commit digest and state
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -84,8 +93,7 @@ jobs:
             echo "nothing changed"
             exit 0
           fi
-          git commit -m "chore: update digest $(date -u +'%Y-%m-%d %H:%M UTC')"
-          # Another run may have pushed while this one worked; rebase and retry.
+          git commit -m "chore: weekly digest $(date -u +'%Y-%m-%d')"
           for attempt in 1 2 3; do
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
               git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0

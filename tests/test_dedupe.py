@@ -8,15 +8,13 @@ def test_same_canonical_url_is_dropped():
     a = make_article("Rates rise", url="https://x.example/a?utm_source=rss")
     b = make_article("Rates rise", url="https://www.x.example/a")
     keep, dropped = dedupe([a, b])
-    assert len(keep) == 1
-    assert len(dropped) == 1
+    assert len(keep) == 1 and len(dropped) == 1
 
 
 def test_known_id_is_dropped():
     a = make_article("Rates rise")
     keep, dropped = dedupe([a], known_ids={a.id})
-    assert keep == []
-    assert dropped[0].reason == "already stored"
+    assert keep == [] and dropped[0].reason == "already stored"
 
 
 def test_same_source_rerun_is_dropped():
@@ -25,12 +23,10 @@ def test_same_source_rerun_is_dropped():
     keep, dropped = dedupe([a, b])
     assert len(keep) == 1
     assert "re-run" in dropped[0].reason
-    # The earliest copy is the one kept.
-    assert keep[0].url == "https://x.example/1"
+    assert keep[0].url == "https://x.example/1"  # earliest copy kept
 
 
 def test_distinct_same_source_articles_survive():
-    """The threshold must not swallow a follow-up story from the same outlet."""
     a = make_article("Storm hits the coast overnight", url="https://x.example/1")
     b = make_article("Storm death toll rises to twelve", url="https://x.example/2")
     keep, _ = dedupe([a, b])
@@ -39,10 +35,10 @@ def test_distinct_same_source_articles_survive():
 
 def test_stored_headline_from_same_source_is_dropped():
     a = make_article("Budget passes parliament", source="Wire")
-    fingerprints = [("old", title_key("Parliament passes budget"), "Wire")]
-    keep, dropped = dedupe([a], known_fingerprints=fingerprints)
-    assert keep == []
-    assert "stored headline" in dropped[0].reason
+    keep, dropped = dedupe(
+        [a], known_fingerprints=[("old", title_key("Parliament passes budget"), "Wire")]
+    )
+    assert keep == [] and "stored headline" in dropped[0].reason
 
 
 def test_other_outlets_are_not_duplicates():
@@ -50,8 +46,17 @@ def test_other_outlets_are_not_duplicates():
     a = make_article("Budget passes parliament", source="BBC")
     b = make_article("Budget passes parliament", source="Guardian")
     keep, dropped = dedupe([a, b])
+    assert len(keep) == 2 and dropped == []
+
+
+def test_translations_are_not_duplicates():
+    """One publisher's Spanish and English editions are separate articles."""
+    es = make_article("La UE anuncia nuevas sanciones", source="El País",
+                      publisher="El País", language="es")
+    en = make_article("EU announces new sanctions", source="El País (English)",
+                      publisher="El País", language="en")
+    keep, _ = dedupe([es, en])
     assert len(keep) == 2
-    assert dropped == []
 
 
 def test_untitled_article_is_dropped():
@@ -59,5 +64,4 @@ def test_untitled_article_is_dropped():
     b = make_article("x")
     b.title = ""
     keep, dropped = dedupe([a, b])
-    assert len(keep) == 1
-    assert dropped[0].reason == "incomplete"
+    assert len(keep) == 1 and dropped[0].reason == "incomplete"

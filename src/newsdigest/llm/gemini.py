@@ -1,12 +1,11 @@
 """Google Gemini provider (free tier).
 
 Uses the REST endpoint directly with `requests` -- one fewer dependency than the
-SDK, and `responseSchema` makes the JSON contract explicit and machine-checked.
+SDK, and `responseSchema` makes the JSON contract explicit and server-enforced.
 
-Free-tier quotas are per-minute and per-day, so the pipeline batches many
-articles into one call and caches every result by content hash; see
-`enrich.py`. A 429 raises LLMQuotaError, which stops LLM work for the run
-without failing it -- unenriched articles are simply picked up next time.
+Free-tier quotas are per-minute and per-day, so calls are batched and every
+result is cached by content hash. A 429 raises LLMQuotaError, which stops LLM
+work for the run without failing it.
 """
 
 from __future__ import annotations
@@ -19,22 +18,26 @@ import time
 import requests
 
 from .base import (
-    BRIEF_SYSTEM_PROMPT,
-    ENRICH_SYSTEM_PROMPT,
+    SAME_EVENT_SYSTEM_PROMPT,
     Brief,
     BriefInput,
+    Context,
     Enrichment,
     EnrichInput,
     LLMError,
     LLMProvider,
     LLMQuotaError,
+    PairInput,
+    brief_system_prompt,
+    enrich_system_prompt,
 )
 
 log = logging.getLogger(__name__)
 
 API_ROOT = "https://generativelanguage.googleapis.com/v1beta/models"
 
-# OpenAPI-subset schema Gemini validates its output against.
+_STRINGS = {"type": "array", "items": {"type": "string"}}
+
 ENRICH_SCHEMA = {
     "type": "array",
     "items": {
@@ -43,19 +46,19 @@ ENRICH_SCHEMA = {
             "id": {"type": "string"},
             "summary": {"type": "string"},
             "why_it_matters": {"type": "string"},
-            "topics": {"type": "array", "items": {"type": "string"}},
-            "entities": {"type": "array", "items": {"type": "string"}},
+            "key_facts": _STRINGS,
+            "topics": _STRINGS,
+            "entities": _STRINGS,
             "importance": {"type": "number"},
-            "event_label": {"type": "string"},
+            "relevance": {"type": "number"},
+            "content_type": {
+                "type": "string",
+                "enum": ["reporting", "analysis", "opinion", "other"],
+            },
         },
         "required": [
-            "id",
-            "summary",
-            "why_it_matters",
-            "topics",
-            "entities",
-            "importance",
-            "event_label",
+            "id", "summary", "why_it_matters", "key_facts", "topics",
+            "entities", "importance", "relevance", "content_type",
         ],
     },
 }
@@ -66,9 +69,24 @@ BRIEF_SCHEMA = {
         "headline": {"type": "string"},
         "summary": {"type": "string"},
         "why_it_matters": {"type": "string"},
-        "topics": {"type": "array", "items": {"type": "string"}},
+        "key_facts": _STRINGS,
+        "topics": _STRINGS,
+        "importance": {"type": "number"},
+        "relevance": {"type": "number"},
     },
-    "required": ["headline", "summary", "why_it_matters", "topics"],
+    "required": ["headline", "summary", "why_it_matters", "key_facts", "topics"],
+}
+
+SAME_EVENT_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "key": {"type": "string"},
+            "same_event": {"type": "boolean"},
+        },
+        "required": ["key", "same_event"],
+    },
 }
 
 
@@ -128,9 +146,7 @@ class GeminiProvider(LLMProvider):
                 self._backoff(attempt)
                 continue
             if response.status_code != 200:
-                raise LLMError(
-                    f"gemini {response.status_code}: {_short(response.text)}"
-                )
+                raise LLMError(f"gemini {response.status_code}: {_short(response.text)}")
             return self._extract_text(response.json())
 
         raise LLMError(f"gemini unreachable after {self.max_retries} attempts: {last_error}")
@@ -161,7 +177,7 @@ class GeminiProvider(LLMProvider):
 
     # -- LLMProvider --------------------------------------------------------
 
-    def enrich(self, items: list[EnrichInput]) -> list[Enrichment]:
+    def enrich(self, items: list[EnrichInput], context: Context) -> list[Enrichment]:
         if not items:
             return []
         prompt = json.dumps(
@@ -170,6 +186,7 @@ class GeminiProvider(LLMProvider):
                     "id": item.id,
                     "title": item.title,
                     "source": item.source,
+                    "language": item.language,
                     "published": item.published,
                     "excerpt": item.excerpt,
                 }
@@ -178,8 +195,7 @@ class GeminiProvider(LLMProvider):
             ensure_ascii=False,
             indent=1,
         )
-        raw = self._generate(ENRICH_SYSTEM_PROMPT, prompt, ENRICH_SCHEMA)
-        data = _parse_json(raw)
+        data = _parse_json(self._generate(enrich_system_prompt(context), prompt, ENRICH_SCHEMA))
         if isinstance(data, dict):
             data = [data]
         if not isinstance(data, list):
@@ -202,29 +218,33 @@ class GeminiProvider(LLMProvider):
                     id=article_id,
                     summary=summary,
                     why_it_matters=str(entry.get("why_it_matters", "")).strip(),
+                    key_facts=list(entry.get("key_facts") or []),
                     topics=list(entry.get("topics") or []),
                     entities=list(entry.get("entities") or []),
                     importance=entry.get("importance", 0.5),
-                    event_label=str(entry.get("event_label", "")),
+                    relevance=entry.get("relevance", 0.5),
+                    content_type=entry.get("content_type"),
                 ).clamp()
             )
         return results
 
-    def write_brief(self, item: BriefInput) -> Brief | None:
+    def write_brief(self, item: BriefInput, context: Context) -> Brief | None:
         payload = {
             "coverage": [
-                {"source": source, "headline": headline, "excerpt": excerpt}
-                for source, headline, excerpt in zip(
-                    item.sources, item.headlines, item.excerpts
+                {"source": source, "language": language, "headline": headline,
+                 "excerpt": excerpt}
+                for source, language, headline, excerpt in zip(
+                    item.sources, item.languages, item.headlines, item.excerpts
                 )
             ]
         }
-        raw = self._generate(
-            BRIEF_SYSTEM_PROMPT,
-            json.dumps(payload, ensure_ascii=False, indent=1),
-            BRIEF_SCHEMA,
+        data = _parse_json(
+            self._generate(
+                brief_system_prompt(context),
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                BRIEF_SCHEMA,
+            )
         )
-        data = _parse_json(raw)
         if not isinstance(data, dict):
             return None
         headline = str(data.get("headline", "")).strip()
@@ -235,15 +255,53 @@ class GeminiProvider(LLMProvider):
             headline=headline,
             summary=summary,
             why_it_matters=str(data.get("why_it_matters", "")).strip(),
+            key_facts=[str(f).strip() for f in (data.get("key_facts") or [])][:4],
             topics=[str(t).strip().lower() for t in (data.get("topics") or [])][:4],
+            importance=_optional_float(data.get("importance")),
+            relevance=_optional_float(data.get("relevance")),
         )
+
+    def same_event(self, pairs: list[PairInput], context: Context) -> dict[str, bool]:
+        if not pairs:
+            return {}
+        payload = [
+            {
+                "key": pair.key,
+                "a": {"title": pair.left_title, "language": pair.left_language,
+                      "excerpt": pair.left_excerpt},
+                "b": {"title": pair.right_title, "language": pair.right_language,
+                      "excerpt": pair.right_excerpt},
+            }
+            for pair in pairs
+        ]
+        data = _parse_json(
+            self._generate(
+                SAME_EVENT_SYSTEM_PROMPT,
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                SAME_EVENT_SCHEMA,
+            )
+        )
+        if not isinstance(data, list):
+            return {}
+        wanted = {pair.key for pair in pairs}
+        verdicts: dict[str, bool] = {}
+        for entry in data:
+            if isinstance(entry, dict) and str(entry.get("key")) in wanted:
+                verdicts[str(entry["key"])] = bool(entry.get("same_event"))
+        return verdicts
+
+
+def _optional_float(value) -> float | None:
+    try:
+        return min(1.0, max(0.0, float(value)))
+    except (TypeError, ValueError):
+        return None
 
 
 def _parse_json(raw: str):
     try:
         return json.loads(raw)
     except json.JSONDecodeError as exc:
-        # responseSchema makes this rare, but a truncated response is possible.
         raise LLMError(f"gemini returned invalid JSON: {exc}; got {_short(raw)}") from exc
 
 

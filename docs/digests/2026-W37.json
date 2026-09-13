@@ -1,0 +1,1382 @@
+{
+ "id": "2026-W37",
+ "label": "7–14 September 2026",
+ "period_start": "2026-09-07T00:00:00+00:00",
+ "period_end": "2026-09-14T00:00:00+00:00",
+ "generated_at": "2026-09-13T19:06:11+00:00",
+ "story_count": 30,
+ "article_count": 32,
+ "title": "Weekly Digest",
+ "subtitle": "Curated from your sources in English, Spanish and Catalan",
+ "output_language": "en",
+ "topics": [
+  "politics",
+  "ai",
+  "world",
+  "technology",
+  "general",
+  "economics",
+  "science",
+  "health"
+ ],
+ "publishers": [
+  {
+   "name": "El País",
+   "articles": 19
+  },
+  {
+   "name": "The Guardian World",
+   "articles": 6
+  },
+  {
+   "name": "BBC World",
+   "articles": 5
+  },
+  {
+   "name": "VilaWeb",
+   "articles": 1
+  },
+  {
+   "name": "Nació Digital",
+   "articles": 1
+  }
+ ],
+ "languages": [
+  {
+   "code": "es",
+   "articles": 19
+  },
+  {
+   "code": "en",
+   "articles": 11
+  },
+  {
+   "code": "ca",
+   "articles": 2
+  }
+ ],
+ "stories": [
+  {
+   "id": "s60bcd7af55eab81",
+   "headline": "Trump rechaza las advertencias sobre los riesgos de la IA",
+   "summary": "El presidente sostiene que Estados Unidos necesita mantener su ventaja frente a China en la carrera por el desarrollo de esta tecnología",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [
+    "Trump",
+    "Estados Unidos",
+    "China"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.188,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T17:31:37+00:00",
+   "last_published": "2026-09-13T17:31:37+00:00",
+   "articles": [
+    {
+     "id": "60bcd7af55eab816",
+     "title": "Trump rechaza las advertencias sobre los riesgos de la IA",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/trump-rechaza-las-advertencias-sobre-los-riesgos-de-la-ia.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:31:37+00:00",
+     "author": "Macarena Vidal Liy",
+     "summary": "El presidente sostiene que Estados Unidos necesita mantener su ventaja frente a China en la carrera por el desarrollo de esta tecnología",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s8ba0d4b8f630d2b",
+   "headline": "Demis Hassabis, líder de la IA en Google, se suma a la propuesta de ralentizar su desarrollo: “Es el camino correcto”",
+   "summary": "El premio Nobel aplaude la petición de Dario Amodei, que también respaldaron Sam Altman y Elon Musk, de introducir auditores externos en las grandes compañías de inteligencia artificial",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [
+    "Demis Hassabis",
+    "Google",
+    "Nobel",
+    "Dario Amodei",
+    "Sam Altman",
+    "Elon Musk"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.142,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T09:05:44+00:00",
+   "last_published": "2026-09-13T09:05:44+00:00",
+   "articles": [
+    {
+     "id": "8ba0d4b8f630d2b0",
+     "title": "Demis Hassabis, líder de la IA en Google, se suma a la propuesta de ralentizar su desarrollo: “Es el camino correcto”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-13/demis-hassabis-lider-de-la-ia-en-google-se-suma-a-la-propuesta-de-ralentizar-su-desarrollo-es-el-camino-correcto.html",
+     "language": "es",
+     "published_at": "2026-09-13T09:05:44+00:00",
+     "author": "Javier Salas",
+     "summary": "El premio Nobel aplaude la petición de Dario Amodei, que también respaldaron Sam Altman y Elon Musk, de introducir auditores externos en las grandes compañías de inteligencia artificial",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sf743fa8cfdbc08e",
+   "headline": "Los riesgos de la IA según los que la han visto desde dentro: “El mundo no está preparado y nosotros no estamos preparados”",
+   "summary": "Una decena de investigadores, directivos y expertos que abandonaron OpenAI, Google o Anthropic han alertado en los últimos años de fallos de seguridad, usos militares y sistemas cada vez más difíciles de controlar por estas compañías. Estos son sus temores",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [
+    "Los",
+    "Una",
+    "OpenAI",
+    "Google",
+    "Anthropic",
+    "Estos"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.127,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-12T03:30:01+00:00",
+   "last_published": "2026-09-12T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "f743fa8cfdbc08e9",
+     "title": "Los riesgos de la IA según los que la han visto desde dentro: “El mundo no está preparado y nosotros no estamos preparados”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-12/los-riesgos-de-la-ia-segun-los-que-la-han-visto-desde-dentro-el-mundo-no-esta-preparado-y-nosotros-no-estamos-preparados.html",
+     "language": "es",
+     "published_at": "2026-09-12T03:30:01+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "Una decena de investigadores, directivos y expertos que abandonaron OpenAI, Google o Anthropic han alertado en los últimos años de fallos de seguridad, usos militares y sistemas cada vez más difíciles de controlar por estas compañías. Estos son sus temores",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s24ad2469c03732b",
+   "headline": "La resistencia contra la IA gana fuerza",
+   "summary": "La concienciación de los extraordinarios peligros de la tecnología espolea un creciente y multifacético movimiento de oposición y sabotaje contra ella",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.113,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:01+00:00",
+   "last_published": "2026-09-13T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "24ad2469c03732bd",
+     "title": "La resistencia contra la IA gana fuerza",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-13/la-resistencia-contra-la-ia-gana-fuerza.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Andrea Rizzi",
+     "summary": "La concienciación de los extraordinarios peligros de la tecnología espolea un creciente y multifacético movimiento de oposición y sabotaje contra ella",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "saa62dbe91800569",
+   "headline": "Train carrying Boris Johnson and ex-CIA chief may have been targeted in Russian strike, officials say",
+   "summary": "Ukrainian Railways says former British PM and David Petraeus crossed into Poland shortly before drone attack near border A train carrying Boris Johnson and the former CIA chief David Petraeus may have been the target of a Russian drone strike that hit a train engine near the…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics",
+    "world"
+   ],
+   "entities": [
+    "Train",
+    "Boris Johnson",
+    "CIA",
+    "Russian",
+    "Ukrainian Railways",
+    "British PM"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.109,
+   "publishers": [
+    "The Guardian World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T17:43:03+00:00",
+   "last_published": "2026-09-13T17:43:03+00:00",
+   "articles": [
+    {
+     "id": "aa62dbe918005690",
+     "title": "Train carrying Boris Johnson and ex-CIA chief may have been targeted in Russian strike, officials say",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/russian-drone-hits-kyiv-warsaw-passenger-train-polish-border",
+     "language": "en",
+     "published_at": "2026-09-13T17:43:03+00:00",
+     "author": "Amy Hawkins and Charlotte Higgins in Kyiv",
+     "summary": "Ukrainian Railways says former British PM and David Petraeus crossed into Poland shortly before drone attack near border A train carrying Boris Johnson and the former CIA chief David Petraeus may have been the target of a Russian drone strike that hit a train engine near the…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s8da0acbcb931d7d",
+   "headline": "Los líderes de la IA alertan de que esta tecnología crece demasiado rápido",
+   "summary": "OpenIA se muestra favorable a permitir el acceso a los evaluadores mientras Dario Amodei advierte de que en 6 o 12 meses un enjambre de agentes descontrolados de un sistema de IA podría “controlar todo internet” y causar “cientos de miles de millones de dólares en daños”",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [
+    "Los",
+    "OpenIA",
+    "Dario Amodei"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 3.096,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T00:05:23+00:00",
+   "last_published": "2026-09-13T00:05:23+00:00",
+   "articles": [
+    {
+     "id": "8da0acbcb931d7d6",
+     "title": "Los líderes de la IA alertan de que esta tecnología crece demasiado rápido",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-12/el-director-general-de-anthropic-pide-ralentizar-el-progreso-de-la-ia-y-que-todas-las-empresas-admitan-verificadores-externos.html",
+     "language": "es",
+     "published_at": "2026-09-13T00:05:23+00:00",
+     "author": "Macarena Vidal Liy",
+     "summary": "OpenIA se muestra favorable a permitir el acceso a los evaluadores mientras Dario Amodei advierte de que en 6 o 12 meses un enjambre de agentes descontrolados de un sistema de IA podría “controlar todo internet” y causar “cientos de miles de millones de dólares en daños”",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sd1c6aa17687a1f2",
+   "headline": "Iran war reshapes Brics ties but also exposes divisions",
+   "summary": "Brics members agree they need a new global order but it's harder to answer what should replace it and how to get there.",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Iran",
+    "Brics"
+   ],
+   "importance": 0.47,
+   "relevance": 0.5,
+   "score": 2.984,
+   "publishers": [
+    "BBC World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T11:23:42+00:00",
+   "last_published": "2026-09-13T11:23:42+00:00",
+   "articles": [
+    {
+     "id": "d1c6aa17687a1f20",
+     "title": "Iran war reshapes Brics ties but also exposes divisions",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/ce8767g4jdpo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T11:23:42+00:00",
+     "author": null,
+     "summary": "Brics members agree they need a new global order but it's harder to answer what should replace it and how to get there.",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "se7170b51b787c2c",
+   "headline": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+   "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Indonesian",
+    "Java Sea",
+    "Virgo Transport",
+    "Search",
+    "Java Sea Rescue",
+    "Indonesia",
+    "Java",
+    "Borneo"
+   ],
+   "importance": 0.5,
+   "relevance": 0.3,
+   "score": 2.969,
+   "publishers": [
+    "BBC World",
+    "The Guardian World"
+   ],
+   "publisher_count": 2,
+   "languages": [
+    "en"
+   ],
+   "article_count": 2,
+   "first_published": "2026-09-13T12:18:49+00:00",
+   "last_published": "2026-09-13T13:30:38+00:00",
+   "articles": [
+    {
+     "id": "021e83f3e97f6e47",
+     "title": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cvgykzgljlyo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T13:30:38+00:00",
+     "author": null,
+     "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+     "content_type": null
+    },
+    {
+     "id": "323941e4965faec7",
+     "title": "At least six dead and 130 missing after Indonesian ferry capsizes, officials say",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/indonesian-rescue-crews-searching-for-140-people-after-ferry-hit-bad-weather",
+     "language": "en",
+     "published_at": "2026-09-13T12:18:49+00:00",
+     "author": "Jon Henley and agencies",
+     "summary": "Search and rescue agency says 107 people brought to safety from vessel hit by bad weather in Java Sea Rescue workers in Indonesia said at least six people had died and 130 others were missing on Sunday after a ferry sailing between the islands of Java and Borneo capsized in bad…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s44673dc5ec119d3",
+   "headline": "Los bancos centrales vuelven a la carga contra la inflación (esta vez será diferente)",
+   "summary": "El BCE y otros suben los tipos de interés para enfriar los precios. Se espera lo mismo en Estados Unidos.",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "economics"
+   ],
+   "entities": [
+    "Los",
+    "El BCE",
+    "Estados Unidos",
+    "Pero"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.954,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:45:01+00:00",
+   "last_published": "2026-09-13T03:45:01+00:00",
+   "articles": [
+    {
+     "id": "44673dc5ec119d39",
+     "title": "Los bancos centrales vuelven a la carga contra la inflación (esta vez será diferente)",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/2026-09-13/los-bancos-centrales-vuelven-a-la-carga-contra-la-inflacion-esta-vez-sera-diferente.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:45:01+00:00",
+     "author": "Amanda Mars",
+     "summary": "El BCE y otros suben los tipos de interés para enfriar los precios. Se espera lo mismo en Estados Unidos.",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "se7a4322508e5d09",
+   "headline": "La cámara de los 200.000 millones: Londres retiene su estatus como custodio del oro de 70 países",
+   "summary": "El Banco de Inglaterra es el segundo mayor depositario del mundo, y su mercado de lingotes, el centro mundial de las transacciones",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "economics"
+   ],
+   "entities": [
+    "Londres",
+    "El Banco de Inglaterra"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.954,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:45:01+00:00",
+   "last_published": "2026-09-13T03:45:01+00:00",
+   "articles": [
+    {
+     "id": "e7a4322508e5d09f",
+     "title": "La cámara de los 200.000 millones: Londres retiene su estatus como custodio del oro de 70 países",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/2026-09-13/la-camara-de-los-200000-millones-londres-retiene-su-estatus-como-custodio-del-oro-de-70-paises.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:45:01+00:00",
+     "author": "Rafa De Miguel",
+     "summary": "El Banco de Inglaterra es el segundo mayor depositario del mundo, y su mercado de lingotes, el centro mundial de las transacciones",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s9e78d2b831d558e",
+   "headline": "La macro bien. ¿Y la micro?",
+   "summary": "Los votantes piensan que la economía va peor cuando no gobiernan los suyos, al margen de lo que muestren los datos",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "economics"
+   ],
+   "entities": [
+    "Los"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.953,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:00+00:00",
+   "last_published": "2026-09-13T03:30:00+00:00",
+   "articles": [
+    {
+     "id": "9e78d2b831d558e1",
+     "title": "La macro bien. ¿Y la micro?",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/negocios/2026-09-13/la-macro-bien-y-la-micro.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:00+00:00",
+     "author": "Ángel Ubide",
+     "summary": "Los votantes piensan que la economía va peor cuando no gobiernan los suyos, al margen de lo que muestren los datos",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s6ff8d70bb4bfc03",
+   "headline": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
+   "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Los",
+    "Suecia",
+    "Las"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.946,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:54:23+00:00",
+   "last_published": "2026-09-13T18:54:23+00:00",
+   "articles": [
+    {
+     "id": "6ff8d70bb4bfc037",
+     "title": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/los-socialdemocratas-ganan-las-elecciones-en-suecia-segun-los-sondeos-a-pie-de-urna.html",
+     "language": "es",
+     "published_at": "2026-09-13T18:54:23+00:00",
+     "author": "Carlos Torralba",
+     "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s8d552fdd40f3b30",
+   "headline": "Trump downplays warnings of AI risks, citing rivalry with China",
+   "summary": "The US President said \"negative forces\" were airing concerns about \"things that won't happen\".",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "politics"
+   ],
+   "entities": [
+    "Trump",
+    "China",
+    "US President"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.945,
+   "publishers": [
+    "BBC World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:49:37+00:00",
+   "last_published": "2026-09-13T18:49:37+00:00",
+   "articles": [
+    {
+     "id": "8d552fdd40f3b306",
+     "title": "Trump downplays warnings of AI risks, citing rivalry with China",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T18:49:37+00:00",
+     "author": null,
+     "summary": "The US President said \"negative forces\" were airing concerns about \"things that won't happen\".",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sbe5304f41f09442",
+   "headline": "Trump doubles down on united Ireland comments on day two of visit",
+   "summary": "The US president was speaking at the Irish Open on Sunday and said \"many people agree\" with his comments.",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Trump",
+    "Ireland",
+    "Irish Open"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.945,
+   "publishers": [
+    "BBC World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:49:28+00:00",
+   "last_published": "2026-09-13T18:49:28+00:00",
+   "articles": [
+    {
+     "id": "be5304f41f094424",
+     "title": "Trump doubles down on united Ireland comments on day two of visit",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cx2z79n0eeno?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T18:49:28+00:00",
+     "author": null,
+     "summary": "The US president was speaking at the Irish Open on Sunday and said \"many people agree\" with his comments.",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s4de554cff0038da",
+   "headline": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+   "summary": "Un dels aparells ha impactat a un quilòmetre de la frontera polonesa · Un tren de passatgers que feia el trajecte entre Kíiv i Varsòvia ha sofert danys materials",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Rússia",
+    "Ucraïna",
+    "Polònia",
+    "Kíiv",
+    "Varsòvia",
+    "Defensa"
+   ],
+   "importance": 0.38,
+   "relevance": 0.5,
+   "score": 2.921,
+   "publishers": [
+    "Nació Digital",
+    "VilaWeb"
+   ],
+   "publisher_count": 2,
+   "languages": [
+    "ca"
+   ],
+   "article_count": 2,
+   "first_published": "2026-09-13T13:47:48+00:00",
+   "last_published": "2026-09-13T13:51:25+00:00",
+   "articles": [
+    {
+     "id": "f577587187b1be57",
+     "title": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/russia-ataca-drons-frontera-ucraina-polonia/",
+     "language": "ca",
+     "published_at": "2026-09-13T13:51:25+00:00",
+     "author": null,
+     "summary": "Un dels aparells ha impactat a un quilòmetre de la frontera polonesa · Un tren de passatgers que feia el trajecte entre Kíiv i Varsòvia ha sofert danys materials",
+     "content_type": null
+    },
+    {
+     "id": "562b21cec9b973ee",
+     "title": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/internacional/russia-ataca-amb-drons-la-frontera-ducraina-amb-polonia.html",
+     "language": "ca",
+     "published_at": "2026-09-13T13:47:48+00:00",
+     "author": "Pau Espí Solé",
+     "summary": "Rússia ha atacat amb drons l’oest d’ Ucraïna , a prop de la frontera amb Polònia , segons han denunciat les autoritats dels dos països. Un tren de passatgers que cobria el trajecte entre Kíiv i Varsòvia ha patit danys, tot i que no s’han registrat víctimes mortals .",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s264d1c3c15f28c1",
+   "headline": "Sweden election: exit polls project centre-left government and bad night for the far-right – live",
+   "summary": "Initial projections put centre-left opposition bloc at 51.3%, with 46.8% for rightwing parties; result worse than expected for far right Sweden Democrats Swedish election – full report If you’re looking just for a single story to quickly catch up on the story of tonight, let’s…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Sweden",
+    "Initial",
+    "Sweden Democrats Swedish",
+    "Nordic",
+    "Miranda Bryant",
+    "Sweden Democrats"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.915,
+   "publishers": [
+    "The Guardian World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:47:52+00:00",
+   "last_published": "2026-09-13T18:47:52+00:00",
+   "articles": [
+    {
+     "id": "264d1c3c15f28c13",
+     "title": "Sweden election: exit polls project centre-left government and bad night for the far-right – live",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/live/2026/sep/13/sweden-general-election-social-democrats-magdalena-sweden-democrats-ulf-kristersson-andersson-far-right-europe-latest-news-updates",
+     "language": "en",
+     "published_at": "2026-09-13T18:47:52+00:00",
+     "author": "Jakub Krupa in Stockholm",
+     "summary": "Initial projections put centre-left opposition bloc at 51.3%, with 46.8% for rightwing parties; result worse than expected for far right Sweden Democrats Swedish election – full report If you’re looking just for a single story to quickly catch up on the story of tonight, let’s…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sdd13ad1e480133d",
+   "headline": "Swedish election: centre-left bloc looks set to take power, exit polls show",
+   "summary": "Result would deliver a new left-leaning government and be a strong rejection of current centre-right coalition Sweden general election – live updates Sweden’s centre-left bloc looks set to take power after a high-stakes election, according to exit polls. If the results hold, it…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Swedish",
+    "Result",
+    "Sweden",
+    "Social Democrats",
+    "Left",
+    "Vänsterpartiet"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.913,
+   "publishers": [
+    "The Guardian World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:26:27+00:00",
+   "last_published": "2026-09-13T18:26:27+00:00",
+   "articles": [
+    {
+     "id": "dd13ad1e480133df",
+     "title": "Swedish election: centre-left bloc looks set to take power, exit polls show",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/voting-under-way-in-sweden-with-far-right-eyeing-first-role-in-government",
+     "language": "en",
+     "published_at": "2026-09-13T18:26:27+00:00",
+     "author": "Miranda Bryant Nordic correspondent",
+     "summary": "Result would deliver a new left-leaning government and be a strong rejection of current centre-right coalition Sweden general election – live updates Sweden’s centre-left bloc looks set to take power after a high-stakes election, according to exit polls. If the results hold, it…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s56a5390d0e53ae5",
+   "headline": "Donald Trump doubles down on support for united Ireland",
+   "summary": "US president says ‘many people agree’ with his view on unification, brushing off Andy Burnham’s opposition to referendum Donald Trump has reiterated his support for Irish unification and brushed off Andy Burnham’s opposition to a referendum. “Everybody says that. Then things…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Donald Trump",
+    "Ireland",
+    "Andy Burnham",
+    "Irish",
+    "Everybody",
+    "British"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.905,
+   "publishers": [
+    "The Guardian World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T16:59:06+00:00",
+   "last_published": "2026-09-13T16:59:06+00:00",
+   "articles": [
+    {
+     "id": "56a5390d0e53ae5b",
+     "title": "Donald Trump doubles down on support for united Ireland",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/uk-news/2026/sep/13/donald-trump-doubles-down-on-support-for-united-ireland",
+     "language": "en",
+     "published_at": "2026-09-13T16:59:06+00:00",
+     "author": "Rory Carroll Ireland correspondent",
+     "summary": "US president says ‘many people agree’ with his view on unification, brushing off Andy Burnham’s opposition to referendum Donald Trump has reiterated his support for Irish unification and brushed off Andy Burnham’s opposition to a referendum. “Everybody says that. Then things…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s2db488239574dc2",
+   "headline": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+   "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Russia",
+    "Ukrainian",
+    "Boris Johnson",
+    "European",
+    "UK PM",
+    "Putin"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.898,
+   "publishers": [
+    "BBC World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T17:38:29+00:00",
+   "last_published": "2026-09-13T17:38:29+00:00",
+   "articles": [
+    {
+     "id": "2db488239574dc25",
+     "title": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cy5zg41dkqwo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T17:38:29+00:00",
+     "author": null,
+     "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s8d8168492043b2e",
+   "headline": "Rusia ataca la zona fronteriza entre Polonia y Ucrania, a dos kilómetros de territorio OTAN",
+   "summary": "Lituania suspende las operaciones en el aeropuerto de Vilnius por la posible presencia de un dron",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Rusia",
+    "Polonia",
+    "Ucrania",
+    "OTAN",
+    "Lituania",
+    "Vilnius"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.897,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T17:21:04+00:00",
+   "last_published": "2026-09-13T17:21:04+00:00",
+   "articles": [
+    {
+     "id": "8d8168492043b2e0",
+     "title": "Rusia ataca la zona fronteriza entre Polonia y Ucrania, a dos kilómetros de territorio OTAN",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/rusia-ataca-la-zona-fronteriza-entre-polonia-y-ucrania-a-pocos-kilometros-de-territorio-otan.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:21:04+00:00",
+     "author": "Gloria Rodríguez-Pina",
+     "summary": "Lituania suspende las operaciones en el aeropuerto de Vilnius por la posible presencia de un dron",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s3ed5fcb63c6a339",
+   "headline": "La portavoz del PP en el Congreso sostiene que el Gobierno “pudo promover” la entrada masiva de inmigrantes a Ceuta",
+   "summary": "Ester Muñoz ve “evidente” que el Ejecutivo sabía lo que pasaba",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Congreso",
+    "Gobierno",
+    "Ceuta",
+    "Ester Muñoz",
+    "Ejecutivo"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.894,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T15:09:02+00:00",
+   "last_published": "2026-09-13T15:09:02+00:00",
+   "articles": [
+    {
+     "id": "3ed5fcb63c6a3393",
+     "title": "La portavoz del PP en el Congreso sostiene que el Gobierno “pudo promover” la entrada masiva de inmigrantes a Ceuta",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-13/la-portavoz-del-pp-en-el-congreso-sostiene-que-el-gobierno-pudo-promover-la-entrada-masiva-de-inmigrantes-a-ceuta.html",
+     "language": "es",
+     "published_at": "2026-09-13T15:09:02+00:00",
+     "author": "Juana Viúdez",
+     "summary": "Ester Muñoz ve “evidente” que el Ejecutivo sabía lo que pasaba",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sf8459f72a28136d",
+   "headline": "Las pruebas, los testimonios y las decisiones pendientes que encauzarán el ‘caso Andic’",
+   "summary": "El papel de la terapeuta familiar, la incógnita del viaje a Quito o los análisis tecnológicos marcan la evolución de la investigación",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "science"
+   ],
+   "entities": [
+    "Las",
+    "Andic",
+    "Quito"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.873,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:01+00:00",
+   "last_published": "2026-09-13T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "f8459f72a28136d2",
+     "title": "Las pruebas, los testimonios y las decisiones pendientes que encauzarán el ‘caso Andic’",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/catalunya/2026-09-13/las-pruebas-los-testimonios-y-las-decisiones-pendientes-que-encauzaran-el-caso-andic.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Rebeca Carranco ,Jesús García Bueno",
+     "summary": "El papel de la terapeuta familiar, la incógnita del viaje a Quito o los análisis tecnológicos marcan la evolución de la investigación",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s853ade0cf6928a6",
+   "headline": "Tarjetas ‘revolving’, entre intereses de más del 22% y una ley atascada: “Te atrapan de por vida”",
+   "summary": "El Gobierno quiere limitar el coste de estos créditos y crear una Autoridad de Defensa del Cliente Financiero, pero ambas normas continúan pendientes de aprobación",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Tarjetas",
+    "El Gobierno",
+    "Autoridad de Defensa",
+    "Cliente Financiero"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.834,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:45:01+00:00",
+   "last_published": "2026-09-13T03:45:01+00:00",
+   "articles": [
+    {
+     "id": "853ade0cf6928a6b",
+     "title": "Tarjetas ‘revolving’, entre intereses de más del 22% y una ley atascada: “Te atrapan de por vida”",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/2026-09-13/tarjetas-revolving-entre-intereses-de-mas-del-22-y-una-ley-atascada-te-atrapan-de-por-vida.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:45:01+00:00",
+     "author": "Ricardo Sobrino,Pablo Martín Simón",
+     "summary": "El Gobierno quiere limitar el coste de estos créditos y crear una Autoridad de Defensa del Cliente Financiero, pero ambas normas continúan pendientes de aprobación",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s07fd38212662de2",
+   "headline": "Cuatro horas de deliberación para suspender el voto a miles de nacionalizados por la ‘ley de nietos’",
+   "summary": "La restricción sin precedentes de un derecho fundamental se convierte en un choque del Supremo contra el propio Supremo",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Cuatro",
+    "Supremo"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.833,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:01+00:00",
+   "last_published": "2026-09-13T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "07fd38212662de2e",
+     "title": "Cuatro horas de deliberación para suspender el voto a miles de nacionalizados por la ‘ley de nietos’",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-13/cuatro-horas-de-deliberacion-para-suspender-el-voto-a-miles-de-nacionalizados-por-la-ley-de-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Reyes Rincón",
+     "summary": "La restricción sin precedentes de un derecho fundamental se convierte en un choque del Supremo contra el propio Supremo",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s3f677f33469a612",
+   "headline": "Un Gobierno que se siente cercado por el “Estado profundo”",
+   "summary": "El Ejecutivo ve a sectores del Supremo, el CNI, la policía, la Guardia Civil trabajando para precipitar su caída. Tras otra semana nefasta, Sánchez se concentra en resolver la emergencia en Ceuta para poder respirar",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Un Gobierno",
+    "Estado",
+    "El Ejecutivo",
+    "Supremo",
+    "CNI",
+    "Guardia Civil"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.833,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:01+00:00",
+   "last_published": "2026-09-13T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "3f677f33469a612e",
+     "title": "Un Gobierno que se siente cercado por el “Estado profundo”",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-13/un-gobierno-que-se-siente-cercado-por-el-estado-profundo.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Carlos E Cué",
+     "summary": "El Ejecutivo ve a sectores del Supremo, el CNI, la policía, la Guardia Civil trabajando para precipitar su caída. Tras otra semana nefasta, Sánchez se concentra en resolver la emergencia en Ceuta para poder respirar",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s77b59a859f3801e",
+   "headline": "Estas son las tareas de alto riesgo de la IA que pueden acarrear multas multimillonarias",
+   "summary": "Las nuevas reglas de inteligencia artificial ponen patas arriba el trabajo de control en las compañías para evitar sanciones",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "world"
+   ],
+   "entities": [
+    "Estas",
+    "Las"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.793,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T03:30:00+00:00",
+   "last_published": "2026-09-13T03:30:00+00:00",
+   "articles": [
+    {
+     "id": "77b59a859f3801e6",
+     "title": "Estas son las tareas de alto riesgo de la IA que pueden acarrear multas multimillonarias",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/negocios/2026-09-13/estas-son-las-tareas-de-alto-riesgo-de-la-ia-que-pueden-acarrear-multas-multimillonarias.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:00+00:00",
+     "author": "Carlos Capa",
+     "summary": "Las nuevas reglas de inteligencia artificial ponen patas arriba el trabajo de control en las compañías para evitar sanciones",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sa3c31719aea340e",
+   "headline": "Anthropic alerta de que ha frenado posibles intentos de crear armas biológicas con su IA",
+   "summary": "La compañía desconoce si la motivación detrás de estos accesos era la investigación científica o los usos maliciosos. El anuncio se produce un día después de que uno de sus ingenieros alertara del peligro existencial de estas herramientas",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai",
+    "science"
+   ],
+   "entities": [
+    "Anthropic"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.776,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-10T18:41:55+00:00",
+   "last_published": "2026-09-10T18:41:55+00:00",
+   "articles": [
+    {
+     "id": "a3c31719aea340ef",
+     "title": "Anthropic alerta de que ha frenado posibles intentos de crear armas biológicas con su IA",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-10/anthropic-alerta-de-que-ha-frenado-posibles-intentos-de-crear-armas-biologicas-con-su-ia.html",
+     "language": "es",
+     "published_at": "2026-09-10T18:41:55+00:00",
+     "author": "jordi perez",
+     "summary": "La compañía desconoce si la motivación detrás de estos accesos era la investigación científica o los usos maliciosos. El anuncio se produce un día después de que uno de sus ingenieros alertara del peligro existencial de estas herramientas",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sffe3eea7de7831b",
+   "headline": "Crossbench MPs launch push to stop Australian military exports being used in human rights breaches",
+   "summary": "‘Red lines’ legislation would forbid defence equipment technology or services being used, includes parts for F-35 fighter jets",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Crossbench MPs",
+    "Australian",
+    "Red",
+    "F-35"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.773,
+   "publishers": [
+    "The Guardian World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T15:00:09+00:00",
+   "last_published": "2026-09-13T15:00:09+00:00",
+   "articles": [
+    {
+     "id": "ffe3eea7de7831b9",
+     "title": "Crossbench MPs launch push to stop Australian military exports being used in human rights breaches",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/2026/sep/14/crossbench-mps-launch-push-to-stop-australian-military-exports-being-used-in-human-rights-breaches",
+     "language": "en",
+     "published_at": "2026-09-13T15:00:09+00:00",
+     "author": "Krishani Dhanji",
+     "summary": "‘Red lines’ legislation would forbid defence equipment technology or services being used, includes parts for F-35 fighter jets",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sc7abe5801da13ba",
+   "headline": "Cuando la pública alimenta a la privada: la relación que está transformando la sanidad",
+   "summary": "La contratación de seguros sanitarios se ha disparado por el aumento de las listas de espera, mientras el Sistema Nacional de Salud destina cada vez más recursos a conciertos con empresas privadas",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "health"
+   ],
+   "entities": [
+    "Cuando",
+    "Sistema Nacional de Salud"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 2.658,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-12T15:50:00+00:00",
+   "last_published": "2026-09-12T15:50:00+00:00",
+   "articles": [
+    {
+     "id": "c7abe5801da13bab",
+     "title": "Cuando la pública alimenta a la privada: la relación que está transformando la sanidad",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/negocios/2026-09-12/cuando-la-publica-alimenta-a-la-privada-la-relacion-que-esta-transformando-la-sanidad.html",
+     "language": "es",
+     "published_at": "2026-09-12T15:50:00+00:00",
+     "author": "Pablo Linde",
+     "summary": "La contratación de seguros sanitarios se ha disparado por el aumento de las listas de espera, mientras el Sistema Nacional de Salud destina cada vez más recursos a conciertos con empresas privadas",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s5ff471da038f88e",
+   "headline": "Una avalancha en el Cáucaso ruso mata al menos a 17 montañeros",
+   "summary": "El alud sorprendió a 33 deportistas, de los cuales 10 pudieron descender por sus propios medios",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Una",
+    "Cáucaso"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 2.626,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T18:55:15+00:00",
+   "last_published": "2026-09-13T18:55:15+00:00",
+   "articles": [
+    {
+     "id": "5ff471da038f88ec",
+     "title": "Una avalancha en el Cáucaso ruso mata al menos a 17 montañeros",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/una-avalancha-en-el-caucaso-ruso-mata-al-menos-a-17-montaneros.html",
+     "language": "es",
+     "published_at": "2026-09-13T18:55:15+00:00",
+     "author": "Agencias .",
+     "summary": "El alud sorprendió a 33 deportistas, de los cuales 10 pudieron descender por sus propios medios",
+     "content_type": null
+    }
+   ]
+  }
+ ]
+}

@@ -22,6 +22,12 @@ class RobotsDisallowed(RuntimeError):
     """Raised when robots.txt forbids the URL we were asked to fetch."""
 
 
+def _disallow_all() -> urllib.robotparser.RobotFileParser:
+    parser = urllib.robotparser.RobotFileParser()
+    parser.parse(["User-agent: *", "Disallow: /"])
+    return parser
+
+
 class Fetcher:
     """Polite HTTP client. One instance per run, shared by all sources."""
 
@@ -73,11 +79,16 @@ class Fetcher:
                 delay = parser.crawl_delay(self.user_agent)
                 if delay:
                     self._delays[host] = float(delay)
-            elif response.status_code in (401, 403):
-                # Explicitly protected: treat the whole site as disallowed.
-                parser = urllib.robotparser.RobotFileParser()
-                parser.parse(["User-agent: *", "Disallow: /"])
-            # 404 and friends mean "no restrictions"; leave parser as None.
+            elif response.status_code == 429 or response.status_code >= 500:
+                # Rate limited, or the server is unwell. We hold no cached copy,
+                # so back off rather than assume we are free to crawl.
+                parser = _disallow_all()
+            # Every other 4xx means "there is no robots.txt", i.e. no
+            # restrictions -- per Google's spec, explicitly including 401 and
+            # 403. The strict old reading (403 => Disallow: /) turns a CDN
+            # misconfiguration into a silent source blackout: feeds.elpais.com
+            # answers robots.txt with a Varnish 403 while happily serving the
+            # feeds it publishes for readers.
         except requests.RequestException as exc:
             log.debug("robots.txt unavailable for %s (%s); proceeding", host, exc)
 

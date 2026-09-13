@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 
 from ..config import Source
 from ..models import Article, parse_date
-from ..text import strip_html, truncate
+from ..text import strip_boilerplate, strip_html, truncate
 from .base import SourceAdapter
 from .http import RobotsDisallowed
 
@@ -134,7 +134,9 @@ class ScrapeAdapter(SourceAdapter):
             url=page.url,
             published_at=published,
             author=author,
-            description=truncate(description, source.excerpt_chars),
+            description=truncate(
+                strip_boilerplate(description), source.excerpt_chars
+            ),
             source_topics=list(source.topics),
             source_weight=source.weight,
         )

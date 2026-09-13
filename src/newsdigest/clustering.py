@@ -1,25 +1,20 @@
-"""Group articles covering the same event into stories.
+"""Group articles covering the same event into stories, across languages.
 
-Two cheap deterministic signals do the work, both derived from data we already
-have -- no extra LLM calls:
+The primary signal is embedding cosine similarity, because it is the only one
+that works across languages. Measured on one headline in three languages, token
+overlap scores 0.00 (en/es) and 0.06 (en/ca) against a 0.60 merge threshold --
+no threshold rescues that, which is why embeddings are not optional here.
 
-  1. `event_label`, the short event name the enrichment step asked the LLM for.
-     Two outlets describing one event tend to produce the same label, which is
-     the single strongest signal available.
-  2. Text similarity over headline + summary, with a lower threshold when the
-     articles also share named entities.
+Three tiers, cheapest first:
 
-Signal (1) is doing most of the work, and that is not an accident. Measured on
-real headlines, text similarity reliably catches near-verbatim republication
-(wire copy runs 0.7+) but *cannot* separate genuinely reworded coverage of one
-event ("Parliament approves the budget" vs "Budget clears its final vote", 0.10)
-from two unrelated stories about the same organisation (0.07-0.09). No threshold
-fixes that overlap, which is exactly why the enrichment step asks the LLM for an
-`event_label`. Without a working LLM, expect reworded coverage to stay split --
-degraded, but never wrong.
+  1. cosine >= similarity_threshold        -> same event, free
+  2. ambiguous_threshold <= cosine < above -> ask the LLM, capped per run
+  3. no embeddings available               -> within-language text similarity,
+                                              which leaves cross-language
+                                              coverage split and says so
 
-Clusters are then matched against recent stories by keyword overlap so a story
-that gains coverage tomorrow keeps its identity instead of appearing twice.
+Nothing here calls an LLM per article; only the ambiguous band does, and only up
+to `max_checks` pairs, highest similarity first.
 """
 
 from __future__ import annotations
@@ -27,20 +22,23 @@ from __future__ import annotations
 import logging
 from collections import Counter
 
+import numpy as np
+
+from .embeddings.base import cosine_matrix
+from .llm.base import Context, LLMError, LLMProvider, PairInput
 from .models import Article, Story, utcnow
-from .text import jaccard, similarity, tokenize
+from .text import article_similarity, truncate
 
 log = logging.getLogger(__name__)
 
-# Headline+summary similarity that alone implies "same event".
-TEXT_THRESHOLD = 0.60
-# Lower bar when the two articles also share >= ENTITY_OVERLAP entities.
-TEXT_THRESHOLD_WITH_ENTITIES = 0.38
-ENTITY_OVERLAP = 2
-# Keyword overlap needed to attach a new cluster to an existing story.
-STORY_MATCH_THRESHOLD = 0.45
-# Keep comparisons cheap: only compare articles within this many hours.
-WINDOW_HOURS = 48.0
+#: Threshold for the no-embeddings fallback, calibrated on 37,776 real
+#: within-language pairs from the configured feeds. Genuine same-event pairs that
+#: text can detect at all -- syndicated copy and near-identical headlines -- score
+#: 0.49-0.78; the highest scoring unrelated pair reaches 0.34. 0.45 sits in that
+#: gap. Reworded coverage of one event lands at 0.30-0.33, inside the noise, and
+#: is therefore NOT recoverable by text at any threshold; that is what the
+#: embeddings are for.
+FALLBACK_TEXT_THRESHOLD = 0.45
 
 
 class _UnionFind:
@@ -61,145 +59,226 @@ class _UnionFind:
             self.parent[rb] = ra
 
 
-def _text_of(article: Article) -> str:
-    return f"{article.title}. {article.best_summary()}"
+def _groups(uf: _UnionFind, articles: list[Article]) -> list[list[Article]]:
+    grouped: dict[str, list[Article]] = {}
+    for article in articles:
+        grouped.setdefault(uf.find(article.id), []).append(article)
+    return sorted(
+        grouped.values(),
+        key=lambda g: (len({a.publisher for a in g}), len(g)),
+        reverse=True,
+    )
 
 
-def _entities_of(article: Article) -> set[str]:
-    return {e.lower() for e in article.entities if len(e) > 2}
-
-
-def same_event(a: Article, b: Article) -> bool:
-    """Whether two articles describe the same real-world event."""
-    if a.event_label and a.event_label == b.event_label:
-        return True
-
-    score = similarity(_text_of(a), _text_of(b))
-    if score >= TEXT_THRESHOLD:
-        return True
-    if score >= TEXT_THRESHOLD_WITH_ENTITIES:
-        shared = _entities_of(a) & _entities_of(b)
-        if len(shared) >= ENTITY_OVERLAP:
-            return True
-    # Distinct labels that overlap heavily still point at one event.
-    if a.event_label and b.event_label:
-        return similarity(a.event_label, b.event_label) >= 0.7
-    return False
-
-
-def cluster(articles: list[Article]) -> list[list[Article]]:
-    """Partition articles into clusters, largest first."""
+def cluster(
+    articles: list[Article],
+    vectors: dict[str, np.ndarray] | None = None,
+    *,
+    similarity_threshold: float = 0.82,
+    ambiguous_threshold: float = 0.72,
+    provider: LLMProvider | None = None,
+    context: Context | None = None,
+    max_checks: int = 40,
+    stats: object | None = None,
+) -> list[list[Article]]:
+    """Partition articles into stories, most-covered first."""
     if not articles:
         return []
 
     ordered = sorted(
-        articles,
-        key=lambda a: (a.published_at or a.fetched_at),
-        reverse=True,
+        articles, key=lambda a: (a.published_at or a.collected_at), reverse=True
     )
+    usable = [a for a in ordered if vectors and a.id in vectors]
+
+    if len(usable) < 2:
+        if vectors:
+            log.info("only %d of %d articles have embeddings", len(usable), len(ordered))
+        return _cluster_by_text(ordered)
+
     uf = _UnionFind([a.id for a in ordered])
+    matrix = cosine_matrix([vectors[a.id] for a in usable])
 
-    # O(n^2) over a 48h window is a few thousand comparisons -- fine, and much
-    # easier to reason about than an approximate index.
-    for i, left in enumerate(ordered):
-        for right in ordered[i + 1 :]:
-            if uf.find(left.id) == uf.find(right.id):
-                continue
-            if same_event(left, right):
-                uf.union(left.id, right.id)
+    ambiguous: list[tuple[float, Article, Article]] = []
+    for i in range(len(usable)):
+        for j in range(i + 1, len(usable)):
+            score = float(matrix[i, j])
+            if score >= similarity_threshold:
+                uf.union(usable[i].id, usable[j].id)
+            elif score >= ambiguous_threshold:
+                ambiguous.append((score, usable[i], usable[j]))
 
-    groups: dict[str, list[Article]] = {}
-    for article in ordered:
-        groups.setdefault(uf.find(article.id), []).append(article)
+    if ambiguous and provider is not None and context is not None and max_checks > 0:
+        _resolve_ambiguous(uf, ambiguous, provider, context, max_checks, stats)
+    elif ambiguous:
+        log.debug("%d ambiguous pairs left to the embedding's own verdict", len(ambiguous))
 
-    return sorted(
-        groups.values(),
-        key=lambda g: (len({a.source for a in g}), len(g)),
-        reverse=True,
+    # Articles with no vector still deserve a home: fall back to text similarity
+    # against their own language only.
+    missing = [a for a in ordered if not vectors or a.id not in vectors]
+    if missing:
+        _attach_by_text(uf, missing, ordered)
+
+    return _groups(uf, ordered)
+
+
+def _resolve_ambiguous(
+    uf: _UnionFind,
+    ambiguous: list[tuple[float, Article, Article]],
+    provider: LLMProvider,
+    context: Context,
+    max_checks: int,
+    stats: object | None,
+) -> None:
+    """Ask the LLM about the closest calls, highest similarity first."""
+    ambiguous.sort(key=lambda item: -item[0])
+    pairs: list[PairInput] = []
+    lookup: dict[str, tuple[Article, Article]] = {}
+
+    for score, left, right in ambiguous:
+        if len(pairs) >= max_checks:
+            break
+        if uf.find(left.id) == uf.find(right.id):
+            continue  # already merged transitively; no need to ask
+        key = f"{left.id}:{right.id}"
+        lookup[key] = (left, right)
+        pairs.append(
+            PairInput(
+                key=key,
+                left_title=left.title,
+                left_language=left.language,
+                left_excerpt=truncate(left.best_summary(), 400),
+                right_title=right.title,
+                right_language=right.language,
+                right_excerpt=truncate(right.best_summary(), 400),
+            )
+        )
+
+    if not pairs:
+        return
+    log.info("asking %s to adjudicate %d borderline pairs", provider.name, len(pairs))
+    try:
+        verdicts = provider.same_event(pairs, context)
+    except LLMError as exc:
+        log.warning("cluster adjudication failed (%s); keeping embedding verdicts", exc)
+        return
+
+    merged = 0
+    for key, same in verdicts.items():
+        if same and key in lookup:
+            left, right = lookup[key]
+            uf.union(left.id, right.id)
+            merged += 1
+    if stats is not None:
+        stats.llm_checks = getattr(stats, "llm_checks", 0) + len(pairs)
+    log.info("adjudication merged %d of %d pairs", merged, len(pairs))
+
+
+def _cluster_by_text(articles: list[Article]) -> list[list[Article]]:
+    """Fallback with no embeddings: compare only within a language.
+
+    Cross-language text similarity is noise (0.00-0.06 for the same event), so
+    comparing across languages would only invent false merges.
+    """
+    log.warning(
+        "clustering without embeddings: coverage of one event in different "
+        "languages will stay split into separate stories"
     )
-
-
-def cluster_keywords(articles: list[Article], limit: int = 12) -> list[str]:
-    """Stable fingerprint for a cluster, used to match it to a stored story."""
-    counter: Counter[str] = Counter()
+    uf = _UnionFind([a.id for a in articles])
+    by_language: dict[str | None, list[Article]] = {}
     for article in articles:
-        counter.update(tokenize(article.title))
-        counter.update(tokenize(article.event_label or ""))
-        counter.update(e.lower() for e in article.entities)
-    return [word for word, _ in counter.most_common(limit)]
+        by_language.setdefault(article.language, []).append(article)
+
+    for group in by_language.values():
+        for i, left in enumerate(group):
+            for right in group[i + 1 :]:
+                if uf.find(left.id) == uf.find(right.id):
+                    continue
+                if _text_same_event(left, right):
+                    uf.union(left.id, right.id)
+    return _groups(uf, articles)
 
 
-def match_existing_story(
-    keywords: list[str],
-    articles: list[Article],
-    stories: list[Story],
-) -> Story | None:
-    """Find the stored story this cluster is a continuation of, if any."""
-    # An article already assigned to a story is the most reliable link.
-    assigned = Counter(a.story_id for a in articles if a.story_id)
-    by_id = {s.id: s for s in stories}
-    for story_id, _ in assigned.most_common():
-        if story_id in by_id:
-            return by_id[story_id]
+def _attach_by_text(uf: _UnionFind, missing: list[Article], everyone: list[Article]) -> None:
+    """Place vector-less articles using text similarity within their language."""
+    for article in missing:
+        for other in everyone:
+            if other.id == article.id or other.language != article.language:
+                continue
+            if uf.find(other.id) == uf.find(article.id):
+                continue
+            if _text_same_event(article, other):
+                uf.union(other.id, article.id)
+                break
 
-    if not keywords:
-        return None
-    best: tuple[float, Story | None] = (0.0, None)
-    for story in stories:
-        score = jaccard(set(keywords), set(story.keywords))
-        if score > best[0]:
-            best = (score, story)
-    return best[1] if best[0] >= STORY_MATCH_THRESHOLD else None
+
+def _text_same_event(a: Article, b: Article) -> bool:
+    return (
+        article_similarity(a.title, a.best_summary(), b.title, b.best_summary())
+        >= FALLBACK_TEXT_THRESHOLD
+    )
 
 
 def lead_article(articles: list[Article]) -> Article:
-    """The article a single-source story borrows its headline and summary from."""
+    """The article a single-source story borrows its headline and summary from.
+
+    Prefers reporting over opinion: a comment piece is a poor lead for a story
+    several outlets covered straight.
+    """
     return max(
         articles,
         key=lambda a: (
+            a.content_type != "opinion",
             a.importance or 0.0,
             a.source_weight,
-            a.published_at or a.fetched_at,
+            a.published_at or a.collected_at,
         ),
     )
 
 
-def build_story(
-    articles: list[Article],
-    *,
-    existing: Story | None = None,
-) -> Story:
-    """Assemble a Story from a cluster, reusing an existing identity if given."""
+def build_story(articles: list[Article]) -> Story:
+    """Assemble a Story from a cluster.
+
+    The id is derived from the cluster's members, so re-running a week produces
+    the same story ids rather than duplicates.
+    """
     lead = lead_article(articles)
-    keywords = cluster_keywords(articles)
+    seed = "|".join(sorted(a.canonical for a in articles))
 
     topic_counts: Counter[str] = Counter()
     entity_counts: Counter[str] = Counter()
+    facts: list[str] = []
     for article in articles:
         topic_counts.update(article.topics or article.source_topics)
         entity_counts.update(article.entities)
+        for fact in article.key_facts:
+            if fact not in facts:
+                facts.append(fact)
 
-    story_id = existing.id if existing else Story.make_id(
-        lead.event_label or " ".join(keywords[:6]) or lead.canonical
-    )
+    publishers = sorted({a.publisher for a in articles})
+    languages = sorted({a.language for a in articles if a.language})
 
     return Story(
-        id=story_id,
+        id=Story.make_id(seed),
         headline=lead.title,
         summary=lead.best_summary(),
         why_it_matters=lead.why_it_matters or "",
+        key_facts=facts[:4],
         topics=[t for t, _ in topic_counts.most_common(4)],
         entities=[e for e, _ in entity_counts.most_common(10)],
         # A story is as important as its most important article, nudged up when
-        # several outlets independently thought it worth covering.
+        # several publishers independently thought it worth covering.
         importance=min(
             1.0,
-            max((a.importance or 0.0) for a in articles)
-            + 0.03 * (len({a.source for a in articles}) - 1),
+            max((a.importance or 0.0) for a in articles) + 0.03 * (len(publishers) - 1),
         ),
+        relevance=max((a.relevance or 0.0) for a in articles),
         article_ids=[a.id for a in articles],
-        keywords=keywords,
-        first_seen=existing.first_seen if existing else utcnow(),
+        publishers=publishers,
+        languages=languages,
+        first_seen=min((a.published_at or a.collected_at) for a in articles),
         last_updated=utcnow(),
-        written_by=None,
     )
+
+
+def cross_language_count(groups: list[list[Article]]) -> int:
+    return sum(1 for g in groups if len({a.language for a in g if a.language}) > 1)

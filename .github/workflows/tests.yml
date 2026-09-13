@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches: [main]
-    # The digest job's own commits only touch generated output.
+    # The scheduled jobs' own commits only touch generated output.
     paths-ignore:
       - "docs/**"
       - "data/**"
@@ -26,9 +26,11 @@ jobs:
           cache-dependency-path: pyproject.toml
       - run: pip install -e '.[dev]'
       - run: pytest -q
-      # The pipeline must work end to end with no API key and no network access
-      # to the LLM -- this is the path a fork or a quota-exhausted run takes.
+      # Both pipelines must work with no API key and no network access to any
+      # model -- the path a fork, or a quota-exhausted run, actually takes.
       - name: Smoke test the offline path
         run: |
-          news-digest --db /tmp/ci.db --out /tmp/ci-site run --no-fetch --no-llm
-          test -f /tmp/ci-site/feed.json
+          news-digest --db /tmp/ci.db --out /tmp/ci-site digest --no-llm --no-embeddings
+          test -f /tmp/ci-site/index.json
+          news-digest --db /tmp/ci.db --out /tmp/ci-site build
+          news-digest --db /tmp/ci.db stats

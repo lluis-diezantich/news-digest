@@ -8,15 +8,17 @@ from __future__ import annotations
 
 import logging
 
-from ..config import LLMSettings
+from ..config import LLMSettings, Preferences, Settings
 from .base import (
     Brief,
     BriefInput,
+    Context,
     Enrichment,
     EnrichInput,
     LLMError,
     LLMProvider,
     LLMQuotaError,
+    PairInput,
 )
 from .gemini import GeminiProvider
 from .heuristic import HeuristicProvider
@@ -45,21 +47,34 @@ def get_provider(settings: LLMSettings) -> LLMProvider:
     if factory is None:
         log.warning(
             "unknown LLM_PROVIDER=%r (known: %s); using offline enrichment",
-            settings.provider,
-            ", ".join(sorted(PROVIDERS)),
+            settings.provider, ", ".join(sorted(PROVIDERS)),
         )
         return HeuristicProvider()
     try:
         return factory(settings)
     except LLMError as exc:
-        log.warning("%s provider unavailable (%s); using offline enrichment", settings.provider, exc)
+        log.warning(
+            "%s provider unavailable (%s); using offline enrichment",
+            settings.provider, exc,
+        )
         return HeuristicProvider()
+
+
+def build_context(settings: Settings, preferences: Preferences) -> Context:
+    """Turn config into the per-run context the providers need."""
+    ranked = sorted(preferences.topics.items(), key=lambda kv: -kv[1])
+    return Context(
+        output_language=settings.output_language,
+        interests=[name for name, _ in ranked[:8]],
+        excluded_topics=list(preferences.excluded_topics),
+    )
 
 
 __all__ = [
     "PROVIDERS",
     "Brief",
     "BriefInput",
+    "Context",
     "Enrichment",
     "EnrichInput",
     "GeminiProvider",
@@ -67,5 +82,7 @@ __all__ = [
     "LLMError",
     "LLMProvider",
     "LLMQuotaError",
+    "PairInput",
+    "build_context",
     "get_provider",
 ]

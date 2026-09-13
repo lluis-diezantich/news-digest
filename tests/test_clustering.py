@@ -1,111 +1,208 @@
+"""Clustering: embeddings first, LLM for the borderline, text as last resort."""
+
+import numpy as np
+
 from newsdigest import clustering
-from newsdigest.models import Story
+from newsdigest.embeddings.base import normalize
+from newsdigest.llm.base import Context
+from newsdigest.llm.heuristic import HeuristicProvider
 
 from conftest import make_article
 
-
-def test_identical_event_label_clusters_across_sources():
-    articles = [
-        make_article("Parliament approves the budget", source="BBC",
-                     event_label="uk budget vote"),
-        make_article("Budget clears final vote", source="Guardian",
-                     event_label="uk budget vote"),
-        make_article("Rare orchid found in Peru", source="NPR",
-                     event_label="peru orchid discovery"),
-    ]
-    groups = clustering.cluster(articles)
-    assert len(groups) == 2
-    biggest = groups[0]
-    assert {a.source for a in biggest} == {"BBC", "Guardian"}
+SANCTIONS = [
+    ("EU announces new sanctions package against Russia", "en", "BBC"),
+    ("La UE anuncia un nuevo paquete de sanciones contra Rusia", "es", "El País"),
+    ("La UE anuncia un nou paquet de sancions contra Rússia", "ca", "Ara"),
+]
 
 
-def test_similar_headlines_cluster_without_labels():
-    articles = [
-        make_article("Central bank raises interest rates by half a point", source="A"),
-        make_article("Interest rates raised half a point by central bank", source="B"),
-    ]
-    assert len(clustering.cluster(articles)) == 1
+def vecs(mapping: dict[str, list[float]]) -> dict[str, np.ndarray]:
+    return {k: normalize(np.array(v, dtype=float)) for k, v in mapping.items()}
 
 
-def test_entity_overlap_rescues_a_middling_text_match():
-    """A pair too weak for TEXT_THRESHOLD but sharing named entities."""
-    headlines = ("Central bank raises rates", "Rates lifted by central bank")
-    shared = ["Central Bank", "Federal Reserve"]
-    with_entities = [
-        make_article(headlines[0], source="A", entities=shared, importance=0.6),
-        make_article(headlines[1], source="B", entities=shared, importance=0.6),
-    ]
-    assert len(clustering.cluster(with_entities)) == 1
-
-    without_entities = [
-        make_article(headlines[0], source="A", entities=[], importance=0.6),
-        make_article(headlines[1], source="B", entities=[], importance=0.6),
-    ]
-    assert len(clustering.cluster(without_entities)) == 2
+def sanctions_articles():
+    return [make_article(t, source=p, publisher=p, language=l) for t, l, p in SANCTIONS]
 
 
-def test_reworded_coverage_needs_the_llm_label():
-    """Documents a real limit: text alone cannot merge reworded coverage.
+class TestEmbeddingClustering:
+    def test_merges_the_same_event_across_three_languages(self):
+        arts = sanctions_articles()
+        vectors = vecs({
+            arts[0].id: [1.0, 0.2, 0.0],
+            arts[1].id: [0.97, 0.24, 0.02],
+            arts[2].id: [0.95, 0.26, 0.01],
+        })
+        groups = clustering.cluster(arts, vectors, similarity_threshold=0.82)
+        assert len(groups) == 1
+        assert sorted(a.language for a in groups[0]) == ["ca", "en", "es"]
+        assert clustering.cross_language_count(groups) == 1
 
-    These two headlines describe one event but score 0.10 -- indistinguishable
-    from unrelated stories. Only the LLM's event_label merges them, which is why
-    clustering treats that label as its primary signal.
-    """
-    plain = [
-        make_article("Parliament approves the budget", source="A"),
-        make_article("Budget clears its final vote", source="B"),
-    ]
-    assert len(clustering.cluster(plain)) == 2
+    def test_keeps_unrelated_events_apart(self):
+        arts = sanctions_articles() + [
+            make_article("Barcelona metro strike enters third day", source="Verge")
+        ]
+        vectors = vecs({
+            arts[0].id: [1.0, 0.2, 0.0],
+            arts[1].id: [0.97, 0.24, 0.02],
+            arts[2].id: [0.95, 0.26, 0.01],
+            arts[3].id: [0.0, 0.1, 1.0],
+        })
+        groups = clustering.cluster(arts, vectors, similarity_threshold=0.82)
+        assert len(groups) == 2
+        assert len(groups[0]) == 3 and len(groups[1]) == 1
 
-    labelled = [
-        make_article("Parliament approves the budget", source="A",
-                     event_label="national budget vote"),
-        make_article("Budget clears its final vote", source="B",
-                     event_label="national budget vote"),
-    ]
-    assert len(clustering.cluster(labelled)) == 1
+    def test_most_covered_cluster_comes_first(self):
+        arts = sanctions_articles() + [make_article("Solo story", source="Solo")]
+        vectors = vecs({
+            arts[0].id: [1.0, 0.0, 0.0], arts[1].id: [0.99, 0.01, 0.0],
+            arts[2].id: [0.98, 0.02, 0.0], arts[3].id: [0.0, 0.0, 1.0],
+        })
+        groups = clustering.cluster(arts, vectors, similarity_threshold=0.82)
+        assert len({a.publisher for a in groups[0]}) == 3
 
-
-def test_unrelated_articles_stay_separate():
-    articles = [
-        make_article("Flooding closes roads in the north", source="A"),
-        make_article("Football club appoints new manager", source="B"),
-    ]
-    assert len(clustering.cluster(articles)) == 2
-
-
-def test_empty_input():
-    assert clustering.cluster([]) == []
-
-
-def test_build_story_prefers_the_most_important_article():
-    group = [
-        make_article("Minor angle on the vote", source="A", importance=0.2),
-        make_article("Parliament approves budget", source="B", importance=0.8),
-    ]
-    story = clustering.build_story(group)
-    assert story.headline == "Parliament approves budget"
-    # Multi-source coverage nudges importance above the best single article.
-    assert story.importance > 0.8
-    assert len(story.article_ids) == 2
+    def test_article_without_a_vector_still_lands_somewhere(self):
+        arts = sanctions_articles()
+        vectors = vecs({arts[0].id: [1.0, 0.0, 0.0], arts[1].id: [0.99, 0.01, 0.0]})
+        groups = clustering.cluster(arts, vectors, similarity_threshold=0.82)
+        assert sum(len(g) for g in groups) == 3
 
 
-def test_existing_story_identity_is_reused():
-    group = [make_article("Budget vote continues", event_label="uk budget vote")]
-    existing = Story(id="sabc", headline="Old headline",
-                     keywords=clustering.cluster_keywords(group))
-    matched = clustering.match_existing_story(
-        clustering.cluster_keywords(group), group, [existing]
-    )
-    assert matched is existing
-    story = clustering.build_story(group, existing=existing)
-    assert story.id == "sabc"
-    assert story.first_seen == existing.first_seen
+class TestAmbiguousBand:
+    """Pairs between the two thresholds are referred to the LLM."""
+
+    def _setup(self):
+        arts = [
+            make_article("Ministers debate the budget", source="A", publisher="A"),
+            make_article("Budget talks continue in cabinet", source="B", publisher="B"),
+        ]
+        # Cosine ~0.78: below similarity_threshold, above ambiguous_threshold.
+        vectors = vecs({arts[0].id: [1.0, 0.0], arts[1].id: [0.78, 0.63]})
+        return arts, vectors
+
+    def test_llm_yes_merges(self):
+        arts, vectors = self._setup()
+
+        class Yes(HeuristicProvider):
+            def same_event(self, pairs, context):
+                return {p.key: True for p in pairs}
+
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.9, ambiguous_threshold=0.7,
+            provider=Yes(), context=Context(),
+        )
+        assert len(groups) == 1
+
+    def test_llm_no_keeps_them_apart(self):
+        arts, vectors = self._setup()
+
+        class No(HeuristicProvider):
+            def same_event(self, pairs, context):
+                return {p.key: False for p in pairs}
+
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.9, ambiguous_threshold=0.7,
+            provider=No(), context=Context(),
+        )
+        assert len(groups) == 2
+
+    def test_silence_leaves_the_embedding_verdict(self):
+        arts, vectors = self._setup()
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.9, ambiguous_threshold=0.7,
+            provider=HeuristicProvider(), context=Context(),
+        )
+        assert len(groups) == 2
+
+    def test_check_budget_is_respected(self):
+        arts = [make_article(f"Story number {i}", source=f"S{i}") for i in range(6)]
+        # All mutually in the ambiguous band.
+        vectors = vecs({a.id: [1.0, 0.05 * i] for i, a in enumerate(arts)})
+        seen: list[int] = []
+
+        class Counting(HeuristicProvider):
+            def same_event(self, pairs, context):
+                seen.append(len(pairs))
+                return {}
+
+        clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=Counting(), context=Context(), max_checks=3,
+        )
+        assert seen == [3]
+
+    def test_stats_record_the_checks(self):
+        arts, vectors = self._setup()
+
+        class Stats:
+            llm_checks = 0
+
+        stats = Stats()
+
+        class Yes(HeuristicProvider):
+            def same_event(self, pairs, context):
+                return {p.key: True for p in pairs}
+
+        clustering.cluster(
+            arts, vectors, similarity_threshold=0.9, ambiguous_threshold=0.7,
+            provider=Yes(), context=Context(), stats=stats,
+        )
+        assert stats.llm_checks == 1
 
 
-def test_assigned_story_id_wins_over_keywords():
-    article = make_article("Something happened")
-    article.story_id = "sxyz"
-    other = Story(id="sxyz", headline="Known story", keywords=["unrelated"])
-    matched = clustering.match_existing_story(["nothing", "alike"], [article], [other])
-    assert matched is other
+class TestTextFallback:
+    def test_near_identical_headlines_merge(self):
+        arts = [
+            make_article("Rússia ataca amb drons la frontera d'Ucraïna amb Polònia",
+                         source="VilaWeb", publisher="VilaWeb", language="ca"),
+            make_article("Rússia ataca amb drons la frontera d'Ucraïna amb Polònia",
+                         source="Nació Digital", publisher="Nació Digital", language="ca"),
+        ]
+        assert len(clustering.cluster(arts, {})) == 1
+
+    def test_never_merges_across_languages(self):
+        """Cross-language text similarity is noise, so it must not be tried."""
+        arts = sanctions_articles()
+        groups = clustering.cluster(arts, {})
+        assert len(groups) == 3
+
+    def test_unrelated_stay_apart(self):
+        arts = [
+            make_article("Flooding closes roads in the north", source="A"),
+            make_article("Football club appoints new manager", source="B"),
+        ]
+        assert len(clustering.cluster(arts, {})) == 2
+
+    def test_empty_input(self):
+        assert clustering.cluster([], {}) == []
+
+
+class TestBuildStory:
+    def test_collects_publishers_languages_and_scores(self):
+        arts = [
+            make_article(SANCTIONS[0][0], source="BBC", publisher="BBC", language="en",
+                         importance=0.7, relevance=0.6, topics=["world"],
+                         entities=["European Union"]),
+            make_article(SANCTIONS[1][0], source="El País Internacional",
+                         publisher="El País", language="es", importance=0.6,
+                         relevance=0.8, topics=["world"], entities=["European Union"]),
+        ]
+        story = clustering.build_story(arts)
+        assert story.publishers == ["BBC", "El País"]
+        assert story.languages == ["en", "es"]
+        assert story.importance > 0.7      # nudged up by a second publisher
+        assert story.relevance == 0.8      # best of the cluster
+        assert story.topics == ["world"]
+        assert len(story.article_ids) == 2
+
+    def test_id_is_stable_across_rebuilds(self):
+        arts = [make_article("Same cluster", source="A"), make_article("Other", source="B")]
+        assert clustering.build_story(arts).id == clustering.build_story(list(reversed(arts))).id
+
+    def test_reporting_is_preferred_over_opinion_as_lead(self):
+        arts = [
+            make_article("Opinion: why the budget fails", source="A", publisher="A",
+                         importance=0.9, content_type="opinion"),
+            make_article("Parliament approves the budget", source="B", publisher="B",
+                         importance=0.5, content_type="reporting"),
+        ]
+        assert clustering.lead_article(arts).content_type == "reporting"

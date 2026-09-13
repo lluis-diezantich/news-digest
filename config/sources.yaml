@@ -1,79 +1,215 @@
-# Source list. Adding/removing a source never requires touching application code.
+# Source list. Adding or removing a source never requires touching code.
 #
 # Per-source keys:
-#   name      (required) display name, also the attribution shown in the feed
-#   enabled   default true
-#   method    rss (default) | scrape
-#   rss       feed URL          -- required for method: rss
-#   url       index/section URL -- required for method: scrape
-#   weight    0.0-2.0, default 1.0. Multiplies the source's contribution to a
-#             story's score. Use it to promote sources you trust.
-#   topics    optional hints merged into every article from this source
-#   max_items cap per run, default = defaults.max_items_per_source
+#   name       (required) unique; identifies this feed
+#   publisher  outlet this feed belongs to, defaults to `name`. Several feeds
+#              can share one publisher -- corroboration counts PUBLISHERS, so
+#              seven El País sections covering one story read as one outlet.
+#   languages  what this source publishes in. Constrains language detection and
+#              is the fallback when a headline is too short to judge.
+#   enabled    default true
+#   method     rss (default) | scrape
+#   rss        feed URL          -- required for method: rss
+#   url        index/section URL -- required for method: scrape
+#   weight     0.0-2.0, default 1.0. Feeds into the source_preference signal.
+#   topics     hints merged into every article from this source
+#   max_items  cap per run, default = defaults.max_items_per_source
 #
-# scrape-only keys:
-#   link_selector    CSS selector matching anchor tags for article links
-#   link_pattern     optional regex an href must match to be followed
-#   max_links        how many article pages to fetch per run (keep it small)
+# scrape-only: link_selector, link_pattern, max_links
 
 defaults:
   max_items_per_source: 25
-  # Excerpt cap. We deliberately store only enough text to summarize from --
-  # never a full article body. See "Attribution and copyright" in README.
+  # We store only enough text to summarize from, never a full article body.
+  # See "Attribution and copyright" in the README.
   excerpt_chars: 1200
 
 sources:
+  # ---------------------------------------------------------------- English --
   - name: BBC World
     rss: https://feeds.bbci.co.uk/news/world/rss.xml
+    languages: [en]
     weight: 1.2
     topics: [world]
 
   - name: The Guardian World
     rss: https://www.theguardian.com/world/rss
+    languages: [en]
     weight: 1.1
     topics: [world]
 
   - name: NPR News
     rss: https://feeds.npr.org/1001/rss.xml
+    languages: [en]
     weight: 1.0
 
   - name: Al Jazeera
     rss: https://www.aljazeera.com/xml/rss/all.xml
+    languages: [en]
     weight: 1.0
     topics: [world]
 
   - name: Ars Technica
     rss: https://feeds.arstechnica.com/arstechnica/index
+    languages: [en]
     weight: 1.1
     topics: [technology]
 
   - name: The Verge
     rss: https://www.theverge.com/rss/index.xml
+    languages: [en]
     weight: 0.9
     topics: [technology]
 
   - name: TechCrunch
     rss: https://techcrunch.com/feed/
+    languages: [en]
     weight: 0.8
     topics: [technology, startups]
 
   - name: Hacker News
     rss: https://news.ycombinator.com/rss
+    languages: [en]
     weight: 0.9
     topics: [technology]
     max_items: 30
 
-  # ---------------------------------------------------------------------------
-  # Scraping example, disabled by default.
-  #
-  # Reuters retired its public RSS feeds, so it can only be reached by scraping
-  # or a paid API. Before enabling ANY scrape source, check that site's
-  # robots.txt and terms of service yourself -- the fetcher honours robots.txt
-  # and crawl-delay, but that is a technical control, not permission.
-  # Prefer an official feed or API whenever one exists.
+  # ---------------------------------------------------------------- Spanish --
+  # El País publishes one feed per section. They all share a publisher so a
+  # story covered by three sections is not mistaken for three outlets.
+  - name: El País Internacional
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada
+    languages: [es]
+    weight: 1.2
+    topics: [world]
+
+  - name: El País España
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada
+    languages: [es]
+    weight: 1.1
+    topics: [politics]
+
+  - name: El País Economía
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada
+    languages: [es]
+    weight: 1.1
+    topics: [economics]
+
+  - name: El País Tecnología
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada
+    languages: [es]
+    weight: 1.1
+    topics: [technology]
+
+  - name: El País Ciencia
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada
+    languages: [es]
+    weight: 1.0
+    topics: [science]
+
+  - name: El País Clima
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/list/ep/site/elpais.com/section/clima-y-medio-ambiente
+    languages: [es]
+    weight: 1.0
+    topics: [climate]
+
+  # Same publisher, same events, different language -- the clearest check that
+  # cross-language clustering is working.
+  - name: El País (English)
+    publisher: El País
+    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/english.elpais.com/portada
+    languages: [en]
+    weight: 1.0
+
+  - name: eldiario.es
+    rss: https://www.eldiario.es/rss/
+    languages: [es]
+    weight: 1.0
+    max_items: 30
+
+  - name: El Salto
+    rss: https://www.elsaltodiario.com/general/feed
+    languages: [es]
+    weight: 0.9
+
+  - name: La Vanguardia
+    # Publishes Spanish and Catalan editions in one feed, so both are declared
+    # and detection decides per article.
+    rss: https://www.lavanguardia.com/rss/home.xml
+    languages: [es, ca]
+    weight: 1.0
+
+  # ---------------------------------------------------------------- Catalan --
+  - name: Ara
+    rss: https://www.ara.cat/rss/
+    languages: [ca]
+    weight: 1.1
+    max_items: 30
+
+  - name: 3Cat (324)
+    rss: https://api.ccma.cat/noticies?_format=rss&origen=frontal&frontal=n324-portada-noticia&version=2.0
+    languages: [ca]
+    weight: 1.1
+
+  - name: VilaWeb
+    rss: https://www.vilaweb.cat/rss/
+    languages: [ca]
+    weight: 1.0
+
+  - name: Nació Digital
+    rss: https://www.naciodigital.cat/rss/
+    languages: [ca]
+    weight: 0.9
+
+  # --------------------------------------------------------------- Disabled --
+  # Verified 2026-09-13: works, but ~10 items, often days old, and largely
+  # image posts rather than reporting. Enable if you want it.
+  - name: Spanish Revolution
+    rss: https://spanishrevolution.net/feed/
+    languages: [es]
+    enabled: false
+    weight: 0.6
+
+  # Verified 2026-09-13: api2.rtve.es/robots.txt is an allowlist and the news
+  # feed is not on it, so the fetcher correctly refuses. The only permitted
+  # feeds are radio/TV bulletins (feedsgoogle/.../boletines.rss,
+  # td/telediario.rss) carrying one audio or video item each -- no use to a text
+  # digest. Left here so the finding is not rediscovered.
+  - name: RTVE
+    rss: https://api2.rtve.es/rss/temas_noticias.xml
+    languages: [es]
+    enabled: false
+
+  # Verified 2026-09-13: publishes no RSS feed at any path, and declares none in
+  # its HTML. Would need the scrape adapter and a look at its terms of service.
+  - name: Público
+    url: https://www.publico.es/
+    method: scrape
+    languages: [es]
+    enabled: false
+    link_selector: "article a"
+    max_links: 8
+
+  # Verified 2026-09-13: ctxt.es/es/rss serves an HTML page pointing at
+  # back.ctxt.es, which returns 403 to every user agent tried. Genuinely closed
+  # rather than bot-gated, so there is nothing to enable here yet.
+  - name: CTXT
+    rss: https://back.ctxt.es/es/static/rss/
+    languages: [es]
+    enabled: false
+
+  # Scraping example. Reuters retired its public RSS feeds. Before enabling ANY
+  # scrape source, read that site's terms of service -- the fetcher honours
+  # robots.txt and crawl-delay, but that is a technical control, not permission.
   - name: Reuters
     url: https://www.reuters.com/world/
     method: scrape
+    languages: [en]
     enabled: false
     link_selector: "a[data-testid='Heading']"
     link_pattern: "/world/"

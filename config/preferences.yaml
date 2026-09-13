@@ -1,0 +1,88 @@
+# Language settings, what you care about, and the ranking formula.
+# Everything here is optional; delete a section to take its defaults.
+
+settings:
+  # Languages collected. Detection is restricted to this set, which is what
+  # makes telling Spanish from Catalan reliable.
+  supported_languages:
+    - en
+    - es
+    - ca
+
+  # Language the LLM writes the digest in, independent of what it reads.
+  output_language: en
+
+preferences:
+  # Either form works:
+  #   topics: [technology, economics]        -> each gets weight 1.5
+  #   topics: {technology: 1.5, sports: 0.3} -> explicit weights
+  # Anything not listed scores 1.0.
+  topics:
+    technology: 1.5
+    artificial intelligence: 1.6
+    european politics: 1.4
+    economics: 1.3
+    science: 1.2
+    climate: 1.2
+    world: 1.1
+    health: 1.0
+    culture: 0.7
+
+  # Penalised hard rather than hidden, so a genuinely huge sports story can
+  # still surface.
+  excluded_topics:
+    - sports
+    - celebrity
+    - horoscope
+
+  # Matched against a story's publishers.
+  preferred_sources:
+    - BBC World
+    - The Guardian World
+    - El País
+    - Ara
+
+  # Each distinct hit adds `keyword_bonus`.
+  keywords:
+    - anthropic
+    - open source
+    - semiconductors
+    - catalonia
+    - denmark
+
+ranking:
+  # final_score = sum(weight * signal) for the terms listed here.
+  # Drop a line to remove that signal from the formula entirely.
+  terms:
+    importance: 1.0         # LLM: how consequential, 0-1
+    relevance: 1.0          # LLM: how relevant to the topics above, 0-1
+    interest: 0.8           # deterministic topic/keyword match
+    recency: 0.6            # exponential decay across the week
+    corroboration: 0.4      # distinct publishers covering the story
+    source_preference: 0.3  # configured source weights and preferred_sources
+    story_size: 0.2         # how much coverage there is
+
+  keyword_bonus: 0.15
+  excluded_penalty: 1.5
+  preferred_source_bonus: 0.5
+  # Over a weekly window a long half-life is right: Monday's news should still
+  # be readable on Sunday.
+  recency_half_life_hours: 72
+
+digest:
+  title: "Weekly Digest"
+  subtitle: "Curated from your sources in English, Spanish and Catalan"
+  max_stories: 30
+  min_articles: 1
+  # Weekday the digest window ends on: 0 = Monday ... 6 = Sunday.
+  week_ends_on: 6
+  # Keep past digests readable on the site.
+  archive: true
+  archive_limit: 52
+
+storage:
+  # Articles older than this are pruned so the committed database stays small.
+  retention_days: 45
+  # Embeddings are working data for the weekly run and the bulkiest thing in
+  # the database (~1 KB per article), so they go sooner.
+  embedding_retention_days: 21
