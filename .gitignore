@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.env
+.DS_Store
+
+# Local scratch DBs. The canonical pipeline state (data/news.db) IS committed --
+# it is how dedupe/clustering survives between GitHub Actions runs.
+data/*.db-wal
+data/*.db-shm
+data/local*.db

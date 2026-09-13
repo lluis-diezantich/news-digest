@@ -1,0 +1,82 @@
+# Source list. Adding/removing a source never requires touching application code.
+#
+# Per-source keys:
+#   name      (required) display name, also the attribution shown in the feed
+#   enabled   default true
+#   method    rss (default) | scrape
+#   rss       feed URL          -- required for method: rss
+#   url       index/section URL -- required for method: scrape
+#   weight    0.0-2.0, default 1.0. Multiplies the source's contribution to a
+#             story's score. Use it to promote sources you trust.
+#   topics    optional hints merged into every article from this source
+#   max_items cap per run, default = defaults.max_items_per_source
+#
+# scrape-only keys:
+#   link_selector    CSS selector matching anchor tags for article links
+#   link_pattern     optional regex an href must match to be followed
+#   max_links        how many article pages to fetch per run (keep it small)
+
+defaults:
+  max_items_per_source: 25
+  # Excerpt cap. We deliberately store only enough text to summarize from --
+  # never a full article body. See "Attribution and copyright" in README.
+  excerpt_chars: 1200
+
+sources:
+  - name: BBC World
+    rss: https://feeds.bbci.co.uk/news/world/rss.xml
+    weight: 1.2
+    topics: [world]
+
+  - name: The Guardian World
+    rss: https://www.theguardian.com/world/rss
+    weight: 1.1
+    topics: [world]
+
+  - name: NPR News
+    rss: https://feeds.npr.org/1001/rss.xml
+    weight: 1.0
+
+  - name: Al Jazeera
+    rss: https://www.aljazeera.com/xml/rss/all.xml
+    weight: 1.0
+    topics: [world]
+
+  - name: Ars Technica
+    rss: https://feeds.arstechnica.com/arstechnica/index
+    weight: 1.1
+    topics: [technology]
+
+  - name: The Verge
+    rss: https://www.theverge.com/rss/index.xml
+    weight: 0.9
+    topics: [technology]
+
+  - name: TechCrunch
+    rss: https://techcrunch.com/feed/
+    weight: 0.8
+    topics: [technology, startups]
+
+  - name: Hacker News
+    rss: https://news.ycombinator.com/rss
+    weight: 0.9
+    topics: [technology]
+    max_items: 30
+
+  # ---------------------------------------------------------------------------
+  # Scraping example, disabled by default.
+  #
+  # Reuters retired its public RSS feeds, so it can only be reached by scraping
+  # or a paid API. Before enabling ANY scrape source, check that site's
+  # robots.txt and terms of service yourself -- the fetcher honours robots.txt
+  # and crawl-delay, but that is a technical control, not permission.
+  # Prefer an official feed or API whenever one exists.
+  - name: Reuters
+    url: https://www.reuters.com/world/
+    method: scrape
+    enabled: false
+    link_selector: "a[data-testid='Heading']"
+    link_pattern: "/world/"
+    max_links: 8
+    weight: 1.2
+    topics: [world]

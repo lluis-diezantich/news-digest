@@ -1,0 +1,95 @@
+name: Update digest
+
+# Runs the whole pipeline and commits the results back to the repository:
+# docs/ is what GitHub Pages serves, data/news.db is the state that makes
+# deduplication and story continuity work across runs.
+
+on:
+  schedule:
+    # Every three hours, deliberately off the hour -- scheduled jobs on the hour
+    # queue behind everyone else's and can be delayed by many minutes.
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      no_llm:
+        description: "Skip the LLM and use offline heuristic enrichment"
+        type: boolean
+        default: false
+      limit:
+        description: "Max articles to send to the LLM this run"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+# Two runs writing data/news.db at once would race on the commit.
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run pipeline
+        env:
+          # Add GEMINI_API_KEY under Settings -> Secrets and variables -> Actions.
+          # Without it the run still succeeds, using offline heuristic enrichment.
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
+          LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-2.5-flash' }}
+          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '60' }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          NEWS_DIGEST_USER_AGENT: >-
+            news-digest/0.1 (+https://github.com/${{ github.repository }})
+        run: |
+          news-digest run \
+            ${{ inputs.no_llm && '--no-llm' || '' }} \
+            ${{ inputs.limit && format('--limit {0}', inputs.limit) || '' }} \
+            | tee run-summary.txt
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "### Digest run"
+            echo '```'
+            cat run-summary.txt 2>/dev/null || echo "the pipeline produced no summary"
+            echo '```'
+            news-digest stats || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit feed and state
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs data
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git commit -m "chore: update digest $(date -u +'%Y-%m-%d %H:%M UTC')"
+          # Another run may have pushed while this one worked; rebase and retry.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && \
+              git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            echo "push attempt $attempt failed, retrying"
+            sleep 5
+          done
+          exit 1

@@ -1,0 +1,55 @@
+# What you care about. Used for deterministic scoring in Python -- no LLM call.
+#
+# A story's interest score is the best-matching topic weight, plus a bonus for
+# each keyword hit in its headline/summary/entities. Everything is optional:
+# with an empty file the feed falls back to pure importance + recency.
+
+# Topic weights, 0.0-2.0. Matched against the topics the LLM assigns to an
+# article (case-insensitive, substring match both ways so "ai" matches
+# "ai policy"). Anything not listed scores 1.0.
+topics:
+  technology: 1.4
+  ai: 1.5
+  science: 1.2
+  climate: 1.2
+  world: 1.1
+  economics: 1.0
+  politics: 0.9
+  sports: 0.3
+  celebrity: 0.1
+
+# Extra nudge for specific things. Each distinct hit adds `keyword_bonus`.
+keywords:
+  - anthropic
+  - open source
+  - semiconductors
+  - european union
+  - denmark
+
+# Topics/keywords here push a story down hard. Use for things you never
+# want at the top, without hiding them entirely.
+mute:
+  - horoscope
+  - royal family
+
+weights:
+  importance: 1.0     # LLM's 0-1 importance estimate
+  interest: 0.8       # topic/keyword match above
+  recency: 0.6        # exponential decay, see recency_half_life_hours
+  corroboration: 0.3  # bonus when several sources cover the same story
+  keyword_bonus: 0.15
+  mute_penalty: 0.9   # subtracted from the final score on a mute hit
+
+recency_half_life_hours: 18
+
+feed:
+  # Stories shown on the page, highest score first.
+  max_stories: 60
+  # Stories older than this are dropped from the page (kept in the DB).
+  max_age_hours: 72
+  title: "Daily Digest"
+  subtitle: "Curated from your sources"
+
+storage:
+  # Articles older than this are pruned so the committed SQLite file stays small.
+  retention_days: 30

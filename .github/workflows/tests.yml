@@ -1,0 +1,34 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    # The digest job's own commits only touch generated output.
+    paths-ignore:
+      - "docs/**"
+      - "data/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - run: pip install -e '.[dev]'
+      - run: pytest -q
+      # The pipeline must work end to end with no API key and no network access
+      # to the LLM -- this is the path a fork or a quota-exhausted run takes.
+      - name: Smoke test the offline path
+        run: |
+          news-digest --db /tmp/ci.db --out /tmp/ci-site run --no-fetch --no-llm
+          test -f /tmp/ci-site/feed.json

@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Digest</title>
+<link rel="alternate" type="application/rss+xml" title="Digest RSS" href="feed.xml">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfaf8;
+    --card: #ffffff;
+    --border: #e6e2dc;
+    --text: #1a1917;
+    --muted: #6b665e;
+    --accent: #9a3412;
+    --accent-soft: #fdf0e8;
+    --chip: #f2efea;
+    --radius: 10px;
+    --maxw: 46rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16151a;
+      --card: #1e1d23;
+      --border: #302e37;
+      --text: #eceaf0;
+      --muted: #9b96a3;
+      --accent: #f0906a;
+      --accent-soft: #2b2027;
+      --chip: #282730;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    padding-block: 2rem 4rem;
+    padding-inline: 1rem;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; }
+
+  header { border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; margin-bottom: 1.25rem; }
+  h1 { font-size: 1.6rem; margin: 0 0 .2rem; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 .75rem; }
+  .meta { color: var(--muted); font-size: .8rem; display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+  .meta a { color: inherit; }
+
+  .controls { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.5rem; }
+  input[type=search] {
+    width: 100%; padding: .5rem .7rem; font: inherit; font-size: .9rem;
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  input[type=search]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .topics { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .topic {
+    font: inherit; font-size: .78rem; cursor: pointer;
+    padding: .2rem .6rem; border-radius: 999px;
+    background: var(--chip); color: var(--muted);
+    border: 1px solid transparent;
+  }
+  .topic[aria-pressed="true"] {
+    background: var(--accent-soft); color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  .story {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1rem 1.1rem; margin-bottom: .85rem;
+  }
+  .story h2 { font-size: 1.06rem; line-height: 1.35; margin: 0 0 .45rem; letter-spacing: -.01em; }
+  .story h2 a { color: inherit; text-decoration: none; }
+  .story h2 a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+  .summary { margin: 0 0 .5rem; }
+  .why {
+    margin: 0 0 .6rem; padding-left: .7rem;
+    border-left: 2px solid var(--accent);
+    color: var(--muted); font-size: .92rem;
+  }
+  .why b { color: var(--text); font-weight: 600; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .55rem; }
+  .tag { font-size: .72rem; padding: .1rem .45rem; border-radius: 999px; background: var(--chip); color: var(--muted); }
+  .score { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .3rem; }
+  .sources li { font-size: .84rem; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; }
+  .sources a { color: var(--accent); text-decoration: none; }
+  .sources a:hover { text-decoration: underline; }
+  .outlet { color: var(--muted); flex: 0 0 auto; min-width: 7.5rem; }
+  .when { color: var(--muted); font-size: .76rem; }
+
+  details > summary {
+    cursor: pointer; color: var(--muted); font-size: .82rem;
+    margin-top: .4rem; list-style: none;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::before { content: "▸ "; }
+  details[open] > summary::before { content: "▾ "; }
+
+  .status { color: var(--muted); padding: 2rem 0; text-align: center; }
+  .status code { background: var(--chip); padding: .1rem .3rem; border-radius: 4px; }
+  footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .78rem; }
+  footer p { margin: .3rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Daily Digest</h1>
+    <p class="subtitle" id="subtitle"></p>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="controls" hidden id="controls">
+    <input type="search" id="search" placeholder="Filter stories by word, entity or outlet…" aria-label="Filter stories">
+    <div class="topics" id="topics" role="group" aria-label="Filter by topic"></div>
+  </div>
+
+  <main id="stories" aria-live="polite">
+    <p class="status">Loading…</p>
+  </main>
+
+  <footer>
+    <p>Summaries are generated by an LLM from source excerpts and may contain errors —
+       follow the links for the reporting itself. All rights remain with the original publishers.</p>
+    <p><a href="feed.json">feed.json</a> · <a href="feed.xml">RSS</a></p>
+  </footer>
+</div>
+
+<script>
+const state = { feed: null, topic: null, query: "" };
+
+const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+function ago(iso) {
+  if (!iso) return "";
+  const then = new Date(iso);
+  if (isNaN(then)) return "";
+  const mins = Math.round((then - Date.now()) / 60000);
+  if (Math.abs(mins) < 60) return rtf.format(mins, "minute");
+  const hours = Math.round(mins / 60);
+  if (Math.abs(hours) < 36) return rtf.format(hours, "hour");
+  return rtf.format(Math.round(hours / 24), "day");
+}
+
+function el(tag, props = {}, ...children) {
+  const node = Object.assign(document.createElement(tag), props);
+  for (const child of children.flat()) {
+    if (child != null) node.append(child);
+  }
+  return node;
+}
+
+function matches(story) {
+  if (state.topic && !story.topics.includes(state.topic)) return false;
+  if (!state.query) return true;
+  const haystack = [
+    story.headline, story.summary, story.why_it_matters,
+    story.topics.join(" "), (story.entities || []).join(" "),
+    story.articles.map(a => a.source).join(" "),
+  ].join(" ").toLowerCase();
+  return state.query.split(/\s+/).every(term => haystack.includes(term));
+}
+
+function renderStory(story) {
+  const lead = story.articles[0] || {};
+  const tags = el("div", { className: "tags" },
+    ...story.topics.map(t => el("span", { className: "tag", textContent: t })),
+    story.source_count > 1
+      ? el("span", { className: "tag", textContent: `${story.source_count} sources` })
+      : null,
+    el("span", { className: "tag score", textContent: `score ${story.score.toFixed(2)}`,
+                 title: `LLM importance ${story.importance}` }),
+  );
+
+  const sources = el("ul", { className: "sources" },
+    ...story.articles.map(a => el("li", {},
+      el("span", { className: "outlet", textContent: a.source }),
+      el("a", { href: a.url, textContent: a.title, rel: "noopener noreferrer", target: "_blank" }),
+      el("span", { className: "when", textContent: ago(a.published_at),
+                   title: a.published_at || "" }),
+    )),
+  );
+
+  const article = el("article", { className: "story" },
+    el("h2", {}, el("a", { href: lead.url || "#", textContent: story.headline,
+                           rel: "noopener noreferrer", target: "_blank" })),
+    tags,
+    el("p", { className: "summary", textContent: story.summary }),
+    story.why_it_matters
+      ? el("p", { className: "why" }, el("b", { textContent: "Why it matters: " }),
+           story.why_it_matters)
+      : null,
+  );
+
+  if (story.articles.length > 2) {
+    article.append(el("details", {},
+      el("summary", { textContent: `${story.articles.length} articles` }), sources));
+  } else {
+    article.append(sources);
+  }
+  return article;
+}
+
+function render() {
+  const main = document.getElementById("stories");
+  main.textContent = "";
+  const visible = state.feed.stories.filter(matches);
+  if (!visible.length) {
+    main.append(el("p", { className: "status", textContent: "No stories match that filter." }));
+    return;
+  }
+  main.append(...visible.map(renderStory));
+}
+
+function renderTopics() {
+  const box = document.getElementById("topics");
+  box.textContent = "";
+  for (const topic of state.feed.topics) {
+    const button = el("button", {
+      className: "topic", textContent: topic, type: "button",
+      onclick: () => {
+        state.topic = state.topic === topic ? null : topic;
+        renderTopics();
+        render();
+      },
+    });
+    button.setAttribute("aria-pressed", String(state.topic === topic));
+    box.append(button);
+  }
+}
+
+async function load() {
+  const main = document.getElementById("stories");
+  try {
+    const response = await fetch("feed.json", { cache: "no-cache" });
+    if (!response.ok) throw new Error(`feed.json returned ${response.status}`);
+    state.feed = await response.json();
+  } catch (error) {
+    main.textContent = "";
+    main.append(el("p", { className: "status" },
+      "Could not load feed.json — ", el("code", { textContent: "news-digest run" }),
+      " has not published a feed yet.",
+    ));
+    console.error(error);
+    return;
+  }
+
+  const feed = state.feed;
+  document.title = feed.title;
+  document.getElementById("title").textContent = feed.title;
+  document.getElementById("subtitle").textContent = feed.subtitle || "";
+  document.getElementById("meta").append(
+    el("span", { textContent: `${feed.story_count} stories from ${feed.article_count} articles` }),
+    el("span", { textContent: `${feed.sources.length} sources` }),
+    el("span", { textContent: `updated ${ago(feed.generated_at)}`,
+                 title: feed.generated_at }),
+  );
+
+  document.getElementById("controls").hidden = false;
+  document.getElementById("search").addEventListener("input", (event) => {
+    state.query = event.target.value.trim().toLowerCase();
+    render();
+  });
+  renderTopics();
+  render();
+}
+
+load();
+</script>
+</body>
+</html>

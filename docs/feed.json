@@ -1,0 +1,2288 @@
+{
+ "generated_at": "2026-09-13T17:50:22+00:00",
+ "title": "Daily Digest",
+ "subtitle": "Curated from your sources",
+ "story_count": 60,
+ "article_count": 63,
+ "topics": [
+  "general",
+  "ai",
+  "world",
+  "politics",
+  "technology",
+  "economics",
+  "health",
+  "science"
+ ],
+ "sources": [
+  {
+   "name": "Al Jazeera",
+   "articles": 18
+  },
+  {
+   "name": "BBC World",
+   "articles": 16
+  },
+  {
+   "name": "The Guardian World",
+   "articles": 12
+  },
+  {
+   "name": "The Verge",
+   "articles": 6
+  },
+  {
+   "name": "Hacker News",
+   "articles": 3
+  },
+  {
+   "name": "Ars Technica",
+   "articles": 3
+  },
+  {
+   "name": "TechCrunch",
+   "articles": 3
+  },
+  {
+   "name": "NPR News",
+   "articles": 2
+  }
+ ],
+ "run": {
+  "started_at": "2026-09-13T17:50:18+00:00",
+  "finished_at": "2026-09-13T17:50:22+00:00",
+  "sources_ok": 8,
+  "sources_failed": [],
+  "articles_seen": 162,
+  "articles_new": 161,
+  "duplicates": 1,
+  "enriched": 161,
+  "enrich_cached": 0,
+  "enrich_failed": 0,
+  "llm_calls": 0,
+  "stories_total": 126,
+  "stories_new": 124,
+  "stories_published": 60
+ },
+ "stories": [
+  {
+   "id": "sed0c80e5ef30daa",
+   "headline": "Trump downplays AI risks after dire expert warnings and calls to slow development down",
+   "summary": "The US President said \"negative forces\" were airing concerns about \"things that won't happen\".",
+   "why_it_matters": "",
+   "topics": [
+    "ai",
+    "politics"
+   ],
+   "entities": [
+    "Trump",
+    "US President"
+   ],
+   "importance": 0.35,
+   "score": 2.544,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:29:27+00:00",
+   "last_published": "2026-09-13T16:29:27+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "8d552fdd40f3b306",
+     "title": "Trump downplays AI risks after dire expert warnings and calls to slow development down",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T16:29:27+00:00",
+     "author": null,
+     "summary": "The US President said \"negative forces\" were airing concerns about \"things that won't happen\".",
+     "topics": [
+      "ai",
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s35abd3f8cef3a6c",
+   "headline": "Crossbench MPs launch push to stop Australian military exports being used in human rights breaches",
+   "summary": "‘Red lines’ legislation would forbid defence equipment technology or services being used, includes parts for F-35 fighter jets Get our breaking news email , free app or daily news podcast Crossbench MPs including David Pocock and Sophie Scamps will put pressure on the Albanese…",
+   "why_it_matters": "",
+   "topics": [
+    "technology",
+    "politics"
+   ],
+   "entities": [
+    "Crossbench MPs",
+    "Australian",
+    "Red",
+    "F-35",
+    "Get",
+    "David Pocock"
+   ],
+   "importance": 0.59,
+   "score": 2.473,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:00:09+00:00",
+   "last_published": "2026-09-13T15:00:09+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "ffe3eea7de7831b9",
+     "title": "Crossbench MPs launch push to stop Australian military exports being used in human rights breaches",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/2026/sep/14/crossbench-mps-launch-push-to-stop-australian-military-exports-being-used-in-human-rights-breaches",
+     "published_at": "2026-09-13T15:00:09+00:00",
+     "author": "Krishani Dhanji",
+     "summary": "‘Red lines’ legislation would forbid defence equipment technology or services being used, includes parts for F-35 fighter jets Get our breaking news email , free app or daily news podcast Crossbench MPs including David Pocock and Sophie Scamps will put pressure on the Albanese…",
+     "topics": [
+      "technology",
+      "politics"
+     ],
+     "importance": 0.59
+    }
+   ]
+  },
+  {
+   "id": "scb0eab717e96360",
+   "headline": "Dramatic insider warnings over AI fall flat with some in Silicon Valley",
+   "summary": "A recent spate of stark warnings about the dangers of AI has been met with scepticism by executives and investors.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "Dramatic",
+    "Silicon Valley"
+   ],
+   "importance": 0.35,
+   "score": 2.374,
+   "source_count": 1,
+   "first_published": "2026-09-13T09:05:10+00:00",
+   "last_published": "2026-09-13T09:05:10+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "702eef61acce01b1",
+     "title": "Dramatic insider warnings over AI fall flat with some in Silicon Valley",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cq635037g18o?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T09:05:10+00:00",
+     "author": null,
+     "summary": "A recent spate of stark warnings about the dangers of AI has been met with scepticism by executives and investors.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sb11b3a640e5e0d5",
+   "headline": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+   "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Indonesian",
+    "Java Sea",
+    "Virgo Transport",
+    "Search",
+    "Java Sea Rescue",
+    "Indonesia",
+    "Java",
+    "Borneo"
+   ],
+   "importance": 0.5,
+   "score": 2.252,
+   "source_count": 2,
+   "first_published": "2026-09-13T12:18:49+00:00",
+   "last_published": "2026-09-13T13:30:38+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "021e83f3e97f6e47",
+     "title": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cvgykzgljlyo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T13:30:38+00:00",
+     "author": null,
+     "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.47
+    },
+    {
+     "id": "323941e4965faec7",
+     "title": "At least six dead and 130 missing after Indonesian ferry capsizes, officials say",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/indonesian-rescue-crews-searching-for-140-people-after-ferry-hit-bad-weather",
+     "published_at": "2026-09-13T12:18:49+00:00",
+     "author": "Jon Henley and agencies",
+     "summary": "Search and rescue agency says 107 people brought to safety from vessel hit by bad weather in Java Sea Rescue workers in Indonesia said at least six people had died and 130 others were missing on Sunday after a ferry sailing between the islands of Java and Borneo capsized in bad…",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s72f040e8e0435e1",
+   "headline": "As Japan’s yen peaks, is the era of budget-friendly trips coming to an end for Australian travellers?",
+   "summary": "The currency has now reached its highest level against the US and Australian dollars in six months Get our breaking news email , free app or daily news podcast In the unpredictable world of global currency markets, there has been one safe bet: that the Japanese yen would…",
+   "why_it_matters": "",
+   "topics": [
+    "technology",
+    "economics"
+   ],
+   "entities": [
+    "As Japan",
+    "Australian",
+    "Get",
+    "Japanese",
+    "Tokyo",
+    "Washington"
+   ],
+   "importance": 0.35,
+   "score": 2.209,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:00:09+00:00",
+   "last_published": "2026-09-13T15:00:09+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "1cdbf92dd12be83e",
+     "title": "As Japan’s yen peaks, is the era of budget-friendly trips coming to an end for Australian travellers?",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/2026/sep/14/as-japans-yen-peaks-is-the-era-of-budget-friendly-trips-coming-to-an-end-for-australian-travellers",
+     "published_at": "2026-09-13T15:00:09+00:00",
+     "author": "Jonathan Barrett Business editor",
+     "summary": "The currency has now reached its highest level against the US and Australian dollars in six months Get our breaking news email , free app or daily news podcast In the unpredictable world of global currency markets, there has been one safe bet: that the Japanese yen would…",
+     "topics": [
+      "technology",
+      "economics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s8a27bdf881ff5b9",
+   "headline": "Pauline Hanson and Barnaby Joyce stayed at Gina Rinehart’s $20m mansion after One Nation fundraisers",
+   "summary": "Exclusive: New details underscoring depth of relationship between billionaire and party revealed in first episode of Guardian podcast The Populist Listen to the Guardian’s podcast The Populist here Get our new political email , free app or daily news podcast Pauline Hanson and…",
+   "why_it_matters": "",
+   "topics": [
+    "technology"
+   ],
+   "entities": [
+    "Pauline Hanson",
+    "Barnaby Joyce",
+    "Gina Rinehart",
+    "One Nation",
+    "Exclusive",
+    "Guardian"
+   ],
+   "importance": 0.35,
+   "score": 2.209,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:00:07+00:00",
+   "last_published": "2026-09-13T15:00:07+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c97566efb478274e",
+     "title": "Pauline Hanson and Barnaby Joyce stayed at Gina Rinehart’s $20m mansion after One Nation fundraisers",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/2026/sep/14/pauline-hanson-and-barnaby-joyce-stayed-at-gina-rinehart-brisbane-mansion-after-one-nation-fundraisers-ntwnfb",
+     "published_at": "2026-09-13T15:00:07+00:00",
+     "author": "Sarah Martin Senior correspondent",
+     "summary": "Exclusive: New details underscoring depth of relationship between billionaire and party revealed in first episode of Guardian podcast The Populist Listen to the Guardian’s podcast The Populist here Get our new political email , free app or daily news podcast Pauline Hanson and…",
+     "topics": [
+      "technology"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s8193ad0c6d109d1",
+   "headline": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+   "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Russia",
+    "Ukrainian",
+    "Boris Johnson",
+    "European",
+    "UK PM",
+    "Putin"
+   ],
+   "importance": 0.35,
+   "score": 2.191,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:38:29+00:00",
+   "last_published": "2026-09-13T17:38:29+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "2db488239574dc25",
+     "title": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cy5zg41dkqwo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T17:38:29+00:00",
+     "author": null,
+     "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s0ea1e55e9b237e9",
+   "headline": "Iran war reshapes Brics ties but also exposes divisions",
+   "summary": "Brics members agree they need a new global order but it's harder to answer what should replace it and how to get there.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Iran",
+    "Brics"
+   ],
+   "importance": 0.47,
+   "score": 2.182,
+   "source_count": 1,
+   "first_published": "2026-09-13T11:23:42+00:00",
+   "last_published": "2026-09-13T11:23:42+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d1c6aa17687a1f20",
+     "title": "Iran war reshapes Brics ties but also exposes divisions",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/ce8767g4jdpo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T11:23:42+00:00",
+     "author": null,
+     "summary": "Brics members agree they need a new global order but it's harder to answer what should replace it and how to get there.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s369ce8a08b71cea",
+   "headline": "What are the five pros and cons of artificial intelligence?",
+   "summary": "AI creates new opportunities in programming and automation, but experts warn of risks to early-career workers.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [],
+   "importance": 0.35,
+   "score": 2.089,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:03:48+00:00",
+   "last_published": "2026-09-13T15:03:48+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "fb66f71838a07077",
+     "title": "What are the five pros and cons of artificial intelligence?",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/what-are-the-five-pros-and-cons-of-artificial-intelligence?traffic_source=rss",
+     "published_at": "2026-09-13T15:03:48+00:00",
+     "author": null,
+     "summary": "AI creates new opportunities in programming and automation, but experts warn of risks to early-career workers.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sdbee29e6862110f",
+   "headline": "Wisconsin congressman survives emergency plane landing, swims to safety",
+   "summary": "Wisconsin Congressman Tom Tiffany escaped a sinking plane and swam to shallow water after an emergency landing in a lake. Tiffany and the pilot called 911 from on top of the plane.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Rep Tom Tiffany",
+    "Wisconsin"
+   ],
+   "importance": 0.35,
+   "score": 2.088,
+   "source_count": 2,
+   "first_published": "2026-09-13T15:30:43+00:00",
+   "last_published": "2026-09-13T17:45:33+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "e28c1fad066f4a26",
+     "title": "Wisconsin congressman survives emergency plane landing, swims to safety",
+     "source": "NPR News",
+     "url": "https://www.npr.org/2026/09/13/nx-s1-5968081/wisconsin-congressman-survives-emergency-plane-landing-swims-to-safety",
+     "published_at": "2026-09-13T17:45:33+00:00",
+     "author": "Kristin Wright",
+     "summary": "Wisconsin Congressman Tom Tiffany escaped a sinking plane and swam to shallow water after an emergency landing in a lake. Tiffany and the pilot called 911 from on top of the plane.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    },
+    {
+     "id": "3a74dd89800d957c",
+     "title": "US congressman swims to safety after his plane is forced to land on a lake",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c5y5d87x72zo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T15:30:43+00:00",
+     "author": null,
+     "summary": "The small plane carrying Rep Tom Tiffany had a mechanical issue that forced the pilot to make an emergency landing on a Wisconsin lake.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s68b9a8e2c93ca5d",
+   "headline": "David Sacks: OpenAI and Anthropic Don't Need Regulations to Pace Frontier Models",
+   "summary": "Comments",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "David Sacks",
+    "OpenAI",
+    "Anthropic Don't Need Regulations",
+    "Pace Frontier Models",
+    "Comments"
+   ],
+   "importance": 0.35,
+   "score": 2.023,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:52:33+00:00",
+   "last_published": "2026-09-13T16:52:33+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "4e3f293e30946b2a",
+     "title": "David Sacks: OpenAI and Anthropic Don't Need Regulations to Pace Frontier Models",
+     "source": "Hacker News",
+     "url": "https://twitter.com/DavidSacks/status/2098973625252708460",
+     "published_at": "2026-09-13T16:52:33+00:00",
+     "author": null,
+     "summary": "Comments",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se1d20a9b2cde55a",
+   "headline": "First H5 bird flu death of endangered Australian sea lion recorded amid fears for small population",
+   "summary": "South Australian authorities say case discovered on Kangaroo Island is first for species of which less than 12,000 animals remain Get our breaking news email , free app or daily news podcast South Australia has recorded the first death of an endangered Australian sea lion from…",
+   "why_it_matters": "",
+   "topics": [
+    "technology"
+   ],
+   "entities": [
+    "First H5",
+    "Australian",
+    "South Australian",
+    "Kangaroo Island",
+    "Get",
+    "South Australia"
+   ],
+   "importance": 0.35,
+   "score": 2.021,
+   "source_count": 1,
+   "first_published": "2026-09-13T05:04:52+00:00",
+   "last_published": "2026-09-13T05:04:52+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "99e7bee634f275ac",
+     "title": "First H5 bird flu death of endangered Australian sea lion recorded amid fears for small population",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/2026/sep/13/first-h5-bird-flu-death-of-endangered-australian-sea-lion-kangaroo-island",
+     "published_at": "2026-09-13T05:04:52+00:00",
+     "author": "Cait Kelly and Lisa Cox",
+     "summary": "South Australian authorities say case discovered on Kangaroo Island is first for species of which less than 12,000 animals remain Get our breaking news email , free app or daily news podcast South Australia has recorded the first death of an endangered Australian sea lion from…",
+     "topics": [
+      "technology"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s3a0a1fa16dfde63",
+   "headline": "First case of bird flu in endangered Australian sea lion confirmed – as it happened",
+   "summary": "This blog is now closed. Get our breaking news email , free app or daily news podcast Andrew Hastie says he “feels sorry” for Barnaby Joyce and that he and One Nation MP David Farley probably have “buyers remorse” after joining the rightwing party.",
+   "why_it_matters": "",
+   "topics": [
+    "technology",
+    "politics"
+   ],
+   "entities": [
+    "Australian",
+    "Get",
+    "Andrew Hastie",
+    "Barnaby Joyce",
+    "One Nation MP David Farley",
+    "Hastie"
+   ],
+   "importance": 0.35,
+   "score": 2.02,
+   "source_count": 1,
+   "first_published": "2026-09-13T05:02:29+00:00",
+   "last_published": "2026-09-13T05:02:29+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "5ffb8b15b2eadf64",
+     "title": "First case of bird flu in endangered Australian sea lion confirmed – as it happened",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/australia-news/live/2026/sep/13/australia-news-live-chris-bowen-middle-east-fuel-petrol-prices-anika-wells-social-media-algorithm-andrew-hastie-pauline-hanson-one-nation-albanese-labor-coalition-liberal-ntwnfb",
+     "published_at": "2026-09-13T05:02:29+00:00",
+     "author": "Cait Kelly (earlier)",
+     "summary": "This blog is now closed. Get our breaking news email , free app or daily news podcast Andrew Hastie says he “feels sorry” for Barnaby Joyce and that he and One Nation MP David Farley probably have “buyers remorse” after joining the rightwing party.",
+     "topics": [
+      "technology",
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s2fe4023d79b3d26",
+   "headline": "Turkish police detain dozens in raids on gay bars and homes of LGBTQ+ activists",
+   "summary": "Human rights groups in Turkey have accused the government of using a family- values campaign to target the LGBTQ+ community.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Turkish",
+    "LGBTQ",
+    "Human",
+    "Turkey"
+   ],
+   "importance": 0.35,
+   "score": 2.011,
+   "source_count": 1,
+   "first_published": "2026-09-13T14:25:56+00:00",
+   "last_published": "2026-09-13T14:25:56+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d4e0ced2a1033cf0",
+     "title": "Turkish police detain dozens in raids on gay bars and homes of LGBTQ+ activists",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cpve191wy47o?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T14:25:56+00:00",
+     "author": null,
+     "summary": "Human rights groups in Turkey have accused the government of using a family- values campaign to target the LGBTQ+ community.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s76eb4dd4bbf4593",
+   "headline": "Train carrying Boris Johnson and ex-CIA chief may have been targeted in Russian strike, officials say",
+   "summary": "Ukrainian Railways says former British PM and David Petraeus crossed into Poland shortly before drone attack near border A train carrying Boris Johnson and the former CIA chief David Petraeus may have been the target of a Russian drone strike that hit a train engine near the…",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Train",
+    "Boris Johnson",
+    "CIA",
+    "Russian",
+    "Ukrainian Railways",
+    "British PM"
+   ],
+   "importance": 0.35,
+   "score": 2.01,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:43:03+00:00",
+   "last_published": "2026-09-13T17:43:03+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "aa62dbe918005690",
+     "title": "Train carrying Boris Johnson and ex-CIA chief may have been targeted in Russian strike, officials say",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/russian-drone-hits-kyiv-warsaw-passenger-train-polish-border",
+     "published_at": "2026-09-13T17:43:03+00:00",
+     "author": "Amy Hawkins and Charlotte Higgins in Kyiv",
+     "summary": "Ukrainian Railways says former British PM and David Petraeus crossed into Poland shortly before drone attack near border A train carrying Boris Johnson and the former CIA chief David Petraeus may have been the target of a Russian drone strike that hit a train engine near the…",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s83a8d9061f01f05",
+   "headline": "Legendary Canadian boxer George Chuvalo dies aged 89",
+   "summary": "The heavyweight champion took on the likes of Muhammad Ali and Joe Frazier, and was known for never once getting knocked out or knocked down.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Legendary Canadian",
+    "George Chuvalo",
+    "Muhammad Ali",
+    "Joe Frazier"
+   ],
+   "importance": 0.35,
+   "score": 2.002,
+   "source_count": 1,
+   "first_published": "2026-09-13T14:01:44+00:00",
+   "last_published": "2026-09-13T14:01:44+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "4b099fee9592ca25",
+     "title": "Legendary Canadian boxer George Chuvalo dies aged 89",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cy8zv8v1z7zo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T14:01:44+00:00",
+     "author": null,
+     "summary": "The heavyweight champion took on the likes of Muhammad Ali and Joe Frazier, and was known for never once getting knocked out or knocked down.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sed10964586cff54",
+   "headline": "Trump doubles down on united Ireland comments on day two of visit",
+   "summary": "The US president was speaking at the Irish Open on Sunday and said \"many people agree\" with his comments.",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Trump",
+    "Ireland",
+    "Irish Open"
+   ],
+   "importance": 0.35,
+   "score": 1.98,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:57:58+00:00",
+   "last_published": "2026-09-13T16:57:58+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "be5304f41f094424",
+     "title": "Trump doubles down on united Ireland comments on day two of visit",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cx2z79n0eeno?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T16:57:58+00:00",
+     "author": null,
+     "summary": "The US president was speaking at the Irish Open on Sunday and said \"many people agree\" with his comments.",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sfa58d4338ded20f",
+   "headline": "Google illegally retains customer data,and I am taking legal action against them",
+   "summary": "Comments",
+   "why_it_matters": "",
+   "topics": [
+    "technology"
+   ],
+   "entities": [
+    "Google",
+    "Comments"
+   ],
+   "importance": 0.35,
+   "score": 1.854,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:24:04+00:00",
+   "last_published": "2026-09-13T17:24:04+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "0731f92229a7759b",
+     "title": "Google illegally retains customer data,and I am taking legal action against them",
+     "source": "Hacker News",
+     "url": "https://medium.com/@istokovicsgyorgy79/google-illegally-retains-customer-data-and-i-am-taking-legal-action-against-them-7da0cf95941c",
+     "published_at": "2026-09-13T17:24:04+00:00",
+     "author": null,
+     "summary": "Comments",
+     "topics": [
+      "technology"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sa1503d1bbecff6a",
+   "headline": "Ukraine drone strikes kill four as Russia attacks close to Poland border",
+   "summary": "Russia says four people killed in Ukrainian strikes as both sides continue to attack each other with waves of drones.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Ukraine",
+    "Russia",
+    "Poland",
+    "Ukrainian"
+   ],
+   "importance": 0.47,
+   "score": 1.85,
+   "source_count": 1,
+   "first_published": "2026-09-13T13:05:40+00:00",
+   "last_published": "2026-09-13T13:05:40+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "e19256c375154180",
+     "title": "Ukraine drone strikes kill four as Russia attacks close to Poland border",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/ukraine-drone-strikes-kill-four-as-russia-attacks-close-to-poland-border?traffic_source=rss",
+     "published_at": "2026-09-13T13:05:40+00:00",
+     "author": null,
+     "summary": "Russia says four people killed in Ukrainian strikes as both sides continue to attack each other with waves of drones.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s73827f433dfd42b",
+   "headline": "The Iran war reveals the limits of BRICS",
+   "summary": "The bloc struggles to translate its economic weight into geopolitical sway. But there may be a silver lining to it.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Iran",
+    "BRICS"
+   ],
+   "importance": 0.47,
+   "score": 1.844,
+   "source_count": 1,
+   "first_published": "2026-09-13T12:46:58+00:00",
+   "last_published": "2026-09-13T12:46:58+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "bcfbaee87c27b329",
+     "title": "The Iran war reveals the limits of BRICS",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/opinions/2026/9/13/the-iran-war-reveals-the-limits-of?traffic_source=rss",
+     "published_at": "2026-09-13T12:46:58+00:00",
+     "author": null,
+     "summary": "The bloc struggles to translate its economic weight into geopolitical sway. But there may be a silver lining to it.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s40d15d465839384",
+   "headline": "Sweden general election: close race as far right eyes role in government – Europe live",
+   "summary": "Country heads to the polls as latest polling shows 0.3-point gap between left and right wing blocs If you’re looking just for a single story to quickly catch up on the story of tonight, let’s cross to our Nordic correspondent, Miranda Bryant , for her preview. The prospect of…",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Sweden",
+    "Europe",
+    "Country",
+    "Nordic",
+    "Miranda Bryant",
+    "Sweden Democrats"
+   ],
+   "importance": 0.35,
+   "score": 1.835,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:44:32+00:00",
+   "last_published": "2026-09-13T17:44:32+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "264d1c3c15f28c13",
+     "title": "Sweden general election: close race as far right eyes role in government – Europe live",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/live/2026/sep/13/sweden-general-election-social-democrats-magdalena-sweden-democrats-ulf-kristersson-andersson-far-right-europe-latest-news-updates",
+     "published_at": "2026-09-13T17:44:32+00:00",
+     "author": "Jakub Krupa in Stockholm",
+     "summary": "Country heads to the polls as latest polling shows 0.3-point gap between left and right wing blocs If you’re looking just for a single story to quickly catch up on the story of tonight, let’s cross to our Nordic correspondent, Miranda Bryant , for her preview. The prospect of…",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s6086407872ea807",
+   "headline": "BRICS summit 2026: What are the key takeaways?",
+   "summary": "The 11-nation bloc avoids condemning the US-Israel war on Iran, showing the divisions among the members.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "BRICS",
+    "US-Israel",
+    "Iran"
+   ],
+   "importance": 0.47,
+   "score": 1.831,
+   "source_count": 1,
+   "first_published": "2026-09-13T12:04:39+00:00",
+   "last_published": "2026-09-13T12:04:39+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "b81f53ff38ff778f",
+     "title": "BRICS summit 2026: What are the key takeaways?",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/brics-summit-2026-what-are-the-key-takeaways?traffic_source=rss",
+     "published_at": "2026-09-13T12:04:39+00:00",
+     "author": null,
+     "summary": "The 11-nation bloc avoids condemning the US-Israel war on Iran, showing the divisions among the members.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s7d507140570f63a",
+   "headline": "Voting under way in Sweden with far right eyeing first role in government",
+   "summary": "Party with neo-Nazi roots is in line for key ministerial positions if rightwing bloc wins the election Sweden general election: close race as far right eyes role in government – Europe live Voting is under way in Sweden in a high-stakes election that could lead to the far-right…",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Voting",
+    "Sweden",
+    "Party",
+    "Nazi",
+    "Europe",
+    "Sweden Democrats"
+   ],
+   "importance": 0.35,
+   "score": 1.827,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:27:32+00:00",
+   "last_published": "2026-09-13T17:27:32+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "dd13ad1e480133df",
+     "title": "Voting under way in Sweden with far right eyeing first role in government",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/voting-under-way-in-sweden-with-far-right-eyeing-first-role-in-government",
+     "published_at": "2026-09-13T17:27:32+00:00",
+     "author": "Miranda Bryant Nordic correspondent",
+     "summary": "Party with neo-Nazi roots is in line for key ministerial positions if rightwing bloc wins the election Sweden general election: close race as far right eyes role in government – Europe live Voting is under way in Sweden in a high-stakes election that could lead to the far-right…",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s98fda6a55531d18",
+   "headline": "Six killed, 130 missing after Indonesian passenger ship capsizes",
+   "summary": "Six people have been killed and 130 remain missing after a passenger ship capsized in the Java Sea off Indonesia.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Indonesian",
+    "Java Sea",
+    "Indonesia"
+   ],
+   "importance": 0.47,
+   "score": 1.826,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:50:46+00:00",
+   "last_published": "2026-09-13T15:50:46+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c29e7a22e6ceace7",
+     "title": "Six killed, 130 missing after Indonesian passenger ship capsizes",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/six-killed-130-missing-after-indonesian-passenger-ship-capsizes?traffic_source=rss",
+     "published_at": "2026-09-13T15:50:46+00:00",
+     "author": null,
+     "summary": "Six people have been killed and 130 remain missing after a passenger ship capsized in the Java Sea off Indonesia.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s69707ae2c4615ba",
+   "headline": "A dignified life is a ‘distant dream’ for many Iranian families amid US war",
+   "summary": "With constant degredation and no real prospects of improvement in the foreseeable future, Iranians are losing hope.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Iranian",
+    "Iranians"
+   ],
+   "importance": 0.47,
+   "score": 1.825,
+   "source_count": 1,
+   "first_published": "2026-09-13T11:45:24+00:00",
+   "last_published": "2026-09-13T11:45:24+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "b6d78e67ca55743f",
+     "title": "A dignified life is a ‘distant dream’ for many Iranian families amid US war",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/economy/2026/9/13/a-dignified-life-is-a-distant-dream-for-many-iranian-families-amid-us-war?traffic_source=rss",
+     "published_at": "2026-09-13T11:45:24+00:00",
+     "author": null,
+     "summary": "With constant degredation and no real prospects of improvement in the foreseeable future, Iranians are losing hope.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "s8d14304b4e29769",
+   "headline": "ChatGPT-using lawyer punished for citing fake testimony from made-up witnesses",
+   "summary": "\"I didn't know that AI could hallucinate facts,\" New Mexico defense lawyer says.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "ChatGPT-using",
+    "New Mexico"
+   ],
+   "importance": 0.35,
+   "score": 1.816,
+   "source_count": 1,
+   "first_published": "2026-09-11T19:34:09+00:00",
+   "last_published": "2026-09-11T19:34:09+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "713fa14b50f5d8c1",
+     "title": "ChatGPT-using lawyer punished for citing fake testimony from made-up witnesses",
+     "source": "Ars Technica",
+     "url": "https://arstechnica.com/tech-policy/2026/09/chatgpt-using-lawyer-punished-for-citing-fake-testimony-from-made-up-witnesses/",
+     "published_at": "2026-09-11T19:34:09+00:00",
+     "author": "Jon Brodkin",
+     "summary": "\"I didn't know that AI could hallucinate facts,\" New Mexico defense lawyer says.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s9227973bf1d1be6",
+   "headline": "Donald Trump doubles down on support for united Ireland",
+   "summary": "US president says ‘many people agree’ with his view on unification, brushing off Andy Burnham’s opposition to referendum Donald Trump has reiterated his support for Irish unification and brushed off Andy Burnham’s opposition to a referendum. “Everybody says that. Then things…",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Donald Trump",
+    "Ireland",
+    "Andy Burnham",
+    "Irish",
+    "Everybody",
+    "British"
+   ],
+   "importance": 0.35,
+   "score": 1.816,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:59:06+00:00",
+   "last_published": "2026-09-13T16:59:06+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "56a5390d0e53ae5b",
+     "title": "Donald Trump doubles down on support for united Ireland",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/uk-news/2026/sep/13/donald-trump-doubles-down-on-support-for-united-ireland",
+     "published_at": "2026-09-13T16:59:06+00:00",
+     "author": "Rory Carroll Ireland correspondent",
+     "summary": "US president says ‘many people agree’ with his view on unification, brushing off Andy Burnham’s opposition to referendum Donald Trump has reiterated his support for Irish unification and brushed off Andy Burnham’s opposition to a referendum. “Everybody says that. Then things…",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s74fec048442777f",
+   "headline": "Oracle tries to appease Stargate data center opponents with renewables push",
+   "summary": "Renewables pledge won’t change the Oracle and OpenAI data center’s use of gas.",
+   "why_it_matters": "",
+   "topics": [
+    "ai",
+    "technology"
+   ],
+   "entities": [
+    "Oracle",
+    "Stargate",
+    "Renewables",
+    "OpenAI"
+   ],
+   "importance": 0.35,
+   "score": 1.811,
+   "source_count": 1,
+   "first_published": "2026-09-11T18:22:22+00:00",
+   "last_published": "2026-09-11T18:22:22+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "bd1e197346900337",
+     "title": "Oracle tries to appease Stargate data center opponents with renewables push",
+     "source": "Ars Technica",
+     "url": "https://arstechnica.com/gadgets/2026/09/oracle-promises-2-gw-of-renewables-to-match-stargate-data-center-emissions/",
+     "published_at": "2026-09-11T18:22:22+00:00",
+     "author": "Jeremy Hsu",
+     "summary": "Renewables pledge won’t change the Oracle and OpenAI data center’s use of gas.",
+     "topics": [
+      "ai",
+      "technology"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se6ff194e148aa45",
+   "headline": "Israeli attack on Gaza kills two Palestinians",
+   "summary": "Israeli strikes on Palestinian territory persist despite a 'ceasefire' brokered by the United States.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Israeli",
+    "Gaza",
+    "Palestinians",
+    "Palestinian",
+    "United States"
+   ],
+   "importance": 0.47,
+   "score": 1.8,
+   "source_count": 1,
+   "first_published": "2026-09-13T10:22:01+00:00",
+   "last_published": "2026-09-13T10:22:01+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d58de4cbdd0de1b2",
+     "title": "Israeli attack on Gaza kills two Palestinians",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/israeli-attack-on-gaza-kills-two-palestinians?traffic_source=rss",
+     "published_at": "2026-09-13T10:22:01+00:00",
+     "author": null,
+     "summary": "Israeli strikes on Palestinian territory persist despite a 'ceasefire' brokered by the United States.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "se773d9cb1f43041",
+   "headline": "Ukrainian drone evades Russian helicopter fire to strike oil tanker",
+   "summary": "Ukraine has released footage showing a drone evading fire from a Russian helicopter before striking a Russian oil tanker",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Ukrainian",
+    "Russian",
+    "Ukraine"
+   ],
+   "importance": 0.35,
+   "score": 1.793,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:11:43+00:00",
+   "last_published": "2026-09-13T16:11:43+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "7983076a8bc73933",
+     "title": "Ukrainian drone evades Russian helicopter fire to strike oil tanker",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/09-12-ukraine-drone-russian-tanker-sv?traffic_source=rss",
+     "published_at": "2026-09-13T16:11:43+00:00",
+     "author": null,
+     "summary": "Ukraine has released footage showing a drone evading fire from a Russian helicopter before striking a Russian oil tanker",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s2a149cae6821416",
+   "headline": "Only Roland Garros towel left, says Ukraine tennis player after Russian strike hits flat",
+   "summary": "Dayana Yastremska says her flat took a \"direct hit\" by a Russian missile in Odesa, and all that left was her Roland Garros towel.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Only Roland Garros",
+    "Ukraine",
+    "Russian",
+    "Dayana Yastremska",
+    "Odesa",
+    "Roland Garros"
+   ],
+   "importance": 0.35,
+   "score": 1.792,
+   "source_count": 1,
+   "first_published": "2026-09-12T20:27:25+00:00",
+   "last_published": "2026-09-12T20:27:25+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "7b940ff656318646",
+     "title": "Only Roland Garros towel left, says Ukraine tennis player after Russian strike hits flat",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c4gr33g3evlo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-12T20:27:25+00:00",
+     "author": null,
+     "summary": "Dayana Yastremska says her flat took a \"direct hit\" by a Russian missile in Odesa, and all that left was her Roland Garros towel.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s78cf7da191b2fe2",
+   "headline": "Critics celebrate Céline Dion's 'high-stakes' comeback show in Paris",
+   "summary": "The iconic Canadian singer kicked off her long-awaited comeback show in Paris on Saturday, after a six-year hiatus due to health issues.",
+   "why_it_matters": "",
+   "topics": [
+    "health"
+   ],
+   "entities": [
+    "Critics",
+    "Céline Dion's",
+    "Paris",
+    "Canadian"
+   ],
+   "importance": 0.35,
+   "score": 1.782,
+   "source_count": 1,
+   "first_published": "2026-09-13T02:41:51+00:00",
+   "last_published": "2026-09-13T02:41:51+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "dc41f5ac1d7b6e61",
+     "title": "Critics celebrate Céline Dion's 'high-stakes' comeback show in Paris",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cj3dzy3n84no?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T02:41:51+00:00",
+     "author": null,
+     "summary": "The iconic Canadian singer kicked off her long-awaited comeback show in Paris on Saturday, after a six-year hiatus due to health issues.",
+     "topics": [
+      "health"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sc998c843aed9119",
+   "headline": "I fixed a tractor using John Deere’s self-repair service. Farmers aren’t sold on it.",
+   "summary": "The manufacturer has a service that lets owners repair their own equipment.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "John Deere",
+    "Farmers"
+   ],
+   "importance": 0.35,
+   "score": 1.772,
+   "source_count": 1,
+   "first_published": "2026-09-13T11:00:41+00:00",
+   "last_published": "2026-09-13T11:00:41+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "a45af9653ad99b63",
+     "title": "I fixed a tractor using John Deere’s self-repair service. Farmers aren’t sold on it.",
+     "source": "Ars Technica",
+     "url": "https://arstechnica.com/gadgets/2026/09/i-fixed-a-tractor-using-john-deeres-self-repair-service-farmers-arent-sold-on-it/",
+     "published_at": "2026-09-13T11:00:41+00:00",
+     "author": "Boone Ashworth, WIRED.com",
+     "summary": "The manufacturer has a service that lets owners repair their own equipment.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "scd4435eadac1a7f",
+   "headline": "Red Sea nations watch as Houthis seize Bab al-Mandeb strait",
+   "summary": "Houthi control of Bab al-Mandeb chokes Suez Canal revenues, triggers refugee flows, and exposes regional security gaps.",
+   "why_it_matters": "",
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Red Sea",
+    "Houthis",
+    "Bab",
+    "Mandeb",
+    "Houthi",
+    "Suez Canal"
+   ],
+   "importance": 0.35,
+   "score": 1.768,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:00:47+00:00",
+   "last_published": "2026-09-13T15:00:47+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d6d347462cff9c23",
+     "title": "Red Sea nations watch as Houthis seize Bab al-Mandeb strait",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/economy/2026/9/13/red-sea-nations-watch-as-houthis-seize-bab-al-mandeb-strait?traffic_source=rss",
+     "published_at": "2026-09-13T15:00:47+00:00",
+     "author": null,
+     "summary": "Houthi control of Bab al-Mandeb chokes Suez Canal revenues, triggers refugee flows, and exposes regional security gaps.",
+     "topics": [
+      "world"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "scd572b44e704d79",
+   "headline": "Your car is selling your data",
+   "summary": "This is The Stepback, a weekly newsletter breaking down one essential story from the tech world. For more on cars, data privacy, and autonomous vehicles, follow Andrew J.",
+   "why_it_matters": "",
+   "topics": [
+    "technology",
+    "economics"
+   ],
+   "entities": [
+    "Stepback",
+    "Andrew",
+    "Hawkins",
+    "Opt",
+    "Earlier",
+    "Federal Trade Commission"
+   ],
+   "importance": 0.35,
+   "score": 1.754,
+   "source_count": 1,
+   "first_published": "2026-09-13T12:00:00+00:00",
+   "last_published": "2026-09-13T12:00:00+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "1850a8756f3e833b",
+     "title": "Your car is selling your data",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/column/994172/your-car-is-selling-your-data",
+     "published_at": "2026-09-13T12:00:00+00:00",
+     "author": "Andrew Hawkins",
+     "summary": "This is The Stepback, a weekly newsletter breaking down one essential story from the tech world. For more on cars, data privacy, and autonomous vehicles, follow Andrew J.",
+     "topics": [
+      "technology",
+      "economics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sd1d47ed6bde1887",
+   "headline": "Apple’s new phones are here",
+   "summary": "Hi, friends! Welcome to Installer No.",
+   "why_it_matters": "",
+   "topics": [
+    "technology"
+   ],
+   "entities": [
+    "Apple",
+    "Welcome",
+    "Installer No",
+    "Verge-iest",
+    "Installer",
+    "I've"
+   ],
+   "importance": 0.35,
+   "score": 1.754,
+   "source_count": 1,
+   "first_published": "2026-09-13T12:00:00+00:00",
+   "last_published": "2026-09-13T12:00:00+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c29a0083a2370c36",
+     "title": "Apple’s new phones are here",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/tech/994218/apple-iphone-18-pro-airpods-5-meta-muse-ai-sony-headphones",
+     "published_at": "2026-09-13T12:00:00+00:00",
+     "author": "Jay Peters",
+     "summary": "Hi, friends! Welcome to Installer No.",
+     "topics": [
+      "technology"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s00ff214f52eefc3",
+   "headline": "They lost their jobs after posting about Charlie Kirk, but some have no regrets",
+   "summary": "Some people fired in the wake of Kirk's assassination have won big settlements from employers, others have had to start over from scratch.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Charlie Kirk",
+    "Kirk's"
+   ],
+   "importance": 0.35,
+   "score": 1.754,
+   "source_count": 1,
+   "first_published": "2026-09-13T00:49:08+00:00",
+   "last_published": "2026-09-13T00:49:08+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d97d32bab06db73c",
+     "title": "They lost their jobs after posting about Charlie Kirk, but some have no regrets",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cj06jgl9qzlo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-13T00:49:08+00:00",
+     "author": null,
+     "summary": "Some people fired in the wake of Kirk's assassination have won big settlements from employers, others have had to start over from scratch.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s8c77d7f25ad4d3d",
+   "headline": "Russians seek answers over hundreds missing after Ukraine's 2024 incursion",
+   "summary": "Officials say more than 300 Russians remain missing after the 2024 Kursk offensive, but no-one really knows the true figure.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Russians",
+    "Ukraine's",
+    "Kursk"
+   ],
+   "importance": 0.35,
+   "score": 1.74,
+   "source_count": 1,
+   "first_published": "2026-09-12T23:51:05+00:00",
+   "last_published": "2026-09-12T23:51:05+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c346e3771a0c05ac",
+     "title": "Russians seek answers over hundreds missing after Ukraine's 2024 incursion",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c62ene9kr71o?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-12T23:51:05+00:00",
+     "author": null,
+     "summary": "Officials say more than 300 Russians remain missing after the 2024 Kursk offensive, but no-one really knows the true figure.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s4c6b20e62b34971",
+   "headline": "French TV programme pulled after actress speaks out on Gaza",
+   "summary": "France Televisions has removed the replay of a programme after actress Adèle Haenel denounced the Gaza genocide.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "French TV",
+    "Gaza",
+    "France Televisions",
+    "Adèle Haenel"
+   ],
+   "importance": 0.35,
+   "score": 1.737,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:15:36+00:00",
+   "last_published": "2026-09-13T17:15:36+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "b5d48546761e3aff",
+     "title": "French TV programme pulled after actress speaks out on Gaza",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/french-tv-programme-pulled-after-actress-speaks-out-on-gaza?traffic_source=rss",
+     "published_at": "2026-09-13T17:15:36+00:00",
+     "author": null,
+     "summary": "France Televisions has removed the replay of a programme after actress Adèle Haenel denounced the Gaza genocide.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s46fb2054bba61e5",
+   "headline": "Best friends for decades - until a DNA test revealed they were sisters",
+   "summary": "Meena Geltink and Minal Tijssen were adopted from orphanages in Mumbai in the 1980s and grew up in the Netherlands.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Best",
+    "DNA",
+    "Meena Geltink",
+    "Minal Tijssen",
+    "Mumbai",
+    "Netherlands"
+   ],
+   "importance": 0.35,
+   "score": 1.716,
+   "source_count": 1,
+   "first_published": "2026-09-12T22:00:28+00:00",
+   "last_published": "2026-09-12T22:00:28+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "e20a53aa96a2d691",
+     "title": "Best friends for decades - until a DNA test revealed they were sisters",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c5y6z72z9lno?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-12T22:00:28+00:00",
+     "author": null,
+     "summary": "Meena Geltink and Minal Tijssen were adopted from orphanages in Mumbai in the 1980s and grew up in the Netherlands.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se0cde62524f6fde",
+   "headline": "The Units’ Digital Stimulation is synthpunk perfection",
+   "summary": "The Units are a band I discovered in part thanks to No Dogs in Space. During their miniseries on The Screamers (another incredible band worth checking out), they mention synthpunk.org as one of their sources.",
+   "why_it_matters": "",
+   "topics": [
+    "science"
+   ],
+   "entities": [
+    "Units",
+    "Digital Stimulation",
+    "No Dogs",
+    "Space",
+    "Screamers"
+   ],
+   "importance": 0.35,
+   "score": 1.714,
+   "source_count": 1,
+   "first_published": "2026-09-13T17:36:10+00:00",
+   "last_published": "2026-09-13T17:36:10+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "6a868d48678ca50c",
+     "title": "The Units’ Digital Stimulation is synthpunk perfection",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/entertainment/994415/the-units-digital-stimulation-synthpunk-review",
+     "published_at": "2026-09-13T17:36:10+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "The Units are a band I discovered in part thanks to No Dogs in Space. During their miniseries on The Screamers (another incredible band worth checking out), they mention synthpunk.org as one of their sources.",
+     "topics": [
+      "science"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sd5f3940c660dccb",
+   "headline": "F1 leader Antonelli wins Spanish Grand Prix as unlucky Norris misses out",
+   "summary": "The 20-year-old Italian has extended his championship lead to 81 points after 14 rounds.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Antonelli",
+    "Spanish Grand Prix",
+    "Norris",
+    "Italian"
+   ],
+   "importance": 0.35,
+   "score": 1.711,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:05:33+00:00",
+   "last_published": "2026-09-13T16:05:33+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "f8a7b39fa92025a8",
+     "title": "F1 leader Antonelli wins Spanish Grand Prix as unlucky Norris misses out",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/sports/2026/9/13/f1-leader-antonelli-wins-spanish-grand-prix-as-unlucky-norris-misses-out?traffic_source=rss",
+     "published_at": "2026-09-13T16:05:33+00:00",
+     "author": null,
+     "summary": "The 20-year-old Italian has extended his championship lead to 81 points after 14 rounds.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sc3e23a0202864dc",
+   "headline": "Trump's comments on a united Ireland may have targeted audience across the Atlantic",
+   "summary": "Nobody could have predicted that today's main global headline would be Trump's desire to see a unified Ireland.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Trump's",
+    "Ireland",
+    "Atlantic",
+    "Nobody"
+   ],
+   "importance": 0.35,
+   "score": 1.708,
+   "source_count": 1,
+   "first_published": "2026-09-12T21:25:28+00:00",
+   "last_published": "2026-09-12T21:25:28+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "5b9df750e0002a98",
+     "title": "Trump's comments on a united Ireland may have targeted audience across the Atlantic",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cwyzppd1d5lo?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-12T21:25:28+00:00",
+     "author": null,
+     "summary": "Nobody could have predicted that today's main global headline would be Trump's desire to see a unified Ireland.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sf25f17254fa31cf",
+   "headline": "Anthropic CEO says it’s time to pump the brakes on AI",
+   "summary": "Anthropic CEO Dario Amodei says the time has come to slow down AI development and will give third-party evaluators like METR access to its models to help ensure its \"adherence to safety practices and commitments.\" In a winding essay, Amodei proposed a three-step plan to \"pace…",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "Anthropic CEO",
+    "Anthropic CEO Dario Amodei",
+    "METR",
+    "Amodei"
+   ],
+   "importance": 0.35,
+   "score": 1.706,
+   "source_count": 1,
+   "first_published": "2026-09-12T16:23:40+00:00",
+   "last_published": "2026-09-12T16:23:40+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "7ae9dd7008c458b4",
+     "title": "Anthropic CEO says it’s time to pump the brakes on AI",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/ai-artificial-intelligence/994337/anthropic-ceo-slow-down-ai-development",
+     "published_at": "2026-09-12T16:23:40+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "Anthropic CEO Dario Amodei says the time has come to slow down AI development and will give third-party evaluators like METR access to its models to help ensure its \"adherence to safety practices and commitments.\" In a winding essay, Amodei proposed a three-step plan to \"pace…",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s5521e9595664c2d",
+   "headline": "Pressure builds in Spain to deny US extradition request for leftwing donor",
+   "summary": "Key government meeting this month will consider US bid to try James ‘Fergie’ Chambers over alleged support for Hamas Attorneys for James “Fergie” Chambers, the US citizen and wealthy donor to leftwing and humanitarian projects worldwide who is currently imprisoned in Madrid and…",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Pressure",
+    "Spain",
+    "Key",
+    "James",
+    "Fergie",
+    "Chambers"
+   ],
+   "importance": 0.35,
+   "score": 1.704,
+   "source_count": 1,
+   "first_published": "2026-09-13T12:00:03+00:00",
+   "last_published": "2026-09-13T12:00:03+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c0871c4828b50b35",
+     "title": "Pressure builds in Spain to deny US extradition request for leftwing donor",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/spain-james-fergie-chambers-extradition-request",
+     "published_at": "2026-09-13T12:00:03+00:00",
+     "author": "Timothy Pratt",
+     "summary": "Key government meeting this month will consider US bid to try James ‘Fergie’ Chambers over alleged support for Hamas Attorneys for James “Fergie” Chambers, the US citizen and wealthy donor to leftwing and humanitarian projects worldwide who is currently imprisoned in Madrid and…",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sce3a192ae5eeda2",
+   "headline": "World leaders gather in New Delhi for final day of BRICS summit",
+   "summary": "BRICS leaders gathered in New Delhi for the final day of the summit amid divisions over the wars in Iran and Ukraine.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "World",
+    "New Delhi",
+    "BRICS",
+    "Iran",
+    "Ukraine"
+   ],
+   "importance": 0.35,
+   "score": 1.702,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:40:24+00:00",
+   "last_published": "2026-09-13T15:40:24+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d6e94d67229f190e",
+     "title": "World leaders gather in New Delhi for final day of BRICS summit",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/world-leaders-gather-in-new-delhi-for-final-day-of-brics-summit?traffic_source=rss",
+     "published_at": "2026-09-13T15:40:24+00:00",
+     "author": null,
+     "summary": "BRICS leaders gathered in New Delhi for the final day of the summit amid divisions over the wars in Iran and Ukraine.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s83a23d66cbbea07",
+   "headline": "Obama urges Democrats to have a ‘clear plan’ for AI safeguards",
+   "summary": "Obama recently said that Democrats need to make artificial intelligence one of their “central agendas” and “have a very clear plan” to address concerns around the technology’s economic impact and safety.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "Obama",
+    "Democrats"
+   ],
+   "importance": 0.35,
+   "score": 1.696,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:30:00+00:00",
+   "last_published": "2026-09-13T16:30:00+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "71d2a72b149de943",
+     "title": "Obama urges Democrats to have a ‘clear plan’ for AI safeguards",
+     "source": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/13/obama-urges-democrats-to-have-a-clear-plan-for-ai-safeguards/",
+     "published_at": "2026-09-13T16:30:00+00:00",
+     "author": "Anthony Ha",
+     "summary": "Obama recently said that Democrats need to make artificial intelligence one of their “central agendas” and “have a very clear plan” to address concerns around the technology’s economic impact and safety.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s015a9f87af93bc3",
+   "headline": "As Chavez and Maduro images disappear, is Venezuela entering a new chapter?",
+   "summary": "As part of Delcy Rodriguez's 'Venezuela reborn' campaign, murals of leaders like Hugo Chavez are being removed.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "As Chavez",
+    "Maduro",
+    "Venezuela",
+    "Delcy Rodriguez's",
+    "Hugo Chavez"
+   ],
+   "importance": 0.35,
+   "score": 1.696,
+   "source_count": 1,
+   "first_published": "2026-09-13T15:22:59+00:00",
+   "last_published": "2026-09-13T15:22:59+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "ce55944467c6c8cb",
+     "title": "As Chavez and Maduro images disappear, is Venezuela entering a new chapter?",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/features/longform/2026/9/13/as-chavez-and-maduro-images-disappear-is-venezuela-entering-a-new-chapter?traffic_source=rss",
+     "published_at": "2026-09-13T15:22:59+00:00",
+     "author": null,
+     "summary": "As part of Delcy Rodriguez's 'Venezuela reborn' campaign, murals of leaders like Hugo Chavez are being removed.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s07ed38f7b8fa94f",
+   "headline": "TechCrunch Mobility: Lyft has entered the robotaxi chat",
+   "summary": "Welcome back to TechCrunch Mobility, your hub for the future of transportation, and now, more than ever, the role AI is playing in it.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "TechCrunch Mobility",
+    "Lyft",
+    "Welcome"
+   ],
+   "importance": 0.35,
+   "score": 1.688,
+   "source_count": 1,
+   "first_published": "2026-09-13T16:04:00+00:00",
+   "last_published": "2026-09-13T16:04:00+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c5829f071c31ef97",
+     "title": "TechCrunch Mobility: Lyft has entered the robotaxi chat",
+     "source": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/13/techcrunch-mobility-lyft-has-entered-the-robotaxi-chat/",
+     "published_at": "2026-09-13T16:04:00+00:00",
+     "author": "Kirsten Korosec",
+     "summary": "Welcome back to TechCrunch Mobility, your hub for the future of transportation, and now, more than ever, the role AI is playing in it.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sd5022e961018132",
+   "headline": "Why are AI agents lying, cheating and coordinating?",
+   "summary": "Comments",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "Comments"
+   ],
+   "importance": 0.35,
+   "score": 1.681,
+   "source_count": 1,
+   "first_published": "2026-09-13T01:22:31+00:00",
+   "last_published": "2026-09-13T01:22:31+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "ae1c0b143270a4ac",
+     "title": "Why are AI agents lying, cheating and coordinating?",
+     "source": "Hacker News",
+     "url": "https://yoshuabengio.org/en/publication/why-are-ai-agents-lying-cheating-and-coordinating",
+     "published_at": "2026-09-13T01:22:31+00:00",
+     "author": null,
+     "summary": "Comments",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se46e8b7a5c226af",
+   "headline": "More than 2,000 Yemenis flee to Djibouti amid Houthi advances",
+   "summary": "Escalating fighting along Yemen’s western coast has driven more than 2,000 Yemenis across the Red Sea to Djibouti.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Yemenis",
+    "Djibouti",
+    "Houthi",
+    "Escalating",
+    "Yemen",
+    "Red Sea"
+   ],
+   "importance": 0.35,
+   "score": 1.681,
+   "source_count": 1,
+   "first_published": "2026-09-13T14:38:46+00:00",
+   "last_published": "2026-09-13T14:38:46+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d5713a128ec1492f",
+     "title": "More than 2,000 Yemenis flee to Djibouti amid Houthi advances",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/more-than-2000-yemenis-flee-to-djibouti-amid-houthi-advances?traffic_source=rss",
+     "published_at": "2026-09-13T14:38:46+00:00",
+     "author": null,
+     "summary": "Escalating fighting along Yemen’s western coast has driven more than 2,000 Yemenis across the Red Sea to Djibouti.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s08548f85e291bd2",
+   "headline": "One dead and more than 30 missing after ferry sinks off Vanuatu coast in rough seas",
+   "summary": "Prime minister’s office tells families of those missing ‘the nation stands with you’ as search and rescue efforts continue One person has died and more than 30 are missing after a ferry sank off the coast of Vanuatu, the country’s government says. The vessel, MV Matui, had set…",
+   "why_it_matters": "",
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Vanuatu",
+    "Prime",
+    "MV Matui",
+    "Santo",
+    "Ambae",
+    "Continue"
+   ],
+   "importance": 0.47,
+   "score": 1.677,
+   "source_count": 1,
+   "first_published": "2026-09-13T02:39:50+00:00",
+   "last_published": "2026-09-13T02:39:50+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "d34f8177b8fcc3fb",
+     "title": "One dead and more than 30 missing after ferry sinks off Vanuatu coast in rough seas",
+     "source": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/one-dead-and-more-than-30-missing-after-ferry-sinks-off-vanuatu-coast-in-rough-seas",
+     "published_at": "2026-09-13T02:39:50+00:00",
+     "author": "Guardian staff and agencies",
+     "summary": "Prime minister’s office tells families of those missing ‘the nation stands with you’ as search and rescue efforts continue One person has died and more than 30 are missing after a ferry sank off the coast of Vanuatu, the country’s government says. The vessel, MV Matui, had set…",
+     "topics": [
+      "politics"
+     ],
+     "importance": 0.47
+    }
+   ]
+  },
+  {
+   "id": "sb61cd6f4c1d8099",
+   "headline": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
+   "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "OpenAI",
+    "Sam Altman",
+    "While OpenAI",
+    "IPO",
+    "CEO Sam Altman"
+   ],
+   "importance": 0.35,
+   "score": 1.676,
+   "source_count": 2,
+   "first_published": "2026-09-12T20:19:16+00:00",
+   "last_published": "2026-09-12T21:16:28+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "8aaadb08e36c69c4",
+     "title": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/ai-artificial-intelligence/994384/sam-altman-no-openai-ipo-ill-advised",
+     "published_at": "2026-09-12T21:16:28+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    },
+    {
+     "id": "22407f1a50da6d6a",
+     "title": "OpenAI’s Sam Altman says it would be ‘ill-advised’ to go public in 2026",
+     "source": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
+     "published_at": "2026-09-12T20:19:16+00:00",
+     "author": "Anthony Ha",
+     "summary": "While OpenAI has filed confidentially for an IPO, the company will not be going public this year, according to CEO Sam Altman.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s1fe7c5dd624c1a8",
+   "headline": "Actor Tatyana Ali is advocating for Black and Indigenous maternal health",
+   "summary": "Actor Tatyana Ali says her healing journey after a traumatic childbirth has inspired her advocacy for Black maternal health, including support for midwives, doulas and other birth workers.",
+   "why_it_matters": "",
+   "topics": [
+    "health"
+   ],
+   "entities": [
+    "Actor Tatyana Ali",
+    "Black",
+    "Indigenous"
+   ],
+   "importance": 0.35,
+   "score": 1.667,
+   "source_count": 1,
+   "first_published": "2026-09-13T14:00:00+00:00",
+   "last_published": "2026-09-13T14:00:00+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "6958c350a7525c63",
+     "title": "Actor Tatyana Ali is advocating for Black and Indigenous maternal health",
+     "source": "NPR News",
+     "url": "https://www.npr.org/2026/09/13/nx-s1-5966885/birth-black-and-indigenous-maternal-health",
+     "published_at": "2026-09-13T14:00:00+00:00",
+     "author": "Kristin Wright",
+     "summary": "Actor Tatyana Ali says her healing journey after a traumatic childbirth has inspired her advocacy for Black maternal health, including support for midwives, doulas and other birth workers.",
+     "topics": [
+      "health"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se2007f84e41cc3f",
+   "headline": "Iran-GCC summit: What’s behind the meeting, why is Bahrain not attending?",
+   "summary": "Iran says it plans to hold talks with Iraq and Gulf nations in Oman to help strengthen shared regional security.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Iran-GCC",
+    "Bahrain",
+    "Iran",
+    "Iraq",
+    "Gulf",
+    "Oman"
+   ],
+   "importance": 0.35,
+   "score": 1.667,
+   "source_count": 1,
+   "first_published": "2026-09-13T13:59:27+00:00",
+   "last_published": "2026-09-13T13:59:27+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "46bc695d8c643d75",
+     "title": "Iran-GCC summit: What’s behind the meeting, why is Bahrain not attending?",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/iran-gcc-summit-whats-behind-the-meeting-why-is-bahrain-not-attending?traffic_source=rss",
+     "published_at": "2026-09-13T13:59:27+00:00",
+     "author": null,
+     "summary": "Iran says it plans to hold talks with Iraq and Gulf nations in Oman to help strengthen shared regional security.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sb7d296479e7afee",
+   "headline": "Céline Dion fans prepare for comeback concert in Paris",
+   "summary": "Fans of the Canadian singer greeted her as she left her hotel on Saturday.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Céline Dion",
+    "Paris",
+    "Fans",
+    "Canadian"
+   ],
+   "importance": 0.35,
+   "score": 1.663,
+   "source_count": 1,
+   "first_published": "2026-09-12T17:36:20+00:00",
+   "last_published": "2026-09-12T17:36:20+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "f77c124e97a0383d",
+     "title": "Céline Dion fans prepare for comeback concert in Paris",
+     "source": "BBC World",
+     "url": "https://www.bbc.co.uk/news/videos/cwyz11gk7y7o?at_medium=RSS&at_campaign=rss",
+     "published_at": "2026-09-12T17:36:20+00:00",
+     "author": null,
+     "summary": "Fans of the Canadian singer greeted her as she left her hotel on Saturday.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "se3662b5f75870ec",
+   "headline": "Villagers in India tie technician to cell tower over 5G failure",
+   "summary": "Villagers in India tie technician to cell tower over 5G failure",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Villagers",
+    "India"
+   ],
+   "importance": 0.35,
+   "score": 1.659,
+   "source_count": 1,
+   "first_published": "2026-09-13T13:34:42+00:00",
+   "last_published": "2026-09-13T13:34:42+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "c74634d0928d32f2",
+     "title": "Villagers in India tie technician to cell tower over 5G failure",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/villagers-in-india-tie-technician-to-cell-tower-over-5g-failure?traffic_source=rss",
+     "published_at": "2026-09-13T13:34:42+00:00",
+     "author": null,
+     "summary": "Villagers in India tie technician to cell tower over 5G failure",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "sd04b3435911afc9",
+   "headline": "Renewed fighting worsens Yemen’s humanitarian crisis",
+   "summary": "Renewed fighting worsens Yemen’s humanitarian crisis",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "Renewed",
+    "Yemen"
+   ],
+   "importance": 0.35,
+   "score": 1.657,
+   "source_count": 1,
+   "first_published": "2026-09-13T13:26:45+00:00",
+   "last_published": "2026-09-13T13:26:45+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "2c0901a9de419433",
+     "title": "Renewed fighting worsens Yemen’s humanitarian crisis",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/renewed-fighting-worsens-yemens-humanitarian-crisis?traffic_source=rss",
+     "published_at": "2026-09-13T13:26:45+00:00",
+     "author": null,
+     "summary": "Renewed fighting worsens Yemen’s humanitarian crisis",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s8a4b89c79806d92",
+   "headline": "How Israel’s destruction of south Lebanon is making displacement permanent",
+   "summary": "With lost livelihoods, destroyed homes and little security, many displaced Lebanese are facing an entrenched reality.",
+   "why_it_matters": "",
+   "topics": [
+    "general"
+   ],
+   "entities": [
+    "How Israel",
+    "Lebanon",
+    "Lebanese"
+   ],
+   "importance": 0.35,
+   "score": 1.651,
+   "source_count": 1,
+   "first_published": "2026-09-13T13:09:22+00:00",
+   "last_published": "2026-09-13T13:09:22+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "ce6c4a10f73834b7",
+     "title": "How Israel’s destruction of south Lebanon is making displacement permanent",
+     "source": "Al Jazeera",
+     "url": "https://www.aljazeera.com/features/2026/9/13/how-israels-destruction-of-south-lebanon-is-making-displacement-permanent?traffic_source=rss",
+     "published_at": "2026-09-13T13:09:22+00:00",
+     "author": null,
+     "summary": "With lost livelihoods, destroyed homes and little security, many displaced Lebanese are facing an entrenched reality.",
+     "topics": [
+      "general"
+     ],
+     "importance": 0.35
+    }
+   ]
+  },
+  {
+   "id": "s9558b906d3867aa",
+   "headline": "OpenAI’s rogue AI tried to hack another company in May",
+   "summary": "In May, hundreds of malicious and spam packages were uploaded to RubyGems, causing a serious disruption for the host. Now independent researchers have said that a swarm of OpenAI agents were responsible for the attack.",
+   "why_it_matters": "",
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "OpenAI",
+    "In May",
+    "RubyGems",
+    "Now",
+    "Not",
+    "API"
+   ],
+   "importance": 0.35,
+   "score": 1.644,
+   "source_count": 1,
+   "first_published": "2026-09-12T21:41:36+00:00",
+   "last_published": "2026-09-12T21:41:36+00:00",
+   "first_seen": "2026-09-13T17:50:22+00:00",
+   "articles": [
+    {
+     "id": "6cd179b9cd79f16a",
+     "title": "OpenAI’s rogue AI tried to hack another company in May",
+     "source": "The Verge",
+     "url": "https://www.theverge.com/ai-artificial-intelligence/994383/openais-rogue-ai-rubygems-hack",
+     "published_at": "2026-09-12T21:41:36+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "In May, hundreds of malicious and spam packages were uploaded to RubyGems, causing a serious disruption for the host. Now independent researchers have said that a swarm of OpenAI agents were responsible for the attack.",
+     "topics": [
+      "ai"
+     ],
+     "importance": 0.35
+    }
+   ]
+  }
+ ]
+}
