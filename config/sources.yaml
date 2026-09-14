@@ -39,6 +39,17 @@ exclude_url_patterns:
   - /loterias?/          # lottery results
   - /horoscopo?/         # horoscopes
   - /el-tiempo/          # weather service pages
+  # Sports. Measured on 909 collected articles: these three section names cover
+  # 45 of them across all three languages -- /deportes/ (es), /esports/ (ca),
+  # /sports/ (en) -- and every sub-section (tenis, futbol, ciclisme) sits under
+  # one of them. `football`/`futbol` are for outlets that file it at top level.
+  # Not exhaustive: La Vanguardia filed one cycling piece under /clic/, so
+  # `excluded_topics: [sports]` remains the backstop for strays.
+  - /deportes?/
+  - /esports?/
+  - /sports?/
+  - /football/
+  - /futbol/
   # NOT /lainformacion/: that looked like branded content but is a news brand
   # 20minutos syndicates -- the three articles it caught were a CNMC report on
   # petrol stations, butane pricing and savings taxation. Real reporting.

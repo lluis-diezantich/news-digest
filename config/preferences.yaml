@@ -89,8 +89,16 @@ ranking:
 digest:
   title: "Weekly Digest"
   subtitle: "Curated from your sources in English, Spanish and Catalan"
-  max_stories: 10
-  min_articles: 1
+  # 6, not 10: the week corroborated only 5 clusters at 6+ outlets and 9 at 3+,
+  # so asking for 10 stories reaches into pairs and singletons. Fewer stories
+  # also halves what the model is asked to write (12 candidates instead of 20).
+  max_stories: 6
+  # 3, not 1: "the main news of the week" is what several outlets covered.
+  # 411 of 440 clusters were a single outlet reporting alone. The digest falls
+  # back to the ranked list if this would empty it, so it cannot yield nothing.
+  # Counts ARTICLES, not publishers -- four El País sections on one story satisfy
+  # it while being one outlet. `min_publishers` would be the strict version.
+  min_articles: 3
   # Weekday the digest window ends on: 0 = Monday ... 6 = Sunday.
   week_ends_on: 6
   # Keep past digests readable on the site.
