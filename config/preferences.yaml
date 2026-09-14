@@ -67,6 +67,16 @@ ranking:
   #   source_preference dwarfed by its own +0.5 favourites bonus -- an assertion
   #                     that four outlets are trustworthy, not evidence.
   terms:
+    # How consequential the story is, on the LLM's own 0-1 scale (0.9+ a major
+    # world event, 0.3 routine). Removed on 2026-09-14 when it was worthless --
+    # offline it is 0.35 + 0.12 per hit on a 33-word list, and 91% of articles
+    # matched nothing, so it was a constant. Restored the same day once a real
+    # model filled it in: the first working run scored a spread of 0.03 to 1.00.
+    # Equal to editorial_position by intent. Position says what a desk led with
+    # and always works; importance says whether it mattered but needs the model.
+    # Weighting them the same means the digest still ranks sensibly on position
+    # alone when the LLM is unavailable, which is how every degraded run behaves.
+    importance: 2.0
     # The desk's own ordering. Feed and DOM order measured 80-100% concordant
     # with each site's front page, so position 0 is an editor saying "this leads
     # today" -- free, and in every language. Primary by intent: the digest should
