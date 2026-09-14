@@ -44,10 +44,25 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
+      # Only used when EMBEDDING_PROVIDER=local. Harmless otherwise: the key
+      # misses, nothing is restored, and the step costs a second.
+      - name: Cache the local embedding model
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/fastembed
+            ~/.cache/huggingface
+          key: embed-model-${{ vars.EMBEDDING_MODEL || 'minilm-l12-v2' }}
+
       - name: Install
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Local embeddings: set repo variable EMBEDDING_PROVIDER=local and
+          # uncomment fastembed in requirements.txt, or install the extra here.
+          if [ "${{ vars.EMBEDDING_PROVIDER }}" = "local" ]; then
+            pip install 'fastembed>=0.8,<0.9'
+          fi
           pip install -e .
 
       - name: Build digest
@@ -58,7 +73,7 @@ jobs:
           # leaves cross-language coverage split. The digest still publishes.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
-          LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-2.5-flash' }}
+          LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.6-flash' }}
           LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '400' }}
           EMBEDDING_PROVIDER: ${{ vars.EMBEDDING_PROVIDER || 'gemini' }}
           EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'gemini-embedding-2' }}

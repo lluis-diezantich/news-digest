@@ -15,6 +15,7 @@ from .base import (
     to_blob,
 )
 from .gemini import GeminiEmbeddingProvider
+from .local import LocalEmbeddingProvider
 from .none import NullEmbeddingProvider
 
 log = logging.getLogger(__name__)
@@ -31,8 +32,23 @@ def _build_gemini(settings: EmbeddingSettings) -> EmbeddingProvider:
     )
 
 
+def _build_local(settings: EmbeddingSettings) -> EmbeddingProvider:
+    from .local import DEFAULT_MODEL, warn_if_miscalibrated
+
+    # Cosine scales differ per model, so a Gemini-tuned threshold silently
+    # under-merges here. Warn rather than override: the config is the authority.
+    warn_if_miscalibrated(settings.similarity_threshold, settings.ambiguous_threshold)
+    model = settings.model
+    if model.startswith("gemini"):
+        # Carried over from the other provider; that name means nothing here.
+        log.info("EMBEDDING_MODEL=%r is a gemini model; using %s", model, DEFAULT_MODEL)
+        model = DEFAULT_MODEL
+    return LocalEmbeddingProvider(model=model)
+
+
 PROVIDERS = {
     "gemini": _build_gemini,
+    "local": _build_local,
     "none": lambda settings: NullEmbeddingProvider(),
 }
 

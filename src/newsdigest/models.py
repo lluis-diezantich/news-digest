@@ -68,6 +68,14 @@ class Article:
     publisher: str = ""
     #: The feed or index URL this came from.
     source_url: str = ""
+    #: Where this article sat in its source's listing when first seen, and how
+    #: many items that listing held. Feed order is the newsroom's own ranking --
+    #: measured 80-100% concordant with the section page on eight sources -- so
+    #: position 1 is an editor answering "how consequential is this?" for free.
+    #: Stored raw so the normalisation can change without recollecting.
+    #: -1 means unknown (pre-v3 rows, or a source that gives no order).
+    feed_position: int = -1
+    feed_size: int = 0
     source_topics: list[str] = field(default_factory=list)
     source_weight: float = 1.0
     collected_at: datetime = field(default_factory=utcnow)
@@ -109,6 +117,31 @@ class Article:
     def excerpt(self) -> str:
         """The text we send to the LLM and the embedder."""
         return self.content if len(self.content) > len(self.description) else self.description
+
+    def editorial_rank(self) -> float:
+        """Prominence in [0, 1] from feed position: 1.0 leads, 0.0 trails.
+
+        Feed order is the newsroom's own ordering -- measured 80-100% concordant
+        with the section front page on eight sources -- so this is an editor's
+        judgement about what leads, available free and in every language.
+
+        It measures PROMOTION rather than newsworthiness, and the two part
+        company where a publisher is paid: Ara's eight advertorial items sat at
+        positions 14-24 of 131 on 2026-09-14, out-ranking most of its reporting.
+        Two collection-side controls, not this method, are what make the signal
+        safe: `max_items: 10` never reaches position 14, and
+        `exclude_url_patterns` drops those sections outright. RAISING max_items
+        OR REMOVING A BLOCKLIST ENTRY PUTS ADVERTISING BACK AT THE TOP. Re-check
+        that before either.
+
+        Normalised within the source, because position 3 of a 10-item feed and
+        position 3 of a 190-item one are not the same claim. Unknown position
+        returns the neutral 0.5 rather than 0.0 -- a source that gives no order
+        should not be penalised as though its every article trailed.
+        """
+        if self.feed_position < 0 or self.feed_size <= 1:
+            return 0.5
+        return 1.0 - (min(self.feed_position, self.feed_size - 1) / (self.feed_size - 1))
 
     def content_hash(self) -> str:
         """Keys the LLM and embedding caches: same text in, no new API call."""
@@ -243,6 +276,9 @@ class SourceReport:
     fetched: int = 0
     new: int = 0
     duplicates: int = 0
+    #: Dropped by exclude_url_patterns. Counted separately from duplicates so a
+    #: blocklist that quietly eats a whole source is visible rather than assumed.
+    excluded: int = 0
     error: str | None = None
     elapsed_ms: int = 0
 
@@ -254,6 +290,7 @@ class RunStats:
     articles_seen: int = 0
     articles_new: int = 0
     duplicates: int = 0
+    excluded: int = 0
     languages: dict[str, int] = field(default_factory=dict)
     embedded: int = 0
     embed_cached: int = 0

@@ -6,3 +6,7 @@ python-dateutil>=2.9
 beautifulsoup4>=4.12
 py3langid>=0.3
 numpy>=1.26
+# Optional: only needed for EMBEDDING_PROVIDER=local. Pinned to a minor range --
+# fastembed 0.8 switched MiniLM to mean pooling, which changes every vector, and
+# the cache key does not include the library version.
+# fastembed>=0.8,<0.9

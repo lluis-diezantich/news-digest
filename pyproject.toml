@@ -19,6 +19,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+# Local embeddings. ONNX rather than PyTorch, so the CI image stays small.
+local = ["fastembed>=0.8,<0.9"]
 
 [project.scripts]
 news-digest = "newsdigest.cli:main"

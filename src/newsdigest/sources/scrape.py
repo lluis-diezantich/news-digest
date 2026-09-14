@@ -82,7 +82,7 @@ class ScrapeAdapter(SourceAdapter):
             )
 
         articles: list[Article] = []
-        for link in links:
+        for index, link in enumerate(links):
             try:
                 article = self._fetch_article(source, link)
             except RobotsDisallowed:
@@ -92,7 +92,13 @@ class ScrapeAdapter(SourceAdapter):
                 log.warning("%s: %s failed (%s)", source.name, link, exc)
                 continue
             if article:
+                # DOM order on a section page IS the desk's ranking, so the
+                # index we walked is the position. Set here rather than in
+                # _fetch_article, which does not know where the link came from.
+                article.feed_position = index
                 articles.append(article)
+        for article in articles:
+            article.feed_size = len(links)
         return articles
 
     def _fetch_article(self, source: Source, url: str) -> Article | None:

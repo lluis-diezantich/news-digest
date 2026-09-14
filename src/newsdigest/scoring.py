@@ -80,6 +80,29 @@ def story_size(articles: list[Article]) -> float:
     return min(1.0, math.log(len(articles) + 1, 8))
 
 
+def editorial_position(articles: list[Article]) -> float:
+    """Best prominence any outlet gave this story, in [0, 1].
+
+    Feed and DOM order are the newsroom's own ordering -- measured 80-100%
+    concordant with the section front page on eight of the configured sources --
+    so position 0 is a human editor's answer to "what leads today", free and in
+    every language.
+
+    It measures PROMOTION, not newsworthiness, and those differ where a
+    publisher is paid: on 2026-09-14 Ara's eight advertorial items sat at
+    positions 14-24 of 131. Two collection-side controls keep that out of reach
+    rather than any cleverness here -- `max_items` takes only the top ten, and
+    `exclude_url_patterns` drops the sections advertorial lives in. Widening
+    either one puts advertising back at the top of the digest.
+
+    The maximum, not the mean: a story one outlet led with and another buried is
+    still a story someone thought led the day.
+    """
+    if not articles:
+        return 0.5
+    return max(a.editorial_rank() for a in articles)
+
+
 def source_preference(articles: list[Article], prefs: Preferences) -> float:
     """Configured source weights, plus a bonus for explicitly preferred outlets."""
     if not articles:
@@ -118,6 +141,7 @@ def signals(
         "interest": interest(story, prefs),
         "recency": recency(story, articles, prefs, now=now),
         "corroboration": corroboration(articles),
+        "editorial_position": editorial_position(articles),
         "source_preference": source_preference(articles, prefs),
         "story_size": story_size(articles),
     }

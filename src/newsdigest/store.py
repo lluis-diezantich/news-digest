@@ -28,7 +28,7 @@ from .text import title_key
 
 log = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS articles (
@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS articles (
     content_hash  TEXT NOT NULL DEFAULT '',
     source_topics TEXT NOT NULL DEFAULT '[]',
     source_weight REAL NOT NULL DEFAULT 1.0,
+    -- Where the article sat in its source's listing when first seen, and how
+    -- many items that listing held. -1 = unknown (pre-v3 rows).
+    feed_position INTEGER NOT NULL DEFAULT -1,
+    feed_size     INTEGER NOT NULL DEFAULT 0,
     summary        TEXT,
     why_it_matters TEXT,
     key_facts      TEXT NOT NULL DEFAULT '[]',
@@ -162,6 +166,15 @@ CREATE TABLE IF NOT EXISTS runs (
 """
 
 
+def _int_or(row, key: str, default: int) -> int:
+    """Read an int column that may be absent on a database opened read-only."""
+    try:
+        value = row[key]
+    except (IndexError, KeyError):
+        return default
+    return default if value is None else int(value)
+
+
 def _dumps(value: Any) -> str:
     return json.dumps(value if value is not None else [], ensure_ascii=False)
 
@@ -201,11 +214,31 @@ class Store:
 
         if version and version < 2:
             self._migrate_v1_to_v2()
+        if version and version < 3:
+            self._migrate_v2_to_v3()
 
         self.conn.executescript(SCHEMA)
         if version < SCHEMA_VERSION:
             self.conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         self.conn.commit()
+
+    def _migrate_v2_to_v3(self) -> None:
+        """Add feed position. Existing rows keep -1, which reads as unknown.
+
+        Backfilling is impossible -- the ordering was never recorded -- and
+        guessing from published_at would invent a signal, so old rows stay
+        neutral and only newly collected articles carry a real position.
+        """
+        with self.conn:
+            columns = self._columns("articles")
+            for column, decl in [
+                ("feed_position", "INTEGER NOT NULL DEFAULT -1"),
+                ("feed_size", "INTEGER NOT NULL DEFAULT 0"),
+            ]:
+                if column not in columns:
+                    self.conn.execute(
+                        f"ALTER TABLE articles ADD COLUMN {column} {decl}"
+                    )
 
     def _columns(self, table: str) -> set[str]:
         return {
@@ -336,6 +369,7 @@ class Store:
                 iso(a.published_at), iso(a.collected_at),
                 a.description, a.content, a.content_hash(),
                 _dumps(a.source_topics), a.source_weight,
+                a.feed_position, a.feed_size,
             )
             for a in articles
         ]
@@ -348,8 +382,9 @@ class Store:
                 INSERT INTO articles (
                     id, canonical, url, title, title_key, source, publisher,
                     source_url, author, language, published_at, collected_at,
-                    description, content, content_hash, source_topics, source_weight
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    description, content, content_hash, source_topics, source_weight,
+                    feed_position, feed_size
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(id) DO NOTHING
                 """,
                 rows,
@@ -802,6 +837,8 @@ def _row_to_article(row: sqlite3.Row) -> Article:
         source_url=row["source_url"] or "",
         source_topics=_loads(row["source_topics"]),
         source_weight=row["source_weight"],
+        feed_position=_int_or(row, "feed_position", -1),
+        feed_size=_int_or(row, "feed_size", 0),
         collected_at=parse_date(row["collected_at"]) or utcnow(),
     )
     article.id = row["id"]

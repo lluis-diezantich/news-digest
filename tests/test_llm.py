@@ -183,29 +183,31 @@ class TestGeminiEnrich:
         """Thought tokens are billed as output and drawn from maxOutputTokens."""
         provider = gemini_with(StubResponse(200, candidate(ENRICHED)))
         provider.enrich(ITEMS, context)
-        assert provider._session.posts[0]["generationConfig"]["thinkingLevel"] == "low"
+        cfg = provider._session.posts[0]["generationConfig"]
+        # Nested: a top-level thinkingLevel is rejected by the live API.
+        assert cfg["thinkingConfig"] == {"thinkingLevel": "low"}
 
     def test_thinking_level_is_omitted_when_unset(self, context):
         """Models with thinking already off want no field at all."""
         provider = gemini_with(StubResponse(200, candidate(ENRICHED)), thinking_level="")
         provider.enrich(ITEMS, context)
-        assert "thinkingLevel" not in provider._session.posts[0]["generationConfig"]
+        assert "thinkingConfig" not in provider._session.posts[0]["generationConfig"]
 
     def test_a_model_rejecting_thinking_level_is_retried_without_it(self, context):
         """A pinned LLM_MODEL that predates the field must not cost the run."""
         rejection = {"error": {"code": 400, "message":
-                     'Invalid JSON payload received. Unknown name "thinkingLevel".'}}
+                     'Invalid JSON payload received. Unknown name "thinkingConfig".'}}
         provider = gemini_with(
             StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
         )
         assert len(provider.enrich(ITEMS, context)) == 2
         sent = provider._session.posts
-        assert "thinkingLevel" in sent[0]["generationConfig"]
-        assert "thinkingLevel" not in sent[1]["generationConfig"]
+        assert "thinkingConfig" in sent[0]["generationConfig"]
+        assert "thinkingConfig" not in sent[1]["generationConfig"]
 
     def test_thinking_level_is_dropped_for_the_rest_of_the_run(self, context):
         """One 400, not one per request."""
-        rejection = {"error": {"code": 400, "message": 'Unknown name "thinkingLevel".'}}
+        rejection = {"error": {"code": 400, "message": 'Unknown name "thinkingConfig".'}}
         provider = gemini_with(
             StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
         )
@@ -213,7 +215,7 @@ class TestGeminiEnrich:
         assert provider.thinking_level == ""
         provider._session.responses = [StubResponse(200, candidate(ENRICHED))]
         provider.enrich(ITEMS, context)
-        assert "thinkingLevel" not in provider._session.posts[-1]["generationConfig"]
+        assert "thinkingConfig" not in provider._session.posts[-1]["generationConfig"]
 
     def test_an_unrelated_400_still_raises(self, context):
         """Only a thinking complaint is retried; everything else is a real error."""

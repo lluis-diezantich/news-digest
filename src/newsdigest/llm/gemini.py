@@ -106,7 +106,7 @@ class GeminiProvider(LLMProvider):
     def __init__(
         self,
         api_key: str,
-        model: str = "gemini-2.5-flash",
+        model: str = "gemini-3.6-flash",
         *,
         timeout: float = 90.0,
         max_retries: int = 3,
@@ -144,7 +144,12 @@ class GeminiProvider(LLMProvider):
             "maxOutputTokens": 8192,
         }
         if self.thinking_level:
-            config["thinkingLevel"] = self.thinking_level
+            # Nested under thinkingConfig, not a direct member of
+            # generationConfig: verified 2026-09-14 against the live API, where
+            # a top-level `thinkingLevel` (and snake_case `thinking_level`) both
+            # 400 with "Unknown name". `thinkingConfig.thinkingBudget` is the
+            # retired 2.5-era spelling and 400s on 3.x as an invalid argument.
+            config["thinkingConfig"] = {"thinkingLevel": self.thinking_level}
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
@@ -207,14 +212,14 @@ class GeminiProvider(LLMProvider):
         quality depend on the reader having pinned a compatible `LLM_MODEL`, an
         unrecognised-field 400 drops it for the rest of the run.
         """
-        if "thinkingLevel" not in config or "thinking" not in body.lower():
+        if "thinkingConfig" not in config or "thinking" not in body.lower():
             return False
         log.warning(
-            "%s rejected thinkingLevel=%r; retrying without it for the rest of "
+            "%s rejected thinkingConfig=%r; retrying without it for the rest of "
             "the run (thought tokens will be billed at the model's default)",
-            self.model, config["thinkingLevel"],
+            self.model, config["thinkingConfig"],
         )
-        config.pop("thinkingLevel")
+        config.pop("thinkingConfig")
         self.thinking_level = ""
         return True
 

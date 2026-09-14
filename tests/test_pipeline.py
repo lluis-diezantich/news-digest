@@ -76,6 +76,44 @@ class TestCollect:
         assert article.publisher == "El País"
         assert article.source_url == "https://feed.invalid/eco"
 
+    def test_excluded_urls_never_reach_the_store(self, config, store, monkeypatch):
+        """Structural junk is dropped at collection, not ranked down later."""
+        config.sources = [
+            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"],
+                   exclude_url_patterns=["/especials/"]),
+        ]
+        fake_sources(monkeypatch, {"Ara": [
+            make_article("El Govern aprova el pressupost anual",
+                         source="Ara", language="ca",
+                         url="https://www.ara.cat/politica/pressupost_1_1.html"),
+            make_article("La IA, pal de paller de molts nous masters",
+                         source="Ara", language="ca",
+                         url="https://www.ara.cat/especials/masters/ia_1_2.html"),
+        ]})
+        stats = RunStats()
+        pipeline.collect(config, store, stats)
+
+        assert stats.articles_seen == 2      # both were fetched
+        assert stats.excluded == 1           # one was dropped
+        assert stats.articles_new == 1       # only one stored
+        assert stats.sources[0].excluded == 1
+        stored = [a.url for a in store.articles_in_window(
+            *__import__("newsdigest.digest", fromlist=["x"]).weekly_window(days=3650))]
+        assert not any("/especials/" in u for u in stored)
+
+    def test_excluding_nothing_leaves_collection_unchanged(self, config, store, monkeypatch):
+        config.sources = [
+            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"],
+                   exclude_url_patterns=["/horoscop/"]),
+        ]
+        fake_sources(monkeypatch, {"Ara": [
+            make_article("El Govern aprova el pressupost anual",
+                         source="Ara", language="ca"),
+        ]})
+        stats = RunStats()
+        pipeline.collect(config, store, stats)
+        assert stats.excluded == 0 and stats.articles_new == 1
+
     def test_one_broken_source_does_not_stop_the_run(self, config, store, monkeypatch):
         config.sources = [
             Source(name="Good", rss="https://a.invalid/rss", languages=["en"]),

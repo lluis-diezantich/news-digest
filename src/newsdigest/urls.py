@@ -7,6 +7,7 @@ links to, so stripping parameters here cannot break attribution.
 
 from __future__ import annotations
 
+import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 _TRACKING_PREFIXES = ("utm_", "at_", "mc_", "pk_", "hsa_", "_hs")
@@ -51,6 +52,25 @@ def canonical_url(url: str) -> str:
         if not _is_tracking(k)
     )
     return urlunsplit((scheme, host, path, urlencode(kept), ""))
+
+
+def exclude_by_url(articles: list, patterns: list[str]) -> list:
+    """Drop articles whose URL matches any pattern.
+
+    For structural junk, not taste: native advertising and service content sit
+    at predictable paths (`/especials/`, `/loterias/`, `/horoscopo/`), and no
+    ranking signal catches them reliably -- advertorial is written to match
+    whatever topics score well, so a topic match actively promotes it.
+
+    Matched against the original URL, not the canonical one, since the section
+    path is what identifies the junk and canonicalization may rewrite it.
+    Patterns are validated at config load, so they compile here.
+    """
+    if not patterns:
+        return list(articles)
+    compiled = [re.compile(p) for p in patterns]
+    return [a for a in articles
+            if not any(c.search(a.url or "") for c in compiled)]
 
 
 def domain(url: str) -> str:

@@ -72,7 +72,12 @@ class RSSAdapter(SourceAdapter):
         log.debug("%s: %d entries from %s", source.name, len(parsed.entries), feed_title)
 
         articles: list[Article] = []
-        for entry in parsed.entries[: source.max_items]:
+        # Feed order is the newsroom's ranking, not just recency: measured
+        # 80-100% concordant with the section page on eight of these sources.
+        # `feed_size` is what we actually took, so the rank is relative to the
+        # window we saw rather than to a number that changes between runs.
+        taken = parsed.entries[: source.max_items]
+        for index, entry in enumerate(taken):
             link = _first_text(entry, "link", "id")
             title = strip_html(_first_text(entry, "title"))
             if not link or not title:
@@ -104,6 +109,8 @@ class RSSAdapter(SourceAdapter):
                     ),
                     source_topics=sorted(set(source.topics + tags[:4])),
                     source_weight=source.weight,
+                    feed_position=index,
+                    feed_size=len(taken),
                 )
             )
         return articles

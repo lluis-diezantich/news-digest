@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,7 @@ KNOWN_RANKING_TERMS = frozenset(
         "interest",
         "recency",
         "corroboration",
+        "editorial_position",
         "source_preference",
         "story_size",
     }
@@ -67,6 +69,13 @@ class Source:
     publisher: str = ""
     max_items: int = 25
     excerpt_chars: int = 1200
+    #: Regexes matched against an article's URL; a hit drops the article at
+    #: collection, before it ever reaches the database. This is for structural
+    #: junk -- native advertising and service sections live at predictable paths
+    #: (`/especials/`, `/loterias/`) and no ranking signal reliably catches them,
+    #: because advertorial is written to match whatever topics rank well.
+    #: The global list in sources.yaml applies to every source; these are extra.
+    exclude_url_patterns: list[str] = field(default_factory=list)
     # scrape only
     link_selector: str = "a"
     link_pattern: str | None = None
@@ -102,6 +111,7 @@ class Preferences:
             "interest": 0.8,
             "recency": 0.6,
             "corroboration": 0.4,
+            "editorial_position": 0.6,
             "source_preference": 0.3,
             "story_size": 0.2,
         }
@@ -138,7 +148,7 @@ class StorageSettings:
 @dataclass
 class LLMSettings:
     provider: str = "gemini"
-    model: str = "gemini-2.5-flash"
+    model: str = "gemini-3.6-flash"
     api_key: str | None = None
     batch_size: int = 8
     articles_per_run: int = 400
@@ -148,12 +158,13 @@ class LLMSettings:
     #: run may spend waiting on rate limits. A per-day 429 is never waited out.
     max_rate_limit_retries: int = 3
     max_rate_limit_wait: float = 600.0
-    #: `low` is the floor on gemini-2.5-flash, where thinking cannot be turned
-    #: off. Thought tokens are billed as output and counted against the
-    #: per-minute token allowance, and `maxOutputTokens` covers them too -- so a
-    #: thinking-heavy reply can exhaust the budget before writing any JSON. This
-    #: is schema-enforced extraction, so the floor is what it wants. Empty sends
-    #: no field, leaving the model default (already off on flash-lite).
+    #: `low` is the cheapest level the 3.x Flash models accept. Thought tokens
+    #: are billed as output, count against the per-minute token allowance, and
+    #: come out of `maxOutputTokens` -- so a thinking-heavy reply can exhaust the
+    #: budget before writing any JSON. This is schema-enforced extraction, so the
+    #: floor is what it wants. Empty sends no field, taking the model default.
+    #: Sent as `generationConfig.thinkingConfig.thinkingLevel`; the flatter
+    #: spellings 400 (verified against the live API 2026-09-14).
     thinking_level: str = "low"
     write_story_briefs: bool = True
     output_language: str = "en"
@@ -224,6 +235,7 @@ def _as_list(value: Any) -> list[str]:
 def load_sources(path: Path | str = DEFAULT_SOURCES) -> list[Source]:
     data = _load_yaml(Path(path))
     defaults = data.get("defaults") or {}
+    global_excludes = _as_list(data.get("exclude_url_patterns"))
     raw_sources = data.get("sources")
     if not isinstance(raw_sources, list) or not raw_sources:
         raise ConfigError(f"{path}: 'sources' must be a non-empty list")
@@ -265,9 +277,34 @@ def load_sources(path: Path | str = DEFAULT_SOURCES) -> list[Source]:
                 link_selector=str(entry.get("link_selector", "a")),
                 link_pattern=entry.get("link_pattern"),
                 max_links=int(entry.get("max_links", 8)),
+                exclude_url_patterns=_url_patterns(
+                    global_excludes + _as_list(entry.get("exclude_url_patterns")),
+                    path, name,
+                ),
             )
         )
     return sources
+
+
+def _url_patterns(raw: list[str], path: Path | str, name: str) -> list[str]:
+    """Validate the exclusion regexes at load time.
+
+    A broken pattern here would silently stop excluding -- or, worse, throw once
+    per article mid-run -- so it is a startup error, as a misspelled ranking term
+    is.
+    """
+    out: list[str] = []
+    for pattern in raw:
+        try:
+            re.compile(pattern)
+        except re.error as exc:
+            raise ConfigError(
+                f"{path}: {name}: exclude_url_patterns entry {pattern!r} "
+                f"is not a valid regex: {exc}"
+            ) from exc
+        if pattern not in out:
+            out.append(pattern)
+    return out
 
 
 def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
@@ -429,7 +466,7 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
     key = _gemini_key()
     settings = LLMSettings(
         provider=(os.environ.get("LLM_PROVIDER") or "gemini").strip().lower(),
-        model=os.environ.get("LLM_MODEL") or "gemini-2.5-flash",
+        model=os.environ.get("LLM_MODEL") or "gemini-3.6-flash",
         api_key=key,
         batch_size=max(1, _env_int("LLM_BATCH_SIZE", 8)),
         articles_per_run=max(0, _env_int("LLM_ARTICLES_PER_RUN", 400)),
