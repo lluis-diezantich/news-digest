@@ -175,15 +175,24 @@ sources:
     enabled: false
     weight: 0.6
 
-  # Verified 2026-09-13: api2.rtve.es/robots.txt is an allowlist and the news
-  # feed is not on it, so the fetcher correctly refuses. The only permitted
-  # feeds are radio/TV bulletins (feedsgoogle/.../boletines.rss,
-  # td/telediario.rss) carrying one audio or video item each -- no use to a text
-  # digest. Left here so the finding is not rediscovered.
-  - name: RTVE
-    rss: https://api2.rtve.es/rss/temas_noticias.xml
+  # Scraped, not RSS, and that is deliberate: all 42 of RTVE's feeds are served
+  # as .xml, which both robots.txt files disallow -- api2.rtve.es via an
+  # allowlist that omits the news feeds, www.rtve.es via `Disallow: /*.xml$`
+  # next to `Allow: /*.rss$`. A .rss news feed would be permitted; RTVE
+  # publishes none. Its news sitemap is allowed but useless (no titles, newest
+  # entry 2025-03). The HTML listing is permitted and carries good metadata, so
+  # the stock scrape adapter reads it with no code changes. Verified 2026-09-14.
+  # Costs 1 + max_links requests per run, where an RSS source costs 1.
+  - name: RTVE Noticias
+    publisher: RTVE
+    url: https://www.rtve.es/noticias/
+    method: scrape
     languages: [es]
-    enabled: false
+    weight: 1.1
+    topics: [world]
+    link_selector: "article.cell a"
+    link_pattern: "\\.shtml$"
+    max_links: 12
 
   # Verified 2026-09-13: publishes no RSS feed at any path, and declares none in
   # its HTML. Would need the scrape adapter and a look at its terms of service.
