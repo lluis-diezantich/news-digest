@@ -46,20 +46,26 @@ jobs:
 
       # Only used when EMBEDDING_PROVIDER=local. Harmless otherwise: the key
       # misses, nothing is restored, and the step costs a second.
+      #
+      # FASTEMBED_CACHE_PATH must be set explicitly. Left unset, fastembed 0.8
+      # caches under $TMPDIR, which on a runner is wiped between jobs -- so the
+      # cache would restore into a directory the library never reads and every
+      # run would re-download ~240 MB. The key includes the library major.minor
+      # because 0.8 changed MiniLM from CLS to mean pooling, which changes every
+      # vector; a cache shared across that boundary would serve stale weights.
       - name: Cache the local embedding model
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/fastembed
-            ~/.cache/huggingface
-          key: embed-model-${{ vars.EMBEDDING_MODEL || 'minilm-l12-v2' }}
+          path: ~/.cache/fastembed
+          key: fastembed-0.8-${{ vars.EMBEDDING_MODEL || 'minilm-l12-v2' }}
 
       - name: Install
         run: |
+          echo "FASTEMBED_CACHE_PATH=$HOME/.cache/fastembed" >> "$GITHUB_ENV"
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Local embeddings: set repo variable EMBEDDING_PROVIDER=local and
-          # uncomment fastembed in requirements.txt, or install the extra here.
+          # Local embeddings: set repo variable EMBEDDING_PROVIDER=local. No API
+          # key needed for them, and they leave the whole LLM quota for the model.
           if [ "${{ vars.EMBEDDING_PROVIDER }}" = "local" ]; then
             pip install 'fastembed>=0.8,<0.9'
           fi
@@ -74,10 +80,15 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.6-flash' }}
-          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '400' }}
+          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '100' }}
           EMBEDDING_PROVIDER: ${{ vars.EMBEDDING_PROVIDER || 'gemini' }}
           EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'gemini-embedding-2' }}
           EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '256' }}
+          # Model-specific: 0.82/0.72 suits gemini-embedding-2, 0.70/0.60 the
+          # local MiniLM. Set these as repo variables when switching provider;
+          # the local provider warns if it sees a gemini-shaped threshold.
+          EMBEDDING_SIMILARITY_THRESHOLD: ${{ vars.EMBEDDING_SIMILARITY_THRESHOLD }}
+          EMBEDDING_AMBIGUOUS_THRESHOLD: ${{ vars.EMBEDDING_AMBIGUOUS_THRESHOLD }}
           SITE_URL: ${{ vars.SITE_URL }}
           NEWS_DIGEST_USER_AGENT: >-
             news-digest/0.2 (+https://github.com/${{ github.repository }})
