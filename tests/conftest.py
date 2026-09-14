@@ -21,6 +21,41 @@ from newsdigest.models import Article, utcnow  # noqa: E402
 # A fixed "now" keeps recency-sensitive assertions stable.
 NOW = datetime(2026, 9, 10, 12, 0, tzinfo=timezone.utc)
 
+# Google answers both a per-minute and a per-day limit with 429 and tells them
+# apart only inside `error.details`. These are the two shapes, trimmed.
+PER_MINUTE_429 = {
+    "error": {
+        "code": 429,
+        "message": "Quota exceeded for quota metric 'Generate requests per minute'.",
+        "status": "RESOURCE_EXHAUSTED",
+        "details": [
+            {
+                "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                "violations": [{
+                    "quotaMetric": "generativelanguage.googleapis.com/generate_requests",
+                    "quotaId": "GenerateRequestsPerMinutePerProjectPerModel-FreeTier",
+                }],
+            },
+            {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "31s"},
+        ],
+    }
+}
+
+PER_DAY_429 = {
+    "error": {
+        "code": 429,
+        "message": "Quota exceeded for quota metric 'Generate requests per day'.",
+        "status": "RESOURCE_EXHAUSTED",
+        "details": [{
+            "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+            "violations": [{
+                "quotaMetric": "generativelanguage.googleapis.com/generate_requests",
+                "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+            }],
+        }],
+    }
+}
+
 
 def make_article(
     title: str,
@@ -147,3 +182,17 @@ def store(tmp_path):
 @pytest.fixture
 def heuristic() -> HeuristicProvider:
     return HeuristicProvider()
+
+
+@pytest.fixture
+def no_sleep(monkeypatch) -> list[float]:
+    """Record rate-limit waits instead of taking them.
+
+    Returns the list of requested delays, so a test can assert both how many
+    waits happened and how long they were without spending that long.
+    """
+    from newsdigest import ratelimit
+
+    delays: list[float] = []
+    monkeypatch.setattr(ratelimit, "sleep", delays.append)
+    return delays

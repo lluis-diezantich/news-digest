@@ -21,6 +21,7 @@ import time
 import numpy as np
 import requests
 
+from .. import ratelimit
 from .base import (
     EmbeddingError,
     EmbeddingProvider,
@@ -48,6 +49,8 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         task_type: str | None = None,
         timeout: float = 120.0,
         max_retries: int = 3,
+        max_rate_limit_retries: int = 3,
+        max_rate_limit_wait: float = 600.0,
     ):
         super().__init__()
         if not api_key:
@@ -57,6 +60,11 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         self.task_type = task_type
         self.timeout = timeout
         self.max_retries = max_retries
+        #: A per-minute 429 is waited out; a per-day one is terminal. The
+        #: run-level cap bounds total time spent sleeping. See `ratelimit`.
+        self.max_rate_limit_retries = max_rate_limit_retries
+        self.max_rate_limit_wait = max_rate_limit_wait
+        self._rate_limit_waited = 0.0
         self._session = requests.Session()
         self._session.headers.update(
             {"x-goog-api-key": api_key, "Content-Type": "application/json"}
@@ -93,22 +101,44 @@ class GeminiEmbeddingProvider(EmbeddingProvider):
         url = f"{API_ROOT}/{self.model}:batchEmbedContents"
 
         last_error: Exception | None = None
-        for attempt in range(self.max_retries):
+        attempt = 0  # transport errors and 5xx
+        waits = 0    # 429s, budgeted separately: for those, waiting is the fix
+        while attempt < self.max_retries:
             try:
                 self.calls += 1
                 response = self._session.post(url, json=body, timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = exc
                 self._backoff(attempt)
+                attempt += 1
                 continue
 
             if response.status_code == 429:
-                raise EmbeddingQuotaError(
-                    f"gemini embedding quota exhausted: {_short(response.text)}"
+                decision = ratelimit.plan(
+                    response.text,
+                    attempt=waits,
+                    budget=self.max_rate_limit_retries,
+                    spent=self._rate_limit_waited,
+                    cap=self.max_rate_limit_wait,
                 )
+                if not decision.retry:
+                    raise EmbeddingQuotaError(
+                        f"gemini embeddings rate limited, giving up "
+                        f"({decision.reason}): {_short(response.text)}"
+                    )
+                log.warning(
+                    "gemini embeddings rate limited (%s); waiting %.0fs then retrying",
+                    decision.reason, decision.delay,
+                )
+                ratelimit.sleep(decision.delay)
+                self._rate_limit_waited += decision.delay
+                waits += 1
+                continue
+
             if response.status_code in (500, 502, 503, 504):
                 last_error = EmbeddingError(f"gemini {response.status_code}")
                 self._backoff(attempt)
+                attempt += 1
                 continue
             if response.status_code != 200:
                 raise EmbeddingError(

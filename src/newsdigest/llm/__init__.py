@@ -32,6 +32,8 @@ def _build_gemini(settings: LLMSettings) -> LLMProvider:
         model=settings.model,
         timeout=settings.timeout,
         max_retries=settings.max_retries,
+        max_rate_limit_retries=settings.max_rate_limit_retries,
+        max_rate_limit_wait=settings.max_rate_limit_wait,
     )
 
 

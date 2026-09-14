@@ -5,6 +5,8 @@ import json
 import numpy as np
 import pytest
 
+from conftest import PER_DAY_429, PER_MINUTE_429
+
 from newsdigest.config import EmbeddingSettings
 from newsdigest.embeddings import get_provider
 from newsdigest.embeddings.base import (
@@ -38,6 +40,8 @@ class StubSession:
 
 
 def provider_with(*responses, **kwargs) -> GeminiEmbeddingProvider:
+    # Rate-limit waiting is off unless a test asks for it, so no test sleeps.
+    kwargs.setdefault("max_rate_limit_retries", 0)
     provider = GeminiEmbeddingProvider(api_key="k", model="gemini-embedding-2",
                                        max_retries=1, **kwargs)
     provider._session = StubSession(*responses)
@@ -94,10 +98,25 @@ class TestGeminiEmbeddings:
         with pytest.raises(EmbeddingError, match="no values"):
             provider.embed(["a"])
 
-    def test_rate_limit_raises_quota_error(self):
+    def test_rate_limit_raises_quota_error_with_no_wait_budget(self):
         provider = provider_with(StubResponse(429, {"error": {"message": "quota"}}))
         with pytest.raises(EmbeddingQuotaError):
             provider.embed(["a"])
+
+    def test_per_minute_limit_is_waited_out_then_retried(self, no_sleep):
+        provider = provider_with(
+            StubResponse(429, PER_MINUTE_429),
+            StubResponse(200, embeddings_payload(1)),
+            max_rate_limit_retries=2,
+        )
+        assert len(provider.embed(["a"])) == 1
+        assert len(no_sleep) == 1
+
+    def test_per_day_limit_is_terminal_and_never_sleeps(self, no_sleep):
+        provider = provider_with(StubResponse(429, PER_DAY_429), max_rate_limit_retries=5)
+        with pytest.raises(EmbeddingQuotaError, match="daily quota"):
+            provider.embed(["a"])
+        assert no_sleep == []
 
     def test_http_error_raises(self):
         provider = provider_with(StubResponse(400, {"error": {"message": "bad"}}))

@@ -166,6 +166,18 @@ class TestEnvSettings:
         assert load_embedding_settings().dimensions == 768
         assert load_embedding_settings().similarity_threshold == 0.9
 
+    def test_rate_limit_env_overrides(self, monkeypatch):
+        monkeypatch.setenv("LLM_RATE_LIMIT_RETRIES", "0")
+        monkeypatch.setenv("LLM_RATE_LIMIT_WAIT", "120")
+        monkeypatch.setenv("EMBEDDING_RATE_LIMIT_RETRIES", "5")
+        assert load_llm_settings().max_rate_limit_retries == 0
+        assert load_llm_settings().max_rate_limit_wait == 120.0
+        assert load_embedding_settings().max_rate_limit_retries == 5
+
+    def test_rate_limit_defaults_wait_out_a_per_minute_limit(self):
+        assert load_llm_settings().max_rate_limit_retries == 3
+        assert load_embedding_settings().max_rate_limit_wait == 600.0
+
     def test_bad_env_numbers_fall_back(self, monkeypatch):
         monkeypatch.setenv("LLM_BATCH_SIZE", "not-a-number")
         monkeypatch.setenv("EMBEDDING_SIMILARITY_THRESHOLD", "nope")

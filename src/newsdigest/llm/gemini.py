@@ -4,8 +4,10 @@ Uses the REST endpoint directly with `requests` -- one fewer dependency than the
 SDK, and `responseSchema` makes the JSON contract explicit and server-enforced.
 
 Free-tier quotas are per-minute and per-day, so calls are batched and every
-result is cached by content hash. A 429 raises LLMQuotaError, which stops LLM
-work for the run without failing it.
+result is cached by content hash. A per-minute 429 is waited out and retried --
+see `ratelimit` for how the two are told apart. A per-day 429, or a run that has
+spent its wait budget, raises LLMQuotaError, which stops LLM work for the run
+without failing it.
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ import time
 
 import requests
 
+from .. import ratelimit
 from .base import (
     SAME_EVENT_SYSTEM_PROMPT,
     Brief,
@@ -100,6 +103,8 @@ class GeminiProvider(LLMProvider):
         *,
         timeout: float = 90.0,
         max_retries: int = 3,
+        max_rate_limit_retries: int = 3,
+        max_rate_limit_wait: float = 600.0,
     ):
         super().__init__()
         if not api_key:
@@ -107,6 +112,12 @@ class GeminiProvider(LLMProvider):
         self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
+        #: Waits allowed per request when rate limited, and for the run overall.
+        #: The run-level cap keeps a low per-minute allowance from spending the
+        #: workflow's whole timeout in `sleep`.
+        self.max_rate_limit_retries = max_rate_limit_retries
+        self.max_rate_limit_wait = max_rate_limit_wait
+        self._rate_limit_waited = 0.0
         self._session = requests.Session()
         self._session.headers.update(
             {"x-goog-api-key": api_key, "Content-Type": "application/json"}
@@ -128,22 +139,44 @@ class GeminiProvider(LLMProvider):
         url = f"{API_ROOT}/{self.model}:generateContent"
 
         last_error: Exception | None = None
-        for attempt in range(self.max_retries):
+        attempt = 0  # transport errors and 5xx
+        waits = 0    # 429s, budgeted separately: for those, waiting is the fix
+        while attempt < self.max_retries:
             try:
                 self.calls += 1
                 response = self._session.post(url, json=body, timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = exc
                 self._backoff(attempt)
+                attempt += 1
                 continue
 
             if response.status_code == 429:
-                raise LLMQuotaError(
-                    f"gemini rate limit / quota exhausted: {_short(response.text)}"
+                decision = ratelimit.plan(
+                    response.text,
+                    attempt=waits,
+                    budget=self.max_rate_limit_retries,
+                    spent=self._rate_limit_waited,
+                    cap=self.max_rate_limit_wait,
                 )
+                if not decision.retry:
+                    raise LLMQuotaError(
+                        f"gemini rate limited, giving up ({decision.reason}): "
+                        f"{_short(response.text)}"
+                    )
+                log.warning(
+                    "gemini rate limited (%s); waiting %.0fs then retrying",
+                    decision.reason, decision.delay,
+                )
+                ratelimit.sleep(decision.delay)
+                self._rate_limit_waited += decision.delay
+                waits += 1
+                continue
+
             if response.status_code in (500, 502, 503, 504):
                 last_error = LLMError(f"gemini {response.status_code}")
                 self._backoff(attempt)
+                attempt += 1
                 continue
             if response.status_code != 200:
                 raise LLMError(f"gemini {response.status_code}: {_short(response.text)}")

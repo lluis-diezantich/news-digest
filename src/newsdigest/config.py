@@ -138,6 +138,10 @@ class LLMSettings:
     articles_per_run: int = 400
     max_retries: int = 3
     timeout: float = 90.0
+    #: Waits allowed per request against a per-minute 429, and the total time one
+    #: run may spend waiting on rate limits. A per-day 429 is never waited out.
+    max_rate_limit_retries: int = 3
+    max_rate_limit_wait: float = 600.0
     write_story_briefs: bool = True
     output_language: str = "en"
     #: Ask the LLM to break ties on ambiguous embedding clusters.
@@ -154,6 +158,10 @@ class EmbeddingSettings:
     #: Gemini embeddings degrade gracefully when truncated.
     dimensions: int = 256
     task_type: str | None = None
+    #: As LLMSettings: how long to wait out a per-minute 429, per request and
+    #: per run.
+    max_rate_limit_retries: int = 3
+    max_rate_limit_wait: float = 600.0
     #: Cosine similarity at or above which two articles are the same event.
     similarity_threshold: float = 0.82
     #: Between this and the threshold, ask the LLM (if enabled) to decide.
@@ -389,6 +397,8 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
         api_key=key,
         batch_size=max(1, _env_int("LLM_BATCH_SIZE", 8)),
         articles_per_run=max(0, _env_int("LLM_ARTICLES_PER_RUN", 400)),
+        max_rate_limit_retries=max(0, _env_int("LLM_RATE_LIMIT_RETRIES", 3)),
+        max_rate_limit_wait=max(0.0, _env_float("LLM_RATE_LIMIT_WAIT", 600.0)),
         output_language=output_language,
     )
     # Degrade rather than fail: the digest still builds without a key.
@@ -405,6 +415,8 @@ def load_embedding_settings() -> EmbeddingSettings:
         api_key=key.strip() if key else None,
         dimensions=max(64, _env_int("EMBEDDING_DIMENSIONS", 256)),
         task_type=os.environ.get("EMBEDDING_TASK_TYPE") or None,
+        max_rate_limit_retries=max(0, _env_int("EMBEDDING_RATE_LIMIT_RETRIES", 3)),
+        max_rate_limit_wait=max(0.0, _env_float("EMBEDDING_RATE_LIMIT_WAIT", 600.0)),
         similarity_threshold=_env_float("EMBEDDING_SIMILARITY_THRESHOLD", 0.82),
         ambiguous_threshold=_env_float("EMBEDDING_AMBIGUOUS_THRESHOLD", 0.72),
     )
