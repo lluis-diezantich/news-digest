@@ -8,6 +8,13 @@ result is cached by content hash. A per-minute 429 is waited out and retried --
 see `ratelimit` for how the two are told apart. A per-day 429, or a run that has
 spent its wait budget, raises LLMQuotaError, which stops LLM work for the run
 without failing it.
+
+Thinking is set to the cheapest level the model allows rather than left on its
+default. Thought tokens are billed as output, counted against the per-minute
+token allowance, and drawn from `maxOutputTokens` -- so on schema-enforced
+extraction they cost money, invite 429s, and can starve the reply of room for
+the JSON itself. `thinking_level` is a documented field only on recent models,
+so a model that rejects it is retried once without it rather than failing.
 """
 
 from __future__ import annotations
@@ -105,6 +112,7 @@ class GeminiProvider(LLMProvider):
         max_retries: int = 3,
         max_rate_limit_retries: int = 3,
         max_rate_limit_wait: float = 600.0,
+        thinking_level: str = "low",
     ):
         super().__init__()
         if not api_key:
@@ -118,6 +126,9 @@ class GeminiProvider(LLMProvider):
         self.max_rate_limit_retries = max_rate_limit_retries
         self.max_rate_limit_wait = max_rate_limit_wait
         self._rate_limit_waited = 0.0
+        #: Emptied for the rest of the run if the model turns out to reject it,
+        #: so one 400 costs one retry rather than one per request.
+        self.thinking_level = thinking_level
         self._session = requests.Session()
         self._session.headers.update(
             {"x-goog-api-key": api_key, "Content-Type": "application/json"}
@@ -126,15 +137,18 @@ class GeminiProvider(LLMProvider):
     # -- transport ----------------------------------------------------------
 
     def _generate(self, system: str, prompt: str, schema: dict) -> str:
+        config: dict = {
+            "responseMimeType": "application/json",
+            "responseSchema": schema,
+            "temperature": 0.2,
+            "maxOutputTokens": 8192,
+        }
+        if self.thinking_level:
+            config["thinkingLevel"] = self.thinking_level
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "responseMimeType": "application/json",
-                "responseSchema": schema,
-                "temperature": 0.2,
-                "maxOutputTokens": 8192,
-            },
+            "generationConfig": config,
         }
         url = f"{API_ROOT}/{self.model}:generateContent"
 
@@ -178,11 +192,31 @@ class GeminiProvider(LLMProvider):
                 self._backoff(attempt)
                 attempt += 1
                 continue
+            if response.status_code == 400 and self._drop_thinking(response.text, config):
+                continue  # same attempt, one field lighter
             if response.status_code != 200:
                 raise LLMError(f"gemini {response.status_code}: {_short(response.text)}")
             return self._extract_text(response.json())
 
         raise LLMError(f"gemini unreachable after {self.max_retries} attempts: {last_error}")
+
+    def _drop_thinking(self, body: str, config: dict) -> bool:
+        """Retry without `thinkingLevel` when the model does not accept it.
+
+        Only recent models document the field. Rather than make the digest's
+        quality depend on the reader having pinned a compatible `LLM_MODEL`, an
+        unrecognised-field 400 drops it for the rest of the run.
+        """
+        if "thinkingLevel" not in config or "thinking" not in body.lower():
+            return False
+        log.warning(
+            "%s rejected thinkingLevel=%r; retrying without it for the rest of "
+            "the run (thought tokens will be billed at the model's default)",
+            self.model, config["thinkingLevel"],
+        )
+        config.pop("thinkingLevel")
+        self.thinking_level = ""
+        return True
 
     @staticmethod
     def _backoff(attempt: int) -> None:

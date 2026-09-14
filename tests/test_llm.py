@@ -1,5 +1,6 @@
 """LLM provider tests. Gemini is exercised against a stubbed transport."""
 
+import copy
 import json
 
 import pytest
@@ -40,7 +41,10 @@ class StubSession:
         self.headers = {}
 
     def post(self, url, json=None, timeout=None):
-        self.posts.append(json)
+        # A snapshot, not a reference: the real transport serializes the body at
+        # send time, so a later retry that edits the config must not appear to
+        # have rewritten history for the call that already went out.
+        self.posts.append(copy.deepcopy(json))
         return self.responses.pop(0) if len(self.responses) > 1 else self.responses[0]
 
 
@@ -174,6 +178,48 @@ class TestGeminiEnrich:
         with pytest.raises(LLMQuotaError, match="wait budget"):
             provider.enrich(ITEMS, context)
         assert sum(no_sleep) <= 70.0
+
+    def test_thinking_level_is_sent_at_the_cheapest_level(self, context):
+        """Thought tokens are billed as output and drawn from maxOutputTokens."""
+        provider = gemini_with(StubResponse(200, candidate(ENRICHED)))
+        provider.enrich(ITEMS, context)
+        assert provider._session.posts[0]["generationConfig"]["thinkingLevel"] == "low"
+
+    def test_thinking_level_is_omitted_when_unset(self, context):
+        """Models with thinking already off want no field at all."""
+        provider = gemini_with(StubResponse(200, candidate(ENRICHED)), thinking_level="")
+        provider.enrich(ITEMS, context)
+        assert "thinkingLevel" not in provider._session.posts[0]["generationConfig"]
+
+    def test_a_model_rejecting_thinking_level_is_retried_without_it(self, context):
+        """A pinned LLM_MODEL that predates the field must not cost the run."""
+        rejection = {"error": {"code": 400, "message":
+                     'Invalid JSON payload received. Unknown name "thinkingLevel".'}}
+        provider = gemini_with(
+            StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
+        )
+        assert len(provider.enrich(ITEMS, context)) == 2
+        sent = provider._session.posts
+        assert "thinkingLevel" in sent[0]["generationConfig"]
+        assert "thinkingLevel" not in sent[1]["generationConfig"]
+
+    def test_thinking_level_is_dropped_for_the_rest_of_the_run(self, context):
+        """One 400, not one per request."""
+        rejection = {"error": {"code": 400, "message": 'Unknown name "thinkingLevel".'}}
+        provider = gemini_with(
+            StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
+        )
+        provider.enrich(ITEMS, context)
+        assert provider.thinking_level == ""
+        provider._session.responses = [StubResponse(200, candidate(ENRICHED))]
+        provider.enrich(ITEMS, context)
+        assert "thinkingLevel" not in provider._session.posts[-1]["generationConfig"]
+
+    def test_an_unrelated_400_still_raises(self, context):
+        """Only a thinking complaint is retried; everything else is a real error."""
+        provider = gemini_with(StubResponse(400, {"error": {"message": "bad api key"}}))
+        with pytest.raises(LLMError, match="400"):
+            provider.enrich(ITEMS, context)
 
     def test_blocked_prompt_raises(self, context):
         provider = gemini_with(StubResponse(200, {"promptFeedback": {"blockReason": "SAFETY"}}))

@@ -61,8 +61,8 @@ trust a schedule with it.
    folder `/docs`.
 4. **Variables** (optional): `SITE_URL` for absolute RSS links;
    `LLM_MODEL`, `EMBEDDING_DIMENSIONS`, `LLM_ARTICLES_PER_RUN`,
-   `LLM_RATE_LIMIT_RETRIES`, `LLM_RATE_LIMIT_WAIT` to override defaults without
-   editing workflows.
+   `LLM_RATE_LIMIT_RETRIES`, `LLM_RATE_LIMIT_WAIT`, `LLM_THINKING_LEVEL` to
+   override defaults without editing workflows.
 5. Actions → *Collect articles* → **Run workflow**. Then let it run for a week,
    or trigger *Build weekly digest* with a `week` input to see output immediately.
 
@@ -224,6 +224,16 @@ guards apply: enrichment and embeddings are cached by content hash; requests are
 batched; only pre-ranked candidate clusters are enriched; and
 `LLM_ARTICLES_PER_RUN` bounds a busy week.
 
+**Thinking is set to the floor, not left on default.** Thought tokens are billed
+as output (the expensive direction), counted against the per-minute *token*
+allowance, and drawn from the same `maxOutputTokens` budget as the reply — so on
+schema-enforced extraction they buy nothing and cost three ways, the third being
+a reply that runs out of room before writing its JSON. `LLM_THINKING_LEVEL`
+defaults to `low`, the floor on `gemini-2.5-flash`, which has no off switch;
+`gemini-2.5-flash-lite` ships with thinking already off. The field is documented
+only on recent models, so a model that rejects it is retried once without it and
+the run continues.
+
 **Two kinds of 429.** Google answers a per-minute and a per-day limit with the
 same status code, and the difference decides what to do about it. A weekly run
 fires its requests in one burst, so the per-minute allowance is the one it
@@ -338,13 +348,13 @@ data/news.db              generated — pipeline state, committed by Actions
 pytest -q
 ```
 
-259 tests, no network and no API key required. They cover URL canonicalization
+268 tests, no network and no API key required. They cover URL canonicalization
 and the similarity metric, language detection including es/ca, dedupe
 boundaries, cross-language clustering with stubbed vectors, the ambiguous-band
 LLM adjudication and its budget, both providers against stubbed transports
 (including the aggregated-embedding trap), the per-minute/per-day 429 split and
-its wait budgets, the configurable ranking formula, the store with a v1→v2
-migration, the archive renderer, and both pipelines end
+its wait budgets, the thinking-level fallback, the configurable ranking formula,
+the store with a v1→v2 migration, the archive renderer, and both pipelines end
 to end — with a broken source, an exhausted quota, and cache reuse.
 
 ## Known limits
