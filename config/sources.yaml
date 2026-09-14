@@ -64,34 +64,6 @@ sources:
     weight: 1.1
     topics: [politics]
 
-  - name: El País Economía
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada
-    languages: [es]
-    weight: 1.1
-    topics: [economics]
-
-  - name: El País Tecnología
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada
-    languages: [es]
-    weight: 1.1
-    topics: [technology]
-
-  - name: El País Ciencia
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada
-    languages: [es]
-    weight: 1.0
-    topics: [science]
-
-  - name: El País Clima
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/list/ep/site/elpais.com/section/clima-y-medio-ambiente
-    languages: [es]
-    weight: 1.0
-    topics: [climate]
-
   # Same publisher, same events, different language -- the clearest check that
   # cross-language clustering is working.
   - name: El País (English)
