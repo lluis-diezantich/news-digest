@@ -37,11 +37,6 @@ sources:
     weight: 1.1
     topics: [world]
 
-  - name: NPR News
-    rss: https://feeds.npr.org/1001/rss.xml
-    languages: [en]
-    weight: 1.0
-
   - name: Al Jazeera
     rss: https://www.aljazeera.com/xml/rss/all.xml
     languages: [en]
