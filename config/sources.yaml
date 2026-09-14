@@ -23,6 +23,22 @@ defaults:
   # See "Attribution and copyright" in the README.
   excerpt_chars: 1200
 
+# Dropped at collection, before anything reaches the database. Regexes, matched
+# against the article's original URL. This is for structural junk, not taste:
+# native advertising and service content live at predictable paths, and no
+# ranking signal catches them reliably -- advertorial is written to match
+# whatever topics rank well, so `interest` actively promotes it. Measured on the
+# 2026-W38 digest, four of ten published stories were one Ara advertising series.
+# Per-source lists in a source entry are added to this one.
+exclude_url_patterns:
+  - /especials/          # Ara native advertising ("especials" = sponsored series)
+  - /loterias?/          # lottery results
+  - /horoscopo?/         # horoscopes
+  - /el-tiempo/          # weather service pages
+  # NOT /lainformacion/: that looked like branded content but is a news brand
+  # 20minutos syndicates -- the three articles it caught were a CNMC report on
+  # petrol stations, butane pricing and savings taxation. Real reporting.
+
 sources:
   # ---------------------------------------------------------------- English --
   - name: BBC World
@@ -36,6 +52,14 @@ sources:
     languages: [en]
     weight: 1.1
     topics: [world]
+    # The Guardian syndicates its Australian edition into /world/rss: of ~33
+    # items only 18 were actually /world/, against 10 /australia-news/ (US 2,
+    # UK 1). Those are good reporting but domestic -- state road maintenance, a
+    # NSW corruption inquiry -- and one of them reached #2 of the 2026-W38
+    # digest. Scope, not junk, and per-source so a deliberate Guardian Australia
+    # entry would be unaffected. /us-news/ and /uk-news/ are left in.
+    exclude_url_patterns:
+      - /australia-news/
 
   - name: Al Jazeera
     rss: https://www.aljazeera.com/xml/rss/all.xml

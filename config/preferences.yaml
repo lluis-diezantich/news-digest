@@ -17,16 +17,18 @@ preferences:
   #   topics: [technology, economics]        -> each gets weight 1.5
   #   topics: {technology: 1.5, sports: 0.3} -> explicit weights
   # Anything not listed scores 1.0.
+  # Deliberately near-flat, and inverted against tag breadth. This is the
+  # personalization term and the digest is meant to be generic, so it should not
+  # be a strong discriminator. `politics` was 1.5 -- the highest weight on the
+  # vaguest tag, the one almost any story gets -- which is how a Victorian
+  # pothole story reached #2 of the 2026-W38 digest on `interest` alone.
+  # Broad tag -> low weight, so nothing is promoted merely for being tagged.
   topics:
-    technology: 1.5
-    artificial intelligence: 1.6
-    european politics: 1.4
-    economics: 1.3
-    science: 1.2
-    climate: 1.2
-    world: 1.1
+    economics: 1.1
+    climate: 1.1
     health: 1.0
-    culture: 0.7
+    world: 1.0
+    politics: 1.0
 
   # Penalised hard rather than hidden, so a genuinely huge sports story can
   # still surface.
@@ -44,11 +46,6 @@ preferences:
 
   # Each distinct hit adds `keyword_bonus`.
   keywords:
-    - anthropic
-    - open source
-    - semiconductors
-    - catalonia
-    - denmark
 
 ranking:
   # final_score = sum(weight * signal) for the terms listed here.
@@ -72,7 +69,7 @@ ranking:
 digest:
   title: "Weekly Digest"
   subtitle: "Curated from your sources in English, Spanish and Catalan"
-  max_stories: 30
+  max_stories: 10
   min_articles: 1
   # Weekday the digest window ends on: 0 = Monday ... 6 = Sunday.
   week_ends_on: 6
