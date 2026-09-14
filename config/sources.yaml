@@ -47,32 +47,6 @@ sources:
     languages: [en]
     weight: 1.0
     topics: [world]
-
-  - name: Ars Technica
-    rss: https://feeds.arstechnica.com/arstechnica/index
-    languages: [en]
-    weight: 1.1
-    topics: [technology]
-
-  - name: The Verge
-    rss: https://www.theverge.com/rss/index.xml
-    languages: [en]
-    weight: 0.9
-    topics: [technology]
-
-  - name: TechCrunch
-    rss: https://techcrunch.com/feed/
-    languages: [en]
-    weight: 0.8
-    topics: [technology, startups]
-
-  - name: Hacker News
-    rss: https://news.ycombinator.com/rss
-    languages: [en]
-    weight: 0.9
-    topics: [technology]
-    max_items: 30
-
   # ---------------------------------------------------------------- Spanish --
   # El País publishes one feed per section. They all share a publisher so a
   # story covered by three sections is not mistaken for three outlets.
