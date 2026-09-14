@@ -23,12 +23,12 @@ preferences:
   # vaguest tag, the one almost any story gets -- which is how a Victorian
   # pothole story reached #2 of the 2026-W38 digest on `interest` alone.
   # Broad tag -> low weight, so nothing is promoted merely for being tagged.
-  topics:
-    economics: 1.1
-    climate: 1.1
-    health: 1.0
-    world: 1.0
-    politics: 1.0
+  # Emptied 2026-09-14. Every entry was a broad category -- politics, world,
+  # economics -- and a tag that general says nothing about whether a story
+  # matters: it is the tag a pothole story and a war both receive. With
+  # `interest` and `relevance` both out of the formula these go unread; kept as
+  # an empty map so the option stays documented.
+  topics: {}
 
   # Penalised hard rather than hidden, so a genuinely huge sports story can
   # still surface.
@@ -37,27 +37,47 @@ preferences:
     - celebrity
     - horoscope
 
-  # Matched against a story's publishers.
-  preferred_sources:
-    - BBC World
-    - The Guardian World
-    - El País
-    - Ara
+  # Emptied 2026-09-14. With a deliberately small source list a favourites
+  # subset says little, and outlet quality is already expressed once in each
+  # source's `weight:`. Saying it again as a +0.5 bonus made it loud enough to
+  # distort: even after source_preference left the ranking formula, this bonus
+  # still shaped pre-ranking -- which matters because only ~20 of ~198 clusters
+  # survive to compete for the digest's slots. Emptying it took the 2026-W38
+  # digest from 4 publishers to 6; RTVE and 3Cat could not make the shortlist
+  # until it was gone. `weight:` still feeds pre-ranking and tie-breaks.
+  preferred_sources: []
 
   # Each distinct hit adds `keyword_bonus`.
   keywords:
 
 ranking:
   # final_score = sum(weight * signal) for the terms listed here.
-  # Drop a line to remove that signal from the formula entirely.
+  # Drop a line to remove that signal entirely; a misspelling is a startup error.
+  #
+  # Kept short on purpose. Each term removed on 2026-09-14 was measured across a
+  # published top ten first, and each contributed less than it appeared to:
+  #   relevance         spread 0.40 -- "how well does this match THIS reader",
+  #                     the personalization this digest is meant not to do, and
+  #                     the only term still moving the order.
+  #   interest          0.08 -- topic matching, over tags too broad to mean much.
+  #   importance        0.12 -- offline it is 0.35 + 0.12 per hit on a 33-word
+  #                     list (killed, guerra, terratremol...); 91% of articles
+  #                     matched nothing, so it was a constant in signal's
+  #                     clothing. Put it back the day a real LLM fills it in.
+  #   source_preference dwarfed by its own +0.5 favourites bonus -- an assertion
+  #                     that four outlets are trustworthy, not evidence.
   terms:
-    importance: 1.0         # LLM: how consequential, 0-1
-    relevance: 1.0          # LLM: how relevant to the topics above, 0-1
-    interest: 0.8           # deterministic topic/keyword match
-    recency: 0.6            # exponential decay across the week
-    corroboration: 0.4      # distinct publishers covering the story
-    source_preference: 0.3  # configured source weights and preferred_sources
-    story_size: 0.2         # how much coverage there is
+    # The desk's own ordering. Feed and DOM order measured 80-100% concordant
+    # with each site's front page, so position 0 is an editor saying "this leads
+    # today" -- free, and in every language. Primary by intent: the digest should
+    # read like the front pages it is built from.
+    editorial_position: 2.0
+    # How many independent outlets covered it -- the honest measure of
+    # newsworthiness, and 0.00 on every story until embeddings exist.
+    corroboration: 0.8
+    # A tiebreak, not a driver: within one source, position already implies it.
+    recency: 0.3
+    story_size: 0.2
 
   keyword_bonus: 0.15
   excluded_penalty: 1.5

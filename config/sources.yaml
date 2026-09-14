@@ -18,7 +18,11 @@
 # scrape-only: link_selector, link_pattern, max_links
 
 defaults:
-  max_items_per_source: 25
+  # 10, not 25: feed order is the newsroom's own ranking (measured 80-100%
+  # concordant with the section front page on eight of these sources), so a cap
+  # takes each desk's TOP ten rather than ten arbitrary items. Costs ~18% of
+  # articles in a busy week, all of it from the six highest-volume feeds.
+  max_items_per_source: 10
   # We store only enough text to summarize from, never a full article body.
   # See "Attribution and copyright" in the README.
   excerpt_chars: 1200
@@ -41,25 +45,25 @@ exclude_url_patterns:
 
 sources:
   # ---------------------------------------------------------------- English --
-  - name: BBC World
-    rss: https://feeds.bbci.co.uk/news/world/rss.xml
-    languages: [en]
-    weight: 1.2
-    topics: [world]
+#  - name: BBC World
+#    rss: https://feeds.bbci.co.uk/news/world/rss.xml
+#    languages: [en]
+#    weight: 1.2
+#    topics: [world]
 
-  - name: The Guardian World
-    rss: https://www.theguardian.com/world/rss
-    languages: [en]
-    weight: 1.1
-    topics: [world]
+#  - name: The Guardian World
+#    rss: https://www.theguardian.com/world/rss
+#    languages: [en]
+#    weight: 1.1
+#    topics: [world]
     # The Guardian syndicates its Australian edition into /world/rss: of ~33
     # items only 18 were actually /world/, against 10 /australia-news/ (US 2,
     # UK 1). Those are good reporting but domestic -- state road maintenance, a
     # NSW corruption inquiry -- and one of them reached #2 of the 2026-W38
     # digest. Scope, not junk, and per-source so a deliberate Guardian Australia
     # entry would be unaffected. /us-news/ and /uk-news/ are left in.
-    exclude_url_patterns:
-      - /australia-news/
+#    exclude_url_patterns:
+#      - /australia-news/
 
   - name: Al Jazeera
     rss: https://www.aljazeera.com/xml/rss/all.xml
@@ -95,7 +99,6 @@ sources:
     rss: https://www.eldiario.es/rss/
     languages: [es]
     weight: 1.0
-    max_items: 30
 
   - name: El Salto
     rss: https://www.elsaltodiario.com/general/feed
@@ -113,20 +116,18 @@ sources:
   # here. Excerpts are short (median ~130 chars, against ~1,200 from a scraped
   # page) and the feed is not in date order -- 25 items spanned 69 days -- so
   # much of what it returns falls outside the weekly window. Weighted low, and
-  # max_items raised so recent pieces are more likely to be among what we take.
+  # Capped at the shared default like everything else.
   - name: 20minutos
     publisher: 20minutos
     rss: https://www.20minutos.es/rss/
     languages: [es]
     weight: 0.8
-    max_items: 40
 
   # ---------------------------------------------------------------- Catalan --
   - name: Ara
     rss: https://www.ara.cat/rss/
     languages: [ca]
     weight: 1.1
-    max_items: 30
 
   - name: 3Cat (324)
     rss: https://api.ccma.cat/noticies?_format=rss&origen=frontal&frontal=n324-portada-noticia&version=2.0
@@ -152,7 +153,6 @@ sources:
     rss: https://directa.cat/feed/
     languages: [ca]
     weight: 1.0
-    max_items: 30
 
   # --------------------------------------------------------------- Disabled --
   # Verified 2026-09-13: works, but ~10 items, often days old, and largely
@@ -193,6 +193,12 @@ sources:
   # declared in its HTML (verified 2026-09-13). robots.txt permits the homepage
   # and article pages, and the stock adapter reads both with no code changes
   # (verified 2026-09-14). Costs 1 + max_links requests per run.
+  # Briefly disabled on 2026-09-14 for placing no stories, then re-enabled the
+  # same day: that measurement was taken while the ranking was broken (importance
+  # a flat 0.35, corroboration 0.00 for want of embeddings), so zero yield said
+  # more about the formula than the source. Both signals work now, and a scraped
+  # section page carries real DOM-order editorial ranking, which is the digest's
+  # primary term.
   - name: Público
     publisher: Público
     url: https://www.publico.es/
@@ -208,6 +214,9 @@ sources:
   # chars, all dated, Catalan on all of them). Its one declared feed is
   # api.audioteca.rac1.cat/rss/versio, a podcast -- 100 items, every one an
   # audio/mpeg enclosure -- so scraping is the only route to the text.
+  # Re-enabled 2026-09-14 alongside Público, for the same reason: its zero yield
+  # was measured against a ranking with no working signals. Also a fifth Catalan
+  # voice, and corroboration counts publishers.
   - name: RAC1
     publisher: RAC1
     url: https://www.rac1.cat/
