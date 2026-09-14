@@ -140,15 +140,19 @@ sources:
     link_pattern: "\\.shtml$"
     max_links: 12
 
-  # Verified 2026-09-13: publishes no RSS feed at any path, and declares none in
-  # its HTML. Would need the scrape adapter and a look at its terms of service.
+  # Scraped because there is no alternative: no RSS feed at any path, and none
+  # declared in its HTML (verified 2026-09-13). robots.txt permits the homepage
+  # and article pages, and the stock adapter reads both with no code changes
+  # (verified 2026-09-14). Costs 1 + max_links requests per run.
   - name: Público
+    publisher: Público
     url: https://www.publico.es/
     method: scrape
     languages: [es]
-    enabled: false
+    weight: 1.0
     link_selector: "article a"
-    max_links: 8
+    link_pattern: "publico.es/.+/.+"
+    max_links: 12
 
   # Verified 2026-09-13: ctxt.es/es/rss serves an HTML page pointing at
   # back.ctxt.es, which returns 403 to every user agent tried. Genuinely closed
