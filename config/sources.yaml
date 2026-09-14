@@ -85,6 +85,18 @@ sources:
     languages: [es, ca]
     weight: 1.0
 
+  # Verified 2026-09-14: the feed works but is weak on both counts that matter
+  # here. Excerpts are short (median ~130 chars, against ~1,200 from a scraped
+  # page) and the feed is not in date order -- 25 items spanned 69 days -- so
+  # much of what it returns falls outside the weekly window. Weighted low, and
+  # max_items raised so recent pieces are more likely to be among what we take.
+  - name: 20minutos
+    publisher: 20minutos
+    rss: https://www.20minutos.es/rss/
+    languages: [es]
+    weight: 0.8
+    max_items: 40
+
   # ---------------------------------------------------------------- Catalan --
   - name: Ara
     rss: https://www.ara.cat/rss/
@@ -107,6 +119,17 @@ sources:
     languages: [ca]
     weight: 0.9
 
+  # An investigative outlet, not a wire: ~1.7 items/day, so it will seldom
+  # corroborate anyone else's story. The feed is undeclared in the HTML but
+  # WordPress serves it at /feed/ (verified 2026-09-14) -- 10 items, every one
+  # dated and bylined. robots.txt permits everything.
+  - name: La Directa
+    publisher: La Directa
+    rss: https://directa.cat/feed/
+    languages: [ca]
+    weight: 1.0
+    max_items: 30
+
   # --------------------------------------------------------------- Disabled --
   # Verified 2026-09-13: works, but ~10 items, often days old, and largely
   # image posts rather than reporting. Enable if you want it.
@@ -116,6 +139,7 @@ sources:
     enabled: false
     weight: 0.6
 
+  # ----------------------------------------------------------------- Scraped --
   # Scraped sources follow. Before enabling any of them, read that site's terms
   # of service: the fetcher honours robots.txt and crawl-delay, but that is a
   # technical control, not permission. (Reuters used to sit here as the example;
@@ -155,10 +179,54 @@ sources:
     link_pattern: "publico.es/.+/.+"
     max_links: 12
 
+  # A radio station whose site nonetheless carries text reporting, which the
+  # stock adapter reads cleanly (verified 2026-09-14: excerpts 1,020-1,200
+  # chars, all dated, Catalan on all of them). Its one declared feed is
+  # api.audioteca.rac1.cat/rss/versio, a podcast -- 100 items, every one an
+  # audio/mpeg enclosure -- so scraping is the only route to the text.
+  - name: RAC1
+    publisher: RAC1
+    url: https://www.rac1.cat/
+    method: scrape
+    languages: [ca]
+    weight: 1.0
+    link_selector: "article a"
+    link_pattern: "/20\\d{6}/"
+    max_links: 12
+
   # Verified 2026-09-13: ctxt.es/es/rss serves an HTML page pointing at
   # back.ctxt.es, which returns 403 to every user agent tried. Genuinely closed
   # rather than bot-gated, so there is nothing to enable here yet.
   - name: CTXT
     rss: https://back.ctxt.es/es/static/rss/
     languages: [es]
+    enabled: false
+
+  # Verified 2026-09-14: no feed at any probed path, and the site sits behind bot
+  # protection that returns 403 intermittently -- lone requests succeed, but a
+  # run that fetches the index and then article pages trips it. The scrape
+  # config below is correct and the links are in the static HTML; it is the 403s
+  # that make it unfit for a schedule. Recorded, not enabled.
+  - name: Cadena SER
+    publisher: Cadena SER
+    url: https://cadenaser.com/
+    method: scrape
+    languages: [es]
+    enabled: false
+    link_selector: "article a"
+    link_pattern: "/20\\d{2}/\\d{2}/\\d{2}/"
+    max_links: 12
+
+  # Verified 2026-09-14: robots.txt disallows everything for us, and probably by
+  # accident. Line 50 of it is a malformed bare `User-agent:` followed by
+  # `Disallow: /`; an empty token is a substring of every user agent, so
+  # urllib.robotparser applies that group to everyone. Its real `User-agent: *`
+  # group blocks only a handful of paths, and the Allow exceptions sitting beside
+  # the blanket rule are /es/ sections, not /ca/. Whatever was intended, the
+  # fetcher refuses it, so there is nothing here to enable.
+  - name: El Periódico (CAT)
+    publisher: El Periódico
+    url: https://www.elperiodico.cat/
+    method: scrape
+    languages: [ca]
     enabled: false
