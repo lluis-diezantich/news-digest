@@ -1,8 +1,11 @@
 """LLM provider tests. Gemini is exercised against a stubbed transport."""
 
+import copy
 import json
 
 import pytest
+
+from conftest import PER_DAY_429, PER_MINUTE_429
 
 from newsdigest.config import LLMSettings, Preferences, Settings
 from newsdigest.llm import build_context, get_provider
@@ -38,12 +41,17 @@ class StubSession:
         self.headers = {}
 
     def post(self, url, json=None, timeout=None):
-        self.posts.append(json)
+        # A snapshot, not a reference: the real transport serializes the body at
+        # send time, so a later retry that edits the config must not appear to
+        # have rewritten history for the call that already went out.
+        self.posts.append(copy.deepcopy(json))
         return self.responses.pop(0) if len(self.responses) > 1 else self.responses[0]
 
 
-def gemini_with(*responses) -> GeminiProvider:
-    provider = GeminiProvider(api_key="k", model="gemini-test", max_retries=1)
+def gemini_with(*responses, **kwargs) -> GeminiProvider:
+    # Rate-limit waiting is off unless a test asks for it, so no test sleeps.
+    kwargs.setdefault("max_rate_limit_retries", 0)
+    provider = GeminiProvider(api_key="k", model="gemini-test", max_retries=1, **kwargs)
     provider._session = StubSession(*responses)
     return provider
 
@@ -122,9 +130,95 @@ class TestGeminiEnrich:
         result = provider.enrich(ITEMS, context)[0]
         assert result.importance == 1.0 and result.relevance == 0.0
 
-    def test_rate_limit_raises_quota_error(self, context):
+    def test_rate_limit_raises_quota_error_with_no_wait_budget(self, context):
         provider = gemini_with(StubResponse(429, {"error": {"message": "quota"}}))
         with pytest.raises(LLMQuotaError):
+            provider.enrich(ITEMS, context)
+
+    def test_per_minute_limit_is_waited_out_then_retried(self, context, no_sleep):
+        """The free-tier case: a burst outruns the per-minute allowance."""
+        provider = gemini_with(
+            StubResponse(429, PER_MINUTE_429),
+            StubResponse(200, candidate(ENRICHED)),
+            max_rate_limit_retries=2,
+        )
+        assert len(provider.enrich(ITEMS, context)) == 2
+        assert len(no_sleep) == 1
+
+    def test_retry_info_delay_is_honoured(self, context, no_sleep):
+        provider = gemini_with(
+            StubResponse(429, PER_MINUTE_429),
+            StubResponse(200, candidate(ENRICHED)),
+            max_rate_limit_retries=2,
+        )
+        provider.enrich(ITEMS, context)
+        # 31s from RetryInfo, plus up to 1s of jitter.
+        assert 31.0 <= no_sleep[0] < 32.0
+
+    def test_per_day_limit_is_terminal_and_never_sleeps(self, context, no_sleep):
+        """Waiting cannot fix a daily quota, so it must not be attempted."""
+        provider = gemini_with(StubResponse(429, PER_DAY_429), max_rate_limit_retries=5)
+        with pytest.raises(LLMQuotaError, match="daily quota"):
+            provider.enrich(ITEMS, context)
+        assert no_sleep == []
+
+    def test_persistent_rate_limit_gives_up_and_degrades(self, context, no_sleep):
+        provider = gemini_with(StubResponse(429, PER_MINUTE_429), max_rate_limit_retries=2)
+        with pytest.raises(LLMQuotaError, match="after 2 waits"):
+            provider.enrich(ITEMS, context)
+        assert len(no_sleep) == 2
+
+    def test_run_wait_budget_bounds_total_sleeping(self, context, no_sleep):
+        """A low allowance must not spend the workflow's whole timeout asleep."""
+        provider = gemini_with(
+            StubResponse(429, PER_MINUTE_429),
+            max_rate_limit_retries=99,
+            max_rate_limit_wait=70.0,
+        )
+        with pytest.raises(LLMQuotaError, match="wait budget"):
+            provider.enrich(ITEMS, context)
+        assert sum(no_sleep) <= 70.0
+
+    def test_thinking_level_is_sent_at_the_cheapest_level(self, context):
+        """Thought tokens are billed as output and drawn from maxOutputTokens."""
+        provider = gemini_with(StubResponse(200, candidate(ENRICHED)))
+        provider.enrich(ITEMS, context)
+        assert provider._session.posts[0]["generationConfig"]["thinkingLevel"] == "low"
+
+    def test_thinking_level_is_omitted_when_unset(self, context):
+        """Models with thinking already off want no field at all."""
+        provider = gemini_with(StubResponse(200, candidate(ENRICHED)), thinking_level="")
+        provider.enrich(ITEMS, context)
+        assert "thinkingLevel" not in provider._session.posts[0]["generationConfig"]
+
+    def test_a_model_rejecting_thinking_level_is_retried_without_it(self, context):
+        """A pinned LLM_MODEL that predates the field must not cost the run."""
+        rejection = {"error": {"code": 400, "message":
+                     'Invalid JSON payload received. Unknown name "thinkingLevel".'}}
+        provider = gemini_with(
+            StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
+        )
+        assert len(provider.enrich(ITEMS, context)) == 2
+        sent = provider._session.posts
+        assert "thinkingLevel" in sent[0]["generationConfig"]
+        assert "thinkingLevel" not in sent[1]["generationConfig"]
+
+    def test_thinking_level_is_dropped_for_the_rest_of_the_run(self, context):
+        """One 400, not one per request."""
+        rejection = {"error": {"code": 400, "message": 'Unknown name "thinkingLevel".'}}
+        provider = gemini_with(
+            StubResponse(400, rejection), StubResponse(200, candidate(ENRICHED))
+        )
+        provider.enrich(ITEMS, context)
+        assert provider.thinking_level == ""
+        provider._session.responses = [StubResponse(200, candidate(ENRICHED))]
+        provider.enrich(ITEMS, context)
+        assert "thinkingLevel" not in provider._session.posts[-1]["generationConfig"]
+
+    def test_an_unrelated_400_still_raises(self, context):
+        """Only a thinking complaint is retried; everything else is a real error."""
+        provider = gemini_with(StubResponse(400, {"error": {"message": "bad api key"}}))
+        with pytest.raises(LLMError, match="400"):
             provider.enrich(ITEMS, context)
 
     def test_blocked_prompt_raises(self, context):

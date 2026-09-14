@@ -60,8 +60,9 @@ trust a schedule with it.
 3. **Pages** — Settings → Pages → Source: *Deploy from a branch*, branch `main`,
    folder `/docs`.
 4. **Variables** (optional): `SITE_URL` for absolute RSS links;
-   `LLM_MODEL`, `EMBEDDING_DIMENSIONS`, `LLM_ARTICLES_PER_RUN` to override
-   defaults without editing workflows.
+   `LLM_MODEL`, `EMBEDDING_DIMENSIONS`, `LLM_ARTICLES_PER_RUN`,
+   `LLM_RATE_LIMIT_RETRIES`, `LLM_RATE_LIMIT_WAIT`, `LLM_THINKING_LEVEL` to
+   override defaults without editing workflows.
 5. Actions → *Collect articles* → **Run workflow**. Then let it run for a week,
    or trigger *Build weekly digest* with a `week` input to see output immediately.
 
@@ -221,13 +222,34 @@ registry entry; nothing else changes.
 **Keeping inside a free tier.** Collection never calls a model. Weekly, four
 guards apply: enrichment and embeddings are cached by content hash; requests are
 batched; only pre-ranked candidate clusters are enriched; and
-`LLM_ARTICLES_PER_RUN` bounds a busy week. A 429 from either provider stops that
-kind of work for the run without failing it — whatever succeeded still publishes.
+`LLM_ARTICLES_PER_RUN` bounds a busy week.
 
-> I could not confirm from Google's public documentation that the embedding
-> models are available on the **free** tier (the rate-limit page lists Gemini
-> Embedding only for paid tiers). Check your own quota before relying on it. If
-> embeddings are unavailable the digest still builds — see the next section.
+**Thinking is set to the floor, not left on default.** Thought tokens are billed
+as output (the expensive direction), counted against the per-minute *token*
+allowance, and drawn from the same `maxOutputTokens` budget as the reply — so on
+schema-enforced extraction they buy nothing and cost three ways, the third being
+a reply that runs out of room before writing its JSON. `LLM_THINKING_LEVEL`
+defaults to `low`, the floor on `gemini-2.5-flash`, which has no off switch;
+`gemini-2.5-flash-lite` ships with thinking already off. The field is documented
+only on recent models, so a model that rejects it is retried once without it and
+the run continues.
+
+**Two kinds of 429.** Google answers a per-minute and a per-day limit with the
+same status code, and the difference decides what to do about it. A weekly run
+fires its requests in one burst, so the per-minute allowance is the one it
+actually trips — and waiting a few seconds clears it, which on a batch job with
+no reader waiting costs nothing. So `ratelimit.py` reads the body: a
+`QuotaFailure` naming a `...PerMinute...` quota is waited out and retried,
+honouring the server's own `RetryInfo` delay, while a `...PerDay...` quota is
+terminal because no amount of waiting helps. Total waiting is bounded per run
+(`max_rate_limit_wait`, 600s) so a low allowance cannot spend the workflow's
+timeout asleep. Once a limit is genuinely terminal the run degrades exactly as
+before — whatever succeeded still publishes.
+
+> The pricing page lists Gemini Embedding 2 text input as free of charge on the
+> free tier, though the rate-limit page still only tabulates it for paid tiers.
+> Check your own quota in AI Studio before relying on it. If embeddings are
+> unavailable the digest still builds — see the next section.
 
 ---
 
@@ -310,6 +332,7 @@ src/newsdigest/
   llm/                    base.py contract, gemini.py, heuristic.py
   dedupe.py               same-article removal
   clustering.py           cross-language grouping
+  ratelimit.py            telling a per-minute 429 from a per-day one
   scoring.py              the configurable ranking formula
   store.py                SQLite schema, migrations, queries
   render.py               index.json, digests/*.json, feed.xml
@@ -325,13 +348,14 @@ data/news.db              generated — pipeline state, committed by Actions
 pytest -q
 ```
 
-234 tests, no network and no API key required. They cover URL canonicalization
+268 tests, no network and no API key required. They cover URL canonicalization
 and the similarity metric, language detection including es/ca, dedupe
 boundaries, cross-language clustering with stubbed vectors, the ambiguous-band
 LLM adjudication and its budget, both providers against stubbed transports
-(including the aggregated-embedding trap), the configurable ranking formula, the
-store with a v1→v2 migration, the archive renderer, and both pipelines end to
-end — with a broken source, an exhausted quota, and cache reuse.
+(including the aggregated-embedding trap), the per-minute/per-day 429 split and
+its wait budgets, the thinking-level fallback, the configurable ranking formula,
+the store with a v1→v2 migration, the archive renderer, and both pipelines end
+to end — with a broken source, an exhausted quota, and cache reuse.
 
 ## Known limits
 

@@ -26,6 +26,8 @@ def _build_gemini(settings: EmbeddingSettings) -> EmbeddingProvider:
         model=settings.model,
         dimensions=settings.dimensions,
         task_type=settings.task_type,
+        max_rate_limit_retries=settings.max_rate_limit_retries,
+        max_rate_limit_wait=settings.max_rate_limit_wait,
     )
 
 

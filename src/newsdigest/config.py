@@ -39,6 +39,12 @@ KNOWN_RANKING_TERMS = frozenset(
 )
 
 
+#: Values Google documents for `generation_config.thinking_level`. The empty
+#: string means "send no thinking field at all", which leaves the model on its
+#: own default -- the right choice for models where thinking is already off.
+THINKING_LEVELS = ("", "low", "medium", "high")
+
+
 class ConfigError(RuntimeError):
     """Raised for a malformed config file -- always names the offending entry."""
 
@@ -138,6 +144,17 @@ class LLMSettings:
     articles_per_run: int = 400
     max_retries: int = 3
     timeout: float = 90.0
+    #: Waits allowed per request against a per-minute 429, and the total time one
+    #: run may spend waiting on rate limits. A per-day 429 is never waited out.
+    max_rate_limit_retries: int = 3
+    max_rate_limit_wait: float = 600.0
+    #: `low` is the floor on gemini-2.5-flash, where thinking cannot be turned
+    #: off. Thought tokens are billed as output and counted against the
+    #: per-minute token allowance, and `maxOutputTokens` covers them too -- so a
+    #: thinking-heavy reply can exhaust the budget before writing any JSON. This
+    #: is schema-enforced extraction, so the floor is what it wants. Empty sends
+    #: no field, leaving the model default (already off on flash-lite).
+    thinking_level: str = "low"
     write_story_briefs: bool = True
     output_language: str = "en"
     #: Ask the LLM to break ties on ambiguous embedding clusters.
@@ -154,6 +171,10 @@ class EmbeddingSettings:
     #: Gemini embeddings degrade gracefully when truncated.
     dimensions: int = 256
     task_type: str | None = None
+    #: As LLMSettings: how long to wait out a per-minute 429, per request and
+    #: per run.
+    max_rate_limit_retries: int = 3
+    max_rate_limit_wait: float = 600.0
     #: Cosine similarity at or above which two articles are the same event.
     similarity_threshold: float = 0.82
     #: Between this and the threshold, ask the LLM (if enabled) to decide.
@@ -376,6 +397,29 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _thinking_level(raw: str | None) -> str:
+    """Validate LLM_THINKING_LEVEL, defaulting to the cheapest level.
+
+    A bad value here would 400 every request and, after two consecutive batch
+    failures, silently cost the run all of its enrichment -- so it is a startup
+    error, the same way a misspelled ranking term is. "off" and "none" are
+    accepted as the obvious ways to ask for no thinking field, since the API
+    itself has no "off" level.
+    """
+    if raw is None:
+        return "low"
+    level = raw.strip().lower()
+    if level in ("off", "none", "unset"):
+        return ""
+    if level not in THINKING_LEVELS:
+        raise ConfigError(
+            f"LLM_THINKING_LEVEL={raw!r} is not a thinking level; "
+            f"use one of {[lvl for lvl in THINKING_LEVELS if lvl]}, "
+            f"or 'off' to send no thinking field"
+        )
+    return level
+
+
 def _gemini_key() -> str | None:
     key = os.environ.get("GEMINI_API_KEY") or os.environ.get("LLM_API_KEY")
     return key.strip() if key and key.strip() else None
@@ -389,6 +433,9 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
         api_key=key,
         batch_size=max(1, _env_int("LLM_BATCH_SIZE", 8)),
         articles_per_run=max(0, _env_int("LLM_ARTICLES_PER_RUN", 400)),
+        max_rate_limit_retries=max(0, _env_int("LLM_RATE_LIMIT_RETRIES", 3)),
+        max_rate_limit_wait=max(0.0, _env_float("LLM_RATE_LIMIT_WAIT", 600.0)),
+        thinking_level=_thinking_level(os.environ.get("LLM_THINKING_LEVEL")),
         output_language=output_language,
     )
     # Degrade rather than fail: the digest still builds without a key.
@@ -405,6 +452,8 @@ def load_embedding_settings() -> EmbeddingSettings:
         api_key=key.strip() if key else None,
         dimensions=max(64, _env_int("EMBEDDING_DIMENSIONS", 256)),
         task_type=os.environ.get("EMBEDDING_TASK_TYPE") or None,
+        max_rate_limit_retries=max(0, _env_int("EMBEDDING_RATE_LIMIT_RETRIES", 3)),
+        max_rate_limit_wait=max(0.0, _env_float("EMBEDDING_RATE_LIMIT_WAIT", 600.0)),
         similarity_threshold=_env_float("EMBEDDING_SIMILARITY_THRESHOLD", 0.82),
         ambiguous_threshold=_env_float("EMBEDDING_AMBIGUOUS_THRESHOLD", 0.72),
     )

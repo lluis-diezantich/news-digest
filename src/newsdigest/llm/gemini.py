@@ -4,8 +4,17 @@ Uses the REST endpoint directly with `requests` -- one fewer dependency than the
 SDK, and `responseSchema` makes the JSON contract explicit and server-enforced.
 
 Free-tier quotas are per-minute and per-day, so calls are batched and every
-result is cached by content hash. A 429 raises LLMQuotaError, which stops LLM
-work for the run without failing it.
+result is cached by content hash. A per-minute 429 is waited out and retried --
+see `ratelimit` for how the two are told apart. A per-day 429, or a run that has
+spent its wait budget, raises LLMQuotaError, which stops LLM work for the run
+without failing it.
+
+Thinking is set to the cheapest level the model allows rather than left on its
+default. Thought tokens are billed as output, counted against the per-minute
+token allowance, and drawn from `maxOutputTokens` -- so on schema-enforced
+extraction they cost money, invite 429s, and can starve the reply of room for
+the JSON itself. `thinking_level` is a documented field only on recent models,
+so a model that rejects it is retried once without it rather than failing.
 """
 
 from __future__ import annotations
@@ -17,6 +26,7 @@ import time
 
 import requests
 
+from .. import ratelimit
 from .base import (
     SAME_EVENT_SYSTEM_PROMPT,
     Brief,
@@ -100,6 +110,9 @@ class GeminiProvider(LLMProvider):
         *,
         timeout: float = 90.0,
         max_retries: int = 3,
+        max_rate_limit_retries: int = 3,
+        max_rate_limit_wait: float = 600.0,
+        thinking_level: str = "low",
     ):
         super().__init__()
         if not api_key:
@@ -107,6 +120,15 @@ class GeminiProvider(LLMProvider):
         self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
+        #: Waits allowed per request when rate limited, and for the run overall.
+        #: The run-level cap keeps a low per-minute allowance from spending the
+        #: workflow's whole timeout in `sleep`.
+        self.max_rate_limit_retries = max_rate_limit_retries
+        self.max_rate_limit_wait = max_rate_limit_wait
+        self._rate_limit_waited = 0.0
+        #: Emptied for the rest of the run if the model turns out to reject it,
+        #: so one 400 costs one retry rather than one per request.
+        self.thinking_level = thinking_level
         self._session = requests.Session()
         self._session.headers.update(
             {"x-goog-api-key": api_key, "Content-Type": "application/json"}
@@ -115,41 +137,86 @@ class GeminiProvider(LLMProvider):
     # -- transport ----------------------------------------------------------
 
     def _generate(self, system: str, prompt: str, schema: dict) -> str:
+        config: dict = {
+            "responseMimeType": "application/json",
+            "responseSchema": schema,
+            "temperature": 0.2,
+            "maxOutputTokens": 8192,
+        }
+        if self.thinking_level:
+            config["thinkingLevel"] = self.thinking_level
         body = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "responseMimeType": "application/json",
-                "responseSchema": schema,
-                "temperature": 0.2,
-                "maxOutputTokens": 8192,
-            },
+            "generationConfig": config,
         }
         url = f"{API_ROOT}/{self.model}:generateContent"
 
         last_error: Exception | None = None
-        for attempt in range(self.max_retries):
+        attempt = 0  # transport errors and 5xx
+        waits = 0    # 429s, budgeted separately: for those, waiting is the fix
+        while attempt < self.max_retries:
             try:
                 self.calls += 1
                 response = self._session.post(url, json=body, timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = exc
                 self._backoff(attempt)
+                attempt += 1
                 continue
 
             if response.status_code == 429:
-                raise LLMQuotaError(
-                    f"gemini rate limit / quota exhausted: {_short(response.text)}"
+                decision = ratelimit.plan(
+                    response.text,
+                    attempt=waits,
+                    budget=self.max_rate_limit_retries,
+                    spent=self._rate_limit_waited,
+                    cap=self.max_rate_limit_wait,
                 )
+                if not decision.retry:
+                    raise LLMQuotaError(
+                        f"gemini rate limited, giving up ({decision.reason}): "
+                        f"{_short(response.text)}"
+                    )
+                log.warning(
+                    "gemini rate limited (%s); waiting %.0fs then retrying",
+                    decision.reason, decision.delay,
+                )
+                ratelimit.sleep(decision.delay)
+                self._rate_limit_waited += decision.delay
+                waits += 1
+                continue
+
             if response.status_code in (500, 502, 503, 504):
                 last_error = LLMError(f"gemini {response.status_code}")
                 self._backoff(attempt)
+                attempt += 1
                 continue
+            if response.status_code == 400 and self._drop_thinking(response.text, config):
+                continue  # same attempt, one field lighter
             if response.status_code != 200:
                 raise LLMError(f"gemini {response.status_code}: {_short(response.text)}")
             return self._extract_text(response.json())
 
         raise LLMError(f"gemini unreachable after {self.max_retries} attempts: {last_error}")
+
+    def _drop_thinking(self, body: str, config: dict) -> bool:
+        """Retry without `thinkingLevel` when the model does not accept it.
+
+        Only recent models document the field. Rather than make the digest's
+        quality depend on the reader having pinned a compatible `LLM_MODEL`, an
+        unrecognised-field 400 drops it for the rest of the run.
+        """
+        if "thinkingLevel" not in config or "thinking" not in body.lower():
+            return False
+        log.warning(
+            "%s rejected thinkingLevel=%r; retrying without it for the rest of "
+            "the run (thought tokens will be billed at the model's default)",
+            self.model, config["thinkingLevel"],
+        )
+        config.pop("thinkingLevel")
+        self.thinking_level = ""
+        return True
 
     @staticmethod
     def _backoff(attempt: int) -> None:
