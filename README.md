@@ -23,9 +23,10 @@ semantic work happens once, over a week that has already finished.
 python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev]'
 
-news-digest collect                        # takes ~20s across 22 feeds
+news-digest collect
 news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)
-make serve                                 # then open http://localhost:8000
+make serve
+# then open http://localhost:8000
 ```
 
 > The page must be served over **http**, not opened as a file. It fetches
