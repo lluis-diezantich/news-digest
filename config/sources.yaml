@@ -121,6 +121,12 @@ sources:
     enabled: false
     weight: 0.6
 
+  # Scraped sources follow. Before enabling any of them, read that site's terms
+  # of service: the fetcher honours robots.txt and crawl-delay, but that is a
+  # technical control, not permission. (Reuters used to sit here as the example;
+  # it was removed on 2026-09-14 because its robots.txt is an allowlist that
+  # denies everyone else -- `Allow: /plus/` then `Disallow: /` -- so the fetcher
+  # refuses it and the entry could never run.)
   # Scraped, not RSS, and that is deliberate: all 42 of RTVE's feeds are served
   # as .xml, which both robots.txt files disallow -- api2.rtve.es via an
   # allowlist that omits the news feeds, www.rtve.es via `Disallow: /*.xml$`
@@ -161,17 +167,3 @@ sources:
     rss: https://back.ctxt.es/es/static/rss/
     languages: [es]
     enabled: false
-
-  # Scraping example. Reuters retired its public RSS feeds. Before enabling ANY
-  # scrape source, read that site's terms of service -- the fetcher honours
-  # robots.txt and crawl-delay, but that is a technical control, not permission.
-  - name: Reuters
-    url: https://www.reuters.com/world/
-    method: scrape
-    languages: [en]
-    enabled: false
-    link_selector: "a[data-testid='Heading']"
-    link_pattern: "/world/"
-    max_links: 8
-    weight: 1.2
-    topics: [world]
