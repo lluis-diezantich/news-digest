@@ -43,17 +43,6 @@
   input[type=search] { flex: 1 1 14rem; min-width: 0; }
   select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-  .topics { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: 1.3rem; }
-  .topic {
-    font: inherit; font-size: .76rem; cursor: pointer;
-    padding: .18rem .55rem; border-radius: 999px;
-    background: var(--chip); color: var(--muted); border: 1px solid transparent;
-  }
-  .topic[aria-pressed="true"] {
-    background: var(--accent-soft); color: var(--accent);
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-  }
-
   .story {
     background: var(--card); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 1rem 1.05rem; margin-bottom: .8rem;
@@ -113,8 +102,6 @@
     <select id="week" aria-label="Choose a week"></select>
     <input type="search" id="search" placeholder="Filter by word, entity or outlet…" aria-label="Filter stories">
   </div>
-  <div class="topics" id="topics" role="group" aria-label="Filter by topic"></div>
-
   <main id="stories" aria-live="polite">
     <p class="status">Loading…</p>
   </main>
@@ -128,7 +115,7 @@
 </div>
 
 <script>
-const state = { index: null, digest: null, topic: null, query: "" };
+const state = { index: null, digest: null, query: "" };
 const cache = new Map();
 
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
@@ -155,11 +142,10 @@ function el(tag, props = {}, ...children) {
 }
 
 function matches(story) {
-  if (state.topic && !story.topics.includes(state.topic)) return false;
   if (!state.query) return true;
   const hay = [
     story.headline, story.summary, story.why_it_matters,
-    (story.key_facts || []).join(" "), story.topics.join(" "),
+    (story.key_facts || []).join(" "),
     (story.entities || []).join(" "), (story.publishers || []).join(" "),
     story.articles.map(a => a.title).join(" "),
   ].join(" ").toLowerCase();
@@ -174,7 +160,6 @@ function renderStory(story, position) {
                            rel: "noopener noreferrer", target: "_blank",
                            style: "color:inherit;text-decoration:none" })),
     el("div", { className: "tags" },
-      ...story.topics.map(t => el("span", { className: "tag", textContent: t })),
       story.publisher_count > 1
         ? el("span", { className: "tag", textContent: `${story.publisher_count} outlets` })
         : null,
@@ -229,19 +214,6 @@ function render() {
   main.append(...visible.map((s, i) => renderStory(s, digest.stories.indexOf(s) + 1)));
 }
 
-function renderTopics() {
-  const box = document.getElementById("topics");
-  box.textContent = "";
-  for (const topic of state.digest.topics || []) {
-    const button = el("button", {
-      className: "topic", textContent: topic, type: "button",
-      onclick: () => { state.topic = state.topic === topic ? null : topic; renderTopics(); render(); },
-    });
-    button.setAttribute("aria-pressed", String(state.topic === topic));
-    box.append(button);
-  }
-}
-
 function renderHeader() {
   const d = state.digest, idx = state.index;
   document.getElementById("title").textContent = d.title || idx.title || "Weekly Digest";
@@ -264,9 +236,7 @@ async function loadDigest(id) {
     cache.set(id, await response.json());
   }
   state.digest = cache.get(id);
-  state.topic = null;
   renderHeader();
-  renderTopics();
   render();
 }
 

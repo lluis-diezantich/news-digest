@@ -94,14 +94,17 @@ removed: which languages a story happened to be covered in is an artefact of the
 source list, not something the reader is choosing between. On a link it is
 different — it says what you get if you click.
 
-## Tags
+## Topics
 
-Tags come from four places, in this order: a feed's own `<category>` terms plus
-the `topics:` you set on that source in `config/sources.yaml`; the LLM, per
-article; the offline provider's keyword matcher when no LLM is configured; and
-`clustering.py`, which counts what a cluster's articles were tagged with and
-keeps the top four. A multi-source brief then overwrites the story's tags with
-its own.
+**Topics are not shown to the reader.** There are no tag chips on a story and no
+topic filter on the page; both were removed on 2026-09-15. Topics survive as an
+internal signal with exactly one job: `excluded_topics`.
+
+They still get computed, in this order: a feed's own `<category>` terms plus the
+`topics:` you set on that source in `config/sources.yaml`; the LLM, per article;
+the offline provider's keyword matcher when no LLM is configured; and
+`clustering.py`, which counts what a cluster's articles were tagged with and keeps
+the top four. A multi-source brief then overwrites the story's topics with its own.
 
 The vocabulary is **closed** — the ten topics in `llm/base.TOPICS`. Both prompts
 list them and forbid anything else, `normalize_topics` folds known synonyms and
@@ -109,19 +112,17 @@ drops whatever is left, and `Enrichment.clamp` / `Brief.clamp` put every path
 through it. The offline matcher keys on exactly the same ten, asserted at import
 so the two cannot drift.
 
-It is closed because it was once open — "2-4 broad lowercase topics" with no
-list. Over one archive that produced 48 distinct tags for 95 stories: `ai`
-beside `artificial intelligence`, `politics` beside `spanish politics` and
-`us politics`, `world` beside `geopolitics`, `diplomacy` and `international
-relations`, and 27 tags used exactly once, most of them place names that were
-already in `entities`. Folded onto the vocabulary the same archive is 10 tags.
-The chips are a filter, and a filter whose values are mostly unique is not one.
+The reason to keep any of this once nothing is displayed is
+`scoring.is_excluded`, which matches `excluded_topics` against `story.topics`
+*and* the headline and summary. The topic half is what catches the case the text
+half cannot: `sports` appears nowhere in a Catalan football headline, so without a
+`sports` topic a Barça match is not excluded at all. A closed vocabulary matters
+for the same reason — `excluded_topics: [sports]` has to match the tag the model
+actually emitted, and it cannot match `football`.
 
-Dropping an unrecognized tag is deliberate: it is either a synonym of a tag that
-already exists, splitting one filter in two, or an entity wearing a topic's
-clothes. A story left with nothing falls back to its feed-declared topics. There
-is no `general` — it was the second most common tag in that archive and told the
-reader nothing.
+Ranking does not read topics. `interest` and `relevance` both left the formula on
+2026-09-14 and `preferences.topics` is empty, so a topic changes a story's score
+only by triggering the `excluded_penalty`.
 
 ## Known limits
 
@@ -140,6 +141,6 @@ reader nothing.
   can satisfy it alone.
 - The scrape adapter depends on per-site CSS selectors and will break when a site
   redesigns. `news-digest sources --check` tells you which.
-- Tags already written to `data/news.db` keep whatever vocabulary was in force
-  when they were written; the closed vocabulary applies to new runs. A story
-  whose only tag was `general` shows none until it is re-enriched.
+- Topics already written to `data/news.db` keep whatever vocabulary was in force
+  when they were written; the closed vocabulary applies to new runs. Until a story
+  is re-enriched, `excluded_topics` matches against its old topics.

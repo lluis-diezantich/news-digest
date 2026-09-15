@@ -55,7 +55,6 @@ class TestWriteSite:
         assert payload["label"]
         assert payload["story_count"] == 2
         assert payload["output_language"] == "en"
-        assert payload["topics"] == ["world"]
         assert {p["name"] for p in payload["publishers"]} == {"Outlet 0", "Outlet 1"}
         assert payload["languages"] == [{"code": "en", "articles": 2}]
 

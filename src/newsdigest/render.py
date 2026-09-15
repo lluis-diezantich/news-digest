@@ -35,11 +35,9 @@ def digest_payload(
     digest: Digest,
     stories: list[tuple[Story, list[Article]]],
 ) -> dict:
-    topics: Counter[str] = Counter()
     publishers: Counter[str] = Counter()
     languages: Counter[str] = Counter()
     for story, articles in stories:
-        topics.update(story.topics)
         for article in articles:
             publishers[article.publisher] += 1
             if article.language:
@@ -50,7 +48,6 @@ def digest_payload(
         "title": config.digest.title,
         "subtitle": config.digest.subtitle,
         "output_language": config.settings.output_language,
-        "topics": [t for t, _ in topics.most_common(24)],
         "publishers": [
             {"name": name, "articles": count} for name, count in publishers.most_common()
         ],
