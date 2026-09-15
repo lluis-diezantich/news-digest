@@ -33,8 +33,8 @@ also stops embeddings competing with the LLM for one free-tier budget.
 ```bash
 pip install 'news-digest[local]'
 EMBEDDING_PROVIDER=local
-EMBEDDING_SIMILARITY_THRESHOLD=0.70
-EMBEDDING_AMBIGUOUS_THRESHOLD=0.60
+EMBEDDING_SIMILARITY_THRESHOLD=0.80
+EMBEDDING_AMBIGUOUS_THRESHOLD=0.65
 ```
 
 **Thresholds do not transfer between embedding models.** Cosine values are not
@@ -44,8 +44,24 @@ digest with no error. Measured for MiniLM:
 | sim / amb | Clusters | Cross-language | Largest |
 |---|---|---|---|
 | 0.50 / 0.40 | 178 | 10 | **327** ← collapsed into one blob |
-| **0.70 / 0.60** | **442** | **20** | 25 |
+| 0.70 / 0.60 | 442 | 20 | 25 |
 | 0.82 / 0.72 (Gemini's) | 522 | 9 | 8 ← under-merged |
+
+**All three rows were measured with `LLM_MAX_CLUSTER_CHECKS=0`, which makes them
+a poor guide now.** With adjudication off, the ambiguous band merges *nothing*, so
+the column really measures "what auto-merge alone does" and a higher threshold can
+only delete merges. That is why 0.82 looked like pure under-merging.
+
+It also hid a precision problem that a cluster count cannot show. On the
+2026-W38 window, 0.70 auto-merged a Ceuta story with an unrelated Podemos
+primaries story at cosine **0.705** — inside the range of that Ceuta story's own
+genuine links (0.700–0.756). Union-find is transitive, so that one edge pulled
+three separate events into one digest entry. No threshold separates those two
+populations.
+
+The current setting is **0.80 / 0.65 with checks on**: auto-merge only what is
+unambiguous, and refer the wide 0.65–0.80 band (~595 pairs/week) to the LLM.
+Cluster counts under that arrangement have not been re-measured.
 
 The local provider warns if it sees a Gemini-shaped threshold. In CI, cache the
 model or every run re-downloads ~220 MB; `digest.yml` sets
@@ -116,10 +132,16 @@ Then the budget knobs:
 ```bash
 LLM_BATCH_SIZE=16            # halves requests for the same articles
 LLM_ARTICLES_PER_RUN=40      # six published stories do not need 100 analysed
-LLM_MAX_CLUSTER_CHECKS=0     # adjudication costs a request for a nicety
+LLM_MAX_CLUSTER_CHECKS=0     # on a metered tier only: see below
 ```
 
 Together, roughly 4 requests per digest instead of 17.
+
+`LLM_MAX_CLUSTER_CHECKS=0` is a *Gemini* economy, and an expensive one: it buys a
+request back by letting the embedding auto-merge every borderline pair unchecked.
+On ollama, where requests are free, set it high (600 is a week's worth of pairs)
+and widen the ambiguous band to match. Adjudication runs in descending similarity
+order, so any budget is spent on the closest calls first.
 
 ### Two kinds of 429
 

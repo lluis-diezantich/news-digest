@@ -30,8 +30,8 @@ somewhere. Check `~/.zshrc`.
 
 ```bash
 EMBEDDING_PROVIDER=local
-EMBEDDING_SIMILARITY_THRESHOLD=0.70    # model-specific, see providers.md
-EMBEDDING_AMBIGUOUS_THRESHOLD=0.60
+EMBEDDING_SIMILARITY_THRESHOLD=0.80    # model-specific, see providers.md
+EMBEDDING_AMBIGUOUS_THRESHOLD=0.65
 LLM_PROVIDER=ollama
 LLM_MODEL=qwen3:8b
 ```

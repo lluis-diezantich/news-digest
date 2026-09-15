@@ -4,7 +4,7 @@ import numpy as np
 
 from newsdigest import clustering
 from newsdigest.embeddings.base import normalize
-from newsdigest.llm.base import Context
+from newsdigest.llm.base import Context, LLMError
 from newsdigest.llm.heuristic import HeuristicProvider
 
 from conftest import make_article
@@ -147,6 +147,90 @@ class TestAmbiguousBand:
             provider=Yes(), context=Context(), stats=stats,
         )
         assert stats.llm_checks == 1
+
+
+class TestAdjudicationBatching:
+    """One request per batch. Sending every pair at once overflowed the context
+    window, and the unparseable reply made adjudication a silent no-op."""
+
+    def _mutually_ambiguous(self, n):
+        arts = [make_article(f"Story number {i}", source=f"S{i}") for i in range(n)]
+        return arts, vecs({a.id: [1.0, 0.05 * i] for i, a in enumerate(arts)})
+
+    def test_pairs_are_split_into_batches(self):
+        arts, vectors = self._mutually_ambiguous(6)   # 15 pairs
+        sizes: list[int] = []
+
+        class Counting(HeuristicProvider):
+            def same_event(self, pairs, context):
+                sizes.append(len(pairs))
+                return {}                             # no opinion, so nothing merges
+
+        clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=Counting(), context=Context(), max_checks=99, check_batch_size=4,
+        )
+        assert sizes == [4, 4, 4, 3]
+        assert sum(sizes) == 15
+
+    def test_budget_is_respected_across_batches(self):
+        arts, vectors = self._mutually_ambiguous(6)
+        sizes: list[int] = []
+
+        class Counting(HeuristicProvider):
+            def same_event(self, pairs, context):
+                sizes.append(len(pairs))
+                return {}
+
+        clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=Counting(), context=Context(), max_checks=7, check_batch_size=4,
+        )
+        assert sizes == [4, 3]
+
+    def test_pairs_merged_by_an_earlier_batch_are_not_asked_again(self):
+        """The saving that makes a large budget affordable."""
+        arts, vectors = self._mutually_ambiguous(3)   # 3 pairs
+        sizes: list[int] = []
+
+        class Yes(HeuristicProvider):
+            def same_event(self, pairs, context):
+                sizes.append(len(pairs))
+                return {p.key: True for p in pairs}
+
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=Yes(), context=Context(), max_checks=99, check_batch_size=1,
+        )
+        # Two merges join all three; the third pair is redundant and never sent.
+        assert sizes == [1, 1]
+        assert len(groups) == 1
+
+    def test_a_failure_keeps_the_merges_already_made(self):
+        arts, vectors = self._mutually_ambiguous(4)   # 6 pairs
+
+        class FailsOnSecondBatch(HeuristicProvider):
+            calls = 0
+
+            def same_event(self, pairs, context):
+                FailsOnSecondBatch.calls += 1
+                if FailsOnSecondBatch.calls > 1:
+                    raise LLMError("context overflow")
+                return {p.key: True for p in pairs}
+
+        class Stats:
+            llm_checks = 0
+
+        stats = Stats()
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=FailsOnSecondBatch(), context=Context(), stats=stats,
+            max_checks=99, check_batch_size=2,
+        )
+        # The first batch's two merges survive rather than being rolled back.
+        assert len(groups) < 4
+        # Only the batch that actually returned verdicts is billed.
+        assert stats.llm_checks == 2
 
 
 class TestTextFallback:

@@ -86,6 +86,7 @@ def cluster(
     provider: LLMProvider | None = None,
     context: Context | None = None,
     max_checks: int = 40,
+    check_batch_size: int = 8,
     stats: object | None = None,
 ) -> list[list[Article]]:
     """Partition articles into stories, most-covered first."""
@@ -115,7 +116,9 @@ def cluster(
                 ambiguous.append((score, usable[i], usable[j]))
 
     if ambiguous and provider is not None and context is not None and max_checks > 0:
-        _resolve_ambiguous(uf, ambiguous, provider, context, max_checks, stats)
+        _resolve_ambiguous(
+            uf, ambiguous, provider, context, max_checks, check_batch_size, stats
+        )
     elif ambiguous:
         log.debug("%d ambiguous pairs left to the embedding's own verdict", len(ambiguous))
 
@@ -134,50 +137,79 @@ def _resolve_ambiguous(
     provider: LLMProvider,
     context: Context,
     max_checks: int,
+    batch_size: int,
     stats: object | None,
 ) -> None:
-    """Ask the LLM about the closest calls, highest similarity first."""
+    """Ask the LLM about the closest calls, highest similarity first.
+
+    Batched like enrichment, and for a harder reason than tidiness: this used to
+    send every borderline pair in one request. At ~260 tokens a pair (two titles,
+    two 400-char excerpts) a real week produced 595 of them -- 150k tokens into an
+    8k context. The reply came back unparseable, the `except` below logged a
+    warning, and every merge silently fell back to the embedding's own verdict.
+    A capped, batched loop is the difference between adjudication running and
+    only appearing to.
+
+    Descending similarity order matters: `max_checks` is a budget, and the
+    closest calls are where the false positives are. The already-merged check
+    runs per pair rather than once up front because an earlier batch's merges
+    make later pairs redundant -- the union state has to be read fresh.
+    """
     ambiguous.sort(key=lambda item: -item[0])
-    pairs: list[PairInput] = []
-    lookup: dict[str, tuple[Article, Article]] = {}
+    size = max(1, batch_size)
+    index = asked = merged = 0
 
-    for score, left, right in ambiguous:
-        if len(pairs) >= max_checks:
-            break
-        if uf.find(left.id) == uf.find(right.id):
-            continue  # already merged transitively; no need to ask
-        key = f"{left.id}:{right.id}"
-        lookup[key] = (left, right)
-        pairs.append(
-            PairInput(
-                key=key,
-                left_title=left.title,
-                left_language=left.language,
-                left_excerpt=truncate(left.best_summary(), 400),
-                right_title=right.title,
-                right_language=right.language,
-                right_excerpt=truncate(right.best_summary(), 400),
+    while index < len(ambiguous) and asked < max_checks:
+        pairs: list[PairInput] = []
+        lookup: dict[str, tuple[Article, Article]] = {}
+        while (
+            index < len(ambiguous)
+            and len(pairs) < size
+            and asked + len(pairs) < max_checks
+        ):
+            _, left, right = ambiguous[index]
+            index += 1
+            if uf.find(left.id) == uf.find(right.id):
+                continue  # merged by an earlier batch; no need to ask
+            key = f"{left.id}:{right.id}"
+            lookup[key] = (left, right)
+            pairs.append(
+                PairInput(
+                    key=key,
+                    left_title=left.title,
+                    left_language=left.language,
+                    left_excerpt=truncate(left.best_summary(), 400),
+                    right_title=right.title,
+                    right_language=right.language,
+                    right_excerpt=truncate(right.best_summary(), 400),
+                )
             )
+
+        if not pairs:
+            continue
+        asked += len(pairs)
+        try:
+            verdicts = provider.same_event(pairs, context)
+        except LLMError as exc:
+            log.warning(
+                "cluster adjudication failed after %d pairs (%s); keeping the "
+                "embedding's verdict for the rest", asked - len(pairs), exc,
+            )
+            asked -= len(pairs)
+            break
+        for key, same in verdicts.items():
+            if same and key in lookup:
+                left, right = lookup[key]
+                uf.union(left.id, right.id)
+                merged += 1
+
+    if asked:
+        if stats is not None:
+            stats.llm_checks = getattr(stats, "llm_checks", 0) + asked
+        log.info(
+            "adjudicated %d of %d borderline pairs in batches of %d; merged %d",
+            asked, len(ambiguous), size, merged,
         )
-
-    if not pairs:
-        return
-    log.info("asking %s to adjudicate %d borderline pairs", provider.name, len(pairs))
-    try:
-        verdicts = provider.same_event(pairs, context)
-    except LLMError as exc:
-        log.warning("cluster adjudication failed (%s); keeping embedding verdicts", exc)
-        return
-
-    merged = 0
-    for key, same in verdicts.items():
-        if same and key in lookup:
-            left, right = lookup[key]
-            uf.union(left.id, right.id)
-            merged += 1
-    if stats is not None:
-        stats.llm_checks = getattr(stats, "llm_checks", 0) + len(pairs)
-    log.info("adjudication merged %d of %d pairs", merged, len(pairs))
 
 
 def _cluster_by_text(articles: list[Article]) -> list[list[Article]]:

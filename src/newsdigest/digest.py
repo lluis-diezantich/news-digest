@@ -163,6 +163,7 @@ def build_digest(
         provider=llm if config.llm.resolve_clusters else None,
         context=context,
         max_checks=config.llm.max_cluster_checks,
+        check_batch_size=config.llm.batch_size,
         stats=stats,
     )
     stats.clusters = len(groups)

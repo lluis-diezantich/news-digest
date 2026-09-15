@@ -41,10 +41,15 @@ publisher's Spanish and English editions of one story. That is clustering's job.
 free. This is the only thing that can match a Catalan headline to an English one.
 
 **Cluster.** Three tiers, cheapest first: cosine ≥ `similarity_threshold` is a
-merge; the band down to `ambiguous_threshold` is referred to the LLM, capped at
-`max_cluster_checks` pairs per run; with no embeddings at all, within-language
-text similarity only — which barely works, and
-[providers.md](providers.md) has the numbers.
+merge; the band down to `ambiguous_threshold` is referred to the LLM in batches of
+`batch_size`, capped at `max_cluster_checks` pairs per run and asked in descending
+similarity order; with no embeddings at all, within-language text similarity only —
+which barely works, and [providers.md](providers.md) has the numbers.
+
+Merging is transitive (union-find), which is what makes a single false-positive
+edge expensive: one wrong link welds two otherwise-clean clusters together. That
+is the argument for a *narrow* auto-merge tier and a *wide* adjudicated band
+rather than one finely-tuned threshold — see providers.md.
 
 **Pre-rank.** Clusters are ordered using only signals collection already provided
 — publisher count, coverage volume, source weights, recency — and only the top
