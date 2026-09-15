@@ -29,9 +29,7 @@
   .wrap { max-width: var(--maxw); margin: 0 auto; }
 
   header { border-bottom: 1px solid var(--border); padding-bottom: 1.1rem; margin-bottom: 1.1rem; }
-  h1 { font-size: 1.55rem; margin: 0 0 .15rem; letter-spacing: -.015em; }
-  .subtitle { color: var(--muted); margin: 0 0 .7rem; font-size: .95rem; }
-  .period { font-weight: 600; margin: 0 0 .35rem; }
+  h1 { font-size: 1.55rem; margin: 0 0 .4rem; letter-spacing: -.015em; }
   .meta { color: var(--muted); font-size: .8rem; display: flex; flex-wrap: wrap; gap: .35rem 1rem; }
 
   .bar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-bottom: 1rem; }
@@ -111,8 +109,6 @@
 <div class="wrap">
   <header>
     <h1 id="title">Weekly Digest</h1>
-    <p class="subtitle" id="subtitle"></p>
-    <p class="period" id="period"></p>
     <div class="meta" id="meta"></div>
   </header>
 
@@ -230,8 +226,6 @@ function renderHeader() {
   const d = state.digest, idx = state.index;
   document.getElementById("title").textContent = d.title || idx.title || "Weekly Digest";
   document.title = d.title || "Weekly Digest";
-  document.getElementById("subtitle").textContent = d.subtitle || idx.subtitle || "";
-  document.getElementById("period").textContent = d.label || "";
   const meta = document.getElementById("meta");
   meta.textContent = "";
   meta.append(
