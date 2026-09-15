@@ -22,6 +22,7 @@ from .base import (
 )
 from .gemini import GeminiProvider
 from .heuristic import HeuristicProvider
+from .ollama import OllamaProvider
 
 log = logging.getLogger(__name__)
 
@@ -38,8 +39,25 @@ def _build_gemini(settings: LLMSettings) -> LLMProvider:
     )
 
 
+def _build_ollama(settings: LLMSettings) -> LLMProvider:
+    from .ollama import DEFAULT_MODEL
+
+    model = settings.model
+    if model.startswith("gemini"):
+        # Carried over from the other provider; that name means nothing here.
+        log.info("LLM_MODEL=%r is a gemini model; using %s", model, DEFAULT_MODEL)
+        model = DEFAULT_MODEL
+    return OllamaProvider(
+        model=model,
+        base_url=settings.base_url,
+        timeout=settings.timeout,
+        num_ctx=settings.num_ctx,
+    )
+
+
 PROVIDERS = {
     "gemini": _build_gemini,
+    "ollama": _build_ollama,
     "none": lambda settings: HeuristicProvider(),
 }
 

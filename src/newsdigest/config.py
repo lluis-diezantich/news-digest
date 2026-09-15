@@ -158,6 +158,12 @@ class LLMSettings:
     #: run may spend waiting on rate limits. A per-day 429 is never waited out.
     max_rate_limit_retries: int = 3
     max_rate_limit_wait: float = 600.0
+    #: Where a local provider listens. Ignored by hosted ones.
+    base_url: str = ""
+    #: Context window for a local model. A batch of 16 articles with 900-char
+    #: excerpts overflows 4k, and an overflowed prompt is truncated silently --
+    #: which surfaces as missing ids rather than an error.
+    num_ctx: int = 8192
     #: `low` is the cheapest level the 3.x Flash models accept. Thought tokens
     #: are billed as output, count against the per-minute token allowance, and
     #: come out of `maxOutputTokens` -- so a thinking-heavy reply can exhaust the
@@ -498,6 +504,8 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
         max_rate_limit_retries=max(0, _env_int("LLM_RATE_LIMIT_RETRIES", 3)),
         max_rate_limit_wait=max(0.0, _env_float("LLM_RATE_LIMIT_WAIT", 600.0)),
         thinking_level=_thinking_level(os.environ.get("LLM_THINKING_LEVEL")),
+        base_url=os.environ.get("LLM_BASE_URL") or "",
+        num_ctx=max(2048, _env_int("LLM_NUM_CTX", 8192)),
         output_language=output_language,
     )
     # Degrade rather than fail: the digest still builds without a key.
