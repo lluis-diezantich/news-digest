@@ -263,7 +263,7 @@ class OllamaProvider(LLMProvider):
             topics=_strings(data.get("topics")),
             importance=_optional_number(data.get("importance")),
             relevance=_optional_number(data.get("relevance")),
-        )
+        ).clamp()
 
     def same_event(self, pairs: list[PairInput], context: Context) -> dict[str, bool]:
         if not pairs:

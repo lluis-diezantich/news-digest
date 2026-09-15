@@ -328,10 +328,10 @@ class GeminiProvider(LLMProvider):
             summary=summary,
             why_it_matters=str(data.get("why_it_matters", "")).strip(),
             key_facts=[str(f).strip() for f in (data.get("key_facts") or [])][:4],
-            topics=[str(t).strip().lower() for t in (data.get("topics") or [])][:4],
+            topics=list(data.get("topics") or []),
             importance=_optional_float(data.get("importance")),
             relevance=_optional_float(data.get("relevance")),
-        )
+        ).clamp()
 
     def same_event(self, pairs: list[PairInput], context: Context) -> dict[str, bool]:
         if not pairs:

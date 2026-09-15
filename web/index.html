@@ -178,8 +178,6 @@ function renderStory(story, position) {
       story.publisher_count > 1
         ? el("span", { className: "tag", textContent: `${story.publisher_count} outlets` })
         : null,
-      ...(story.languages || []).map(l =>
-        el("span", { className: "lang", textContent: l.toUpperCase() })),
       el("span", { className: "scores",
                    textContent: `imp ${story.importance} · rel ${story.relevance} · score ${story.score}` }),
     ),
@@ -254,7 +252,6 @@ function renderHeader() {
   meta.textContent = "";
   meta.append(
     el("span", { textContent: `${d.story_count} stories from ${d.article_count} articles` }),
-    el("span", { textContent: (d.languages || []).map(l => `${l.code.toUpperCase()} ${l.articles}`).join(" · ") }),
     el("span", { textContent: `${(d.publishers || []).length} outlets` }),
     el("span", { textContent: `generated ${ago(d.generated_at)}`, title: d.generated_at || "" }),
   );

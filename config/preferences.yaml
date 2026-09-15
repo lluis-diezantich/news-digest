@@ -98,7 +98,7 @@ ranking:
 
 digest:
   title: "Weekly Digest"
-  subtitle: "Curated from your sources in English, Spanish and Catalan"
+  subtitle: "The week's main stories from your sources"
   # 6, not 10: the week corroborated only 5 clusters at 6+ outlets and 9 at 3+,
   # so asking for 10 stories reaches into pairs and singletons. Fewer stories
   # also halves what the model is asked to write (12 candidates instead of 20).

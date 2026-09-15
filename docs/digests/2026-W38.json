@@ -3,34 +3,39 @@
  "label": "14–21 September 2026",
  "period_start": "2026-09-14T00:00:00+00:00",
  "period_end": "2026-09-21T00:00:00+00:00",
- "generated_at": "2026-09-15T07:05:37+00:00",
+ "generated_at": "2026-09-15T10:12:54+00:00",
  "story_count": 6,
- "article_count": 102,
+ "article_count": 88,
  "title": "Weekly Digest",
- "subtitle": "Curated from your sources in English, Spanish and Catalan",
+ "subtitle": "The week's main stories from your sources",
  "output_language": "en",
  "topics": [
-  "politics",
+  "human rights",
   "elections",
   "artificial intelligence",
-  "technology",
   "geopolitics",
   "technology regulation",
-  "judiciary",
-  "corruption",
-  "polling",
-  "spanish politics",
-  "independence",
-  "uk politics",
-  "escocia",
-  "sweden",
+  "us politics",
+  "voting rights",
   "diplomacy",
-  "migration"
+  "international relations",
+  "migration",
+  "politics",
+  "government",
+  "immigration",
+  "judiciary",
+  "constitutional reform",
+  "political alliance",
+  "self-determination",
+  "uk politics",
+  "israeli occupation",
+  "palestinian rights",
+  "west bank"
  ],
  "publishers": [
   {
    "name": "La Vanguardia",
-   "articles": 17
+   "articles": 16
   },
   {
    "name": "eldiario.es",
@@ -38,34 +43,22 @@
   },
   {
    "name": "Público",
-   "articles": 10
+   "articles": 9
   },
   {
    "name": "El País",
-   "articles": 10
-  },
-  {
-   "name": "20minutos",
    "articles": 9
   },
   {
    "name": "RTVE",
-   "articles": 8
-  },
-  {
-   "name": "Ara",
    "articles": 7
   },
   {
-   "name": "Nació Digital",
+   "name": "Ara",
    "articles": 5
   },
   {
-   "name": "3Cat (324)",
-   "articles": 5
-  },
-  {
-   "name": "VilaWeb",
+   "name": "20minutos",
    "articles": 5
   },
   {
@@ -73,56 +66,60 @@
    "articles": 4
   },
   {
-   "name": "BBC World",
-   "articles": 2
+   "name": "Al Jazeera",
+   "articles": 4
   },
   {
-   "name": "The Guardian World",
-   "articles": 2
+   "name": "Nació Digital",
+   "articles": 4
+  },
+  {
+   "name": "3Cat (324)",
+   "articles": 4
+  },
+  {
+   "name": "VilaWeb",
+   "articles": 4
+  },
+  {
+   "name": "BBC World",
+   "articles": 1
   },
   {
    "name": "La Directa",
-   "articles": 1
-  },
-  {
-   "name": "El Salto",
-   "articles": 1
-  },
-  {
-   "name": "Al Jazeera",
    "articles": 1
   }
  ],
  "languages": [
   {
    "code": "es",
-   "articles": 69
+   "articles": 59
   },
   {
    "code": "ca",
-   "articles": 27
+   "articles": 22
   },
   {
    "code": "en",
-   "articles": 6
+   "articles": 7
   }
  ],
  "stories": [
   {
-   "id": "sf8b455221000d70",
-   "headline": "China también pide un sistema de seguridad ante la IA mientras acusa a EE.UU. de difundir mensajes amenazantes",
-   "summary": "China has called for an international security and monitoring system to oversee AI development while criticizing US tech firms for spreading alarming messages that hinder global governance.",
-   "why_it_matters": "Global powers are vying over international regulations and safety frameworks for AI.",
+   "id": "s8dd2e1955e357c4",
+   "headline": "Tech leaders push for AI slowdown as U.S. and China clash over regulation",
+   "summary": "Major AI companies are advocating for a slower development pace, while Trump labels opposition to AI as a conspiracy. The U.S. and China are in conflict over AI regulation amid global concerns about its impact on human rights.",
+   "why_it_matters": "The debate over AI regulation reflects broader geopolitical and ethical tensions with significant implications for technology development and human rights.",
    "key_facts": [
-    "Anthropic researcher Jacob Coxon resigned last week",
-    "Former Google researcher warned AI could end humanity",
-    "Trump opposes AI regulations suggested by OpenAI and Anthropic",
-    "Will Rinehart is a researcher at the American Enterprise Institute"
+    "Key AI executives from Anthropic, OpenAI, Google, and xAI are calling for a slower pace of AI development.",
+    "Trump has dismissed concerns about AI, calling opposition a 'sick conspiracy' that benefits China.",
+    "The UN has warned that unchecked AI development could threaten human rights, including privacy and safety.",
+    "The U.S. and China are in a regulatory and technological rivalry over AI governance."
    ],
    "topics": [
     "artificial intelligence",
-    "technology",
     "geopolitics",
+    "human rights",
     "technology regulation"
    ],
    "entities": [
@@ -135,12 +132,13 @@
     "Elon Musk",
     "Google"
    ],
-   "importance": 1.0,
-   "relevance": 0.9,
-   "score": 5.297,
+   "importance": 0.85,
+   "relevance": 0.95,
+   "score": 4.997,
    "publishers": [
     "20minutos",
     "3Cat (324)",
+    "Al Jazeera",
     "Ara",
     "BBC World",
     "El País",
@@ -152,16 +150,40 @@
     "VilaWeb",
     "eldiario.es"
    ],
-   "publisher_count": 12,
+   "publisher_count": 13,
    "languages": [
     "ca",
     "en",
     "es"
    ],
-   "article_count": 40,
+   "article_count": 43,
    "first_published": "2026-09-14T03:00:00+00:00",
-   "last_published": "2026-09-15T06:07:31+00:00",
+   "last_published": "2026-09-15T09:11:49+00:00",
    "articles": [
+    {
+     "id": "b103bba5c08b2264",
+     "title": "Donald Trump acusa els empresaris que volen regular la IA de formar part d'una \"conspiració de l'esquerra\"",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/internacional/20260915/371838/donald-trump-acusa-empresaris-volen-regular-ia-formar-part-conspiracio-esquerra.html",
+     "language": "ca",
+     "published_at": "2026-09-15T09:11:49+00:00",
+     "author": null,
+     "summary": "Donald Trump ha sortit en tromba contra aquells que volen regular la intel·ligència artificial. En una bateria de missatges a Truth Social, el president nord-americà responsabilitza les esquerres i els demòcrates d'escampar teories conspiranoiques malaltisses i amenaça d'emprendre accions legals contra les tecnològiques que vulguin regular-la pel seu compte. En aquests missatges, el magnat assegura que l'únic que cal per evitar mals majors és un president intel·ligent i fort . Es referia a ell mateix. Trump també ha parlat de Dario Amodei , d'Anthropic, una de les companyies nord-americanes d'IA. D'ell ha dit que ara juga a ser un angelet, però que per sort la Casa Blanca el va aturar perquè no fes un mal ús de la intel·ligència artificial. I remata: \"No matem la gallina dels ous d'or!\" A tot això, qui aquesta nit ha tornat a advertir dels perills de la IA és Jacob Coxon , extreballador d'Anthropic. Va plegar alarmat pels riscos de la intel·ligència artificial i aquesta nit en una entrevista a Fox News ha recordat que és l'únic avenç tecnològic capaç d'actuar sense rebre ordres de ningú. Això quan en les últimes hores, el mitjà nord-americà The information, especialitzat en…",
+     "content_type": null
+    },
+    {
+     "id": "2082705462763310",
+     "title": "Donald Trump llama en directo a Jensen Huang (Nvidia): “Lo del peligro de la IA es un engaño”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260915/11635082/donald-trump-llama-directo-jensen-huang-nvidia-peligro-ia-engano.html",
+     "language": "es",
+     "published_at": "2026-09-15T06:42:26+00:00",
+     "author": "Francisco Bracero Osuna",
+     "summary": "“Los robots no van a conquistar el mundo. Eso no va a suceder”, afirma el presidente antes de exponer una curiosa teoría genética sobre por qué entiende de IA",
+     "content_type": null
+    },
     {
      "id": "8676e69f1e8219d3",
      "title": "Un exinvestigador de Google se suma a las advertencias de que la IA podría “acabar con toda la humanidad”",
@@ -209,6 +231,18 @@
      "author": "Enric Juliana Ricart",
      "summary": "Public alarm and intense focus on artificial intelligence coincide with growing public backlash against data center developments.",
      "content_type": "analysis"
+    },
+    {
+     "id": "a23f950f843c7060",
+     "title": "Trump calls, interrupts Nvidia CEO to say AI fears are ‘a hoax’",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/15/14-09-clip-trump-comments-on-ai?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-15T03:28:42+00:00",
+     "author": null,
+     "summary": "US President Donald Trump makes a surprise call to Nvidia's CEO, interrupting a live event to discuss fears about AI.",
+     "content_type": null
     },
     {
      "id": "9bf5c22fe15fb09f",
@@ -645,35 +679,302 @@
    ]
   },
   {
-   "id": "s13f79d36f41199d",
-   "headline": "Fractura en la Junta Electoral: del \"despropósito\" del fallo de la ley de nietos a evitar el pulso con el Supremo",
-   "summary": "Spain's Central Electoral Board decided in a divided 7-6 vote to comply with a Supreme Court ruling that suspends voting rights for around 400,000 citizens naturalized under the Grandchildren's Law.",
-   "why_it_matters": "The ruling temporarily disenfranchises hundreds of thousands of newly naturalized citizens ahead of upcoming elections.",
+   "id": "s96dde7ea5113ce0",
+   "headline": "Supreme Court blocks Trump's mail-in voting restrictions",
+   "summary": "The US Supreme Court rejected Trump's attempt to limit mail-in voting ahead of midterms, citing insufficient time for state implementation. The decision preserves current voting rules but does not resolve the legality of Trump's policies. Outlets note the ruling could impact election access for millions.",
+   "why_it_matters": "The ruling may affect voting access for millions and could influence the outcome of upcoming midterm elections.",
    "key_facts": [
-    "Alberto Ruiz-Gallardón testifies as a witness in the Lezo case on Tuesday.",
-    "The trial investigates the 2001 purchase of Colombian company Inassa by Canal de Isabel II.",
-    "Magistrate Manuel García Castellón sent 22 people to trial, including Pedro Calvo and Juan Bravo.",
-    "Judge Antonio Narváez blocked voting rights associated with the Democratic Memory Law."
+    "The Supreme Court rejected Trump's bid to restrict mail-in voting ahead of midterms.",
+    "The decision was based on the argument that states did not have enough time to implement new rules.",
+    "The court did not specify how many justices voted in favor or against the decision.",
+    "The ruling does not settle the legality of Trump's mail-in voting restrictions."
    ],
    "topics": [
-    "politics",
-    "judiciary",
     "elections",
-    "corruption"
+    "us politics",
+    "voting rights"
+   ],
+   "entities": [],
+   "importance": 0.85,
+   "relevance": 0.95,
+   "score": 4.984,
+   "publishers": [
+    "Al Jazeera",
+    "El País",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 4,
+   "languages": [
+    "ca",
+    "en",
+    "es"
+   ],
+   "article_count": 6,
+   "first_published": "2026-09-15T00:28:40+00:00",
+   "last_published": "2026-09-15T09:15:01+00:00",
+   "articles": [
+    {
+     "id": "dfd40dac7076d01c",
+     "title": "US Supreme Court rejects Trump’s plans on postal ballots: Why it matters",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/15/us-supreme-court-rejects-trumps-plans-on-postal-ballots-why-it-matters?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-15T09:15:01+00:00",
+     "author": null,
+     "summary": "Trump has repeatedly criticised mail-in votes and has attempted to restrict them ahead of the midterms.",
+     "content_type": null
+    },
+    {
+     "id": "99b0bba9563249f9",
+     "title": "Supreme Court rejects Trump’s restrictions on mail-in voting ahead of midterms",
+     "source": "El País (English)",
+     "publisher": "El País",
+     "url": "https://english.elpais.com/usa/2026-09-15/supreme-court-rejects-trumps-restrictions-on-mail-in-voting-ahead-of-midterms.html",
+     "language": "en",
+     "published_at": "2026-09-15T08:47:03+00:00",
+     "author": "Patricia Caro",
+     "summary": "The Republican’s reform put the votes of millions of people at risk because there wasn’t enough time for the states to implement the new rules",
+     "content_type": null
+    },
+    {
+     "id": "bd88e5b5baadf630",
+     "title": "El Suprem dels EUA no autoritza l’ordre de Trump contra el vot per correu en les eleccions de mitjan mandat",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/suprem-eua-ordre-trump-contra-vot-correu/",
+     "language": "ca",
+     "published_at": "2026-09-15T07:04:18+00:00",
+     "author": null,
+     "summary": "El tribunal no ha especificat quants magistrats hi han votat a favor i quants en contra",
+     "content_type": null
+    },
+    {
+     "id": "563e5bde024c8d84",
+     "title": "US Supreme Court rejects Trump mail ballot restrictions ahead of midterms",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/15/us-supreme-court-rejects-trump-mail-ballot-restrictions-ahead-of-midterms?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-15T03:21:23+00:00",
+     "author": null,
+     "summary": "US Supreme Court rejects Trump’s bid to tighten mail-in voting rules ahead of critical midterm elections.",
+     "content_type": null
+    },
+    {
+     "id": "fd09fe8ec8a21ec3",
+     "title": "Nuevo revés del Supremo a Trump: el tribunal rechaza las maniobras para restringir al voto por correo en las legislativas",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/internacional/nuevo-reves-supremo-trump-tribunal-rechaza-maniobras-restringir-voto-correo-legislativas_1_13509985.html",
+     "language": "es",
+     "published_at": "2026-09-15T00:58:42+00:00",
+     "author": "Andrés Gil",
+     "summary": "La decisión del Supremo mantiene, por ahora, el bloqueo a las maniobras de Trump mientras continúa el litigio sobre el fondo del asunto: la legalidad de la normativa impulsada por el presidente de EEUU El Tribunal Supremo ha rechazado este lunes el intento del presidente de EEUU, Donald Trump, de restringir el voto por correo para las elecciones de mitad de mandato. Con esta decisión, el tribunal, de mayoría conservadora de 6-3, pone fin a una serie de acciones legales que se cruzaban con los preparativos para la votación, que en muchos estados ya están en curso a 50 días de las elecciones. La decisión del Supremo mantiene, por ahora, el bloqueo a las maniobras de Trump mientras continúa el litigio sobre el fondo del asunto: la legalidad de la normativa impulsada por el presidente de EEUU. La decisión permite a los estados seguir enviando papeletas por correo bajo los mismos procedimientos que han utilizado durante años. Los magistrados Samuel Alito y Clarence Thomas han expresado su desacuerdo con la resolución. La Administración Trump había solicitado al tribunal, que se encuentra una vez más en el centro de la controversia política, que allanara el camino a sus restricciones…",
+     "content_type": null
+    },
+    {
+     "id": "2d8cc7f2ec1ce4c4",
+     "title": "El Supremo rechaza las restricciones de Trump al voto por correo para las legislativas",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/us/2026-09-15/el-tribunal-suprema-rechaza-por-ahora-las-restricciones-de-trump-al-voto-por-correo-antes-de-las-elecciones-legislativas.html",
+     "language": "es",
+     "published_at": "2026-09-15T00:28:40+00:00",
+     "author": "Patricia Caro",
+     "summary": "La reforma del republicano ponía en riesgo el sufragio de millones de personas por no haber tiempo suficiente para que los Estados implementaran las nuevas normas",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s9b661259ac146ae",
+   "headline": "Sánchez targets end-of-year resolution for Ceuta crisis",
+   "summary": "Spanish Prime Minister Pedro Sánchez has set a goal to stabilize the situation in Ceuta by the end of the year, addressing migration and diplomatic tensions. He dismissed claims of Moroccan blackmail using Pegasus spyware as fake news, while his opacity on the matter has fueled suspicions among allies.",
+   "why_it_matters": "The situation in Ceuta has significant implications for Spain's migration policy and international relations.",
+   "key_facts": [
+    "Sánchez aims to stabilize Ceuta by the end of the year.",
+    "He dismissed Moroccan blackmail claims as fake news.",
+    "Over 70,000 migrants arrived in Ceuta in late July.",
+    "Sánchez's handling of Morocco has raised suspicions among political allies."
+   ],
+   "topics": [
+    "diplomacy",
+    "international relations",
+    "migration",
+    "politics"
+   ],
+   "entities": [
+    "Pedro Sánchez",
+    "Morocco",
+    "Ceuta",
+    "Spain",
+    "Pegasus",
+    "Podemos",
+    "Irene Montero",
+    "Juan Jesús Vivas"
+   ],
+   "importance": 0.8,
+   "relevance": 0.9,
+   "score": 4.894,
+   "publishers": [
+    "20minutos",
+    "El País",
+    "Nació Digital",
+    "Público",
+    "RTVE",
+    "eldiario.es"
+   ],
+   "publisher_count": 6,
+   "languages": [
+    "ca",
+    "es"
+   ],
+   "article_count": 9,
+   "first_published": "2026-09-14T08:01:02+00:00",
+   "last_published": "2026-09-15T08:10:24+00:00",
+   "articles": [
+    {
+     "id": "ebe4d222998ecbdc",
+     "title": "Clavijo cree que Sánchez debe \"liderar\" la respuesta a Ceuta y afea que ni Gobierno ni oposicion han estado \"a la altura\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260915/clavijo-ceuta-crisis-migratoria-gobierno-oposicion/17225109.shtml",
+     "language": "es",
+     "published_at": "2026-09-15T08:10:24+00:00",
+     "author": "RTVE.es",
+     "summary": "El presidente de las islas Canarias, Fernando Clavijo , ha defendido que el jefe del Ejecutivo central, Pedro Sánchez, debe \"liderar\" la respuesta a la crisis migratoria de Ceuta , al tiempo que ha afeado que ni el Gobierno nacional ni la oposición han estado \"a la altura\" de las circunstancias, pues, a su juicio, han estado a \"sus peleas\". En una entrevista en Las Mañanas de RNE , Clavijo ha asegurado que lo que tenía que haber hecho Sánchez es convocar una Conferencia de Presidentes para ver como \"resolver\" el problema y dar una \"respuesta de país\", porque, ha recordado, \"los inmigrantes no llegan a Ceuta, llegan a España, a Europa\". \"Deberíamos dar una respuesta como país y es lo que está faltando. Lo que hay es un presidente en una cadena, y otro en otro, lanzándose reproches\", ha criticado Clavijo en alusión a las entrevistas que tanto Sánchez, como el presidente de Ceuta, Juan Jesús Vivas, dieron este lunes en sendas cadenas de televisión. El presidente canario ha abogado por trasladar a los inmigrantes de Ceuta y repartirlos entre las autonomías para hacer los triajes , en lugar de \"tenerles retenidos\" en la ciudad autónoma, que está soportando, a su juicio, \"mucha…",
+     "content_type": null
+    },
+    {
+     "id": "f61a4935ab4bff18",
+     "title": "Junts esquiva la concreció del rol de Puigdemont quan torni: «Respectarem la seva decisió»",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/politica/junts-esquiva-la-concrecio-del-rol-de-puigdemont-quan-torni-respectarem-la-seva-decisio.html",
+     "language": "ca",
+     "published_at": "2026-09-15T07:04:39+00:00",
+     "author": "Oriol March",
+     "summary": "El secretari general del partit, Jordi Turull, insisteix en la renúncia de Pedro Sánchez i sosté que no negociaran els pressupostos a Madrid en base a una \"enganyifa\"",
+     "content_type": null
+    },
+    {
+     "id": "d51f1890ee32db20",
+     "title": "La opacidad de Sánchez con Marruecos dispara entre sus socios las sospechas de \"chantaje\"",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/opacidad-sanchez-con-marruecos-dispara-entre-sus-socios-las-sospechas-chantaje_7036649_0.html",
+     "language": "es",
+     "published_at": "2026-09-15T03:00:00+00:00",
+     "author": "Alejandro Tobalina, Marta Moreno",
+     "summary": "Pedro Sánchez's opacity regarding Morocco has raised suspicions of blackmail among his political partners.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "213e79ae6857fcc6",
+     "title": "Sánchez rechaza las teorías sobre un chantaje de Marruecos: \"La realidad se tiene que construir en base a hechos y no a bulos\"",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/gobierno/sanchez-rechaza-teorias-sobre-chantaje-marruecos-realidad-construir-base-hechos-bulos.html",
+     "language": "es",
+     "published_at": "2026-09-14T22:26:22+00:00",
+     "author": "Miguel Muñoz",
+     "summary": "Spanish Prime Minister Pedro Sánchez dismissed claims that Morocco is blackmailing his government using Pegasus spyware, calling the rumors fake news. He set a target to restore normality in Ceuta by the end of the year.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "20e6056333c2ce20",
+     "title": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/sanchez-situa-hasta-finales-ano-mando-unico-ceuta-para-situacion-pueda-quedar-estabilizada/17224839.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T20:30:52+00:00",
+     "author": "RTVE Noticias",
+     "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "6a5dce44bda0dc3d",
+     "title": "Pedro Sánchez: \"Nos hemos dado de aquí al final del año para arreglar la situación en Ceuta\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/pedro-sanchez-hemos-dado-final-ano-arreglar-situacion-ceuta_1_13509833.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:18:54+00:00",
+     "author": "José Enrique Monrosi",
+     "summary": "Prime Minister Pedro Sánchez expects to resolve the diplomatic and migrant crisis in Ceuta by the end of the year, dismissing claims of Moroccan Pegasus spyware blackmail as persistent rumors.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "9389c2d7c4ac0b18",
+     "title": "Sumar evita responder a las primarias que ofrece Podemos: \"Hay que buscar pactos\" pero \"la fórmula no nos preocupa\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/sumar-evita-responder-primarias-ofrece-hay-buscar-pactos-formula-no-preocupa_1_13508417.html",
+     "language": "es",
+     "published_at": "2026-09-14T12:28:20+00:00",
+     "author": "Daniel Ríos",
+     "summary": "Movimiento Sumar leader Rosa Martínez welcomed Podemos' desire for a joint electoral list but avoided committing to Podemos' proposed open primary process.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "25583c6dc9253ed6",
+     "title": "Irene Montero: \"Con unas primarias a las que se pueda presentar todo el mundo tenemos más garantías de acertar\"",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/irene-montero-primarias-pueda-presentar-mundo-tenemos-garantias-acertar.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:01:50+00:00",
+     "author": "Inés García Rábade",
+     "summary": "Irene Montero, Podemos' candidate for the 2027 Spanish general election, has called for open primaries to build a unified left-wing ballot. She criticized the current government for failing to address housing speculation and price caps.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "2ad4c45ff1e3f126",
+     "title": "Irene Montero defiende las primarias abiertas para “salir del bucle” de la izquierda y que la gente “tome la palabra”",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/irene-montero-defiende-las-primarias-abiertas-para-salir-del-bucle-de-la-izquierda-y-que-la-gente-tome-la-palabra.html",
+     "language": "es",
+     "published_at": "2026-09-14T08:01:02+00:00",
+     "author": "Paula Chouza Candeira",
+     "summary": "La eurodiputada, sobre un hipotético chantaje de Marruecos a Sánchez: “Parece bastante evidente que algo hay”",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "scf09754259aef38",
+   "headline": "Electoral Board Divided on Supreme Court's Vote Suspension Order",
+   "summary": "Spain's Central Electoral Board split 7-6 to comply with a Supreme Court ruling suspending voting rights for naturalized citizens under the Grandchildren's Law. The decision includes measures to verify exiled status and adjust census data at consulates.",
+   "why_it_matters": "The ruling affects over 400,000 citizens' voting rights and highlights tensions between judicial and political branches.",
+   "key_facts": [
+    "The Central Electoral Board voted 7-6 to comply with the Supreme Court's order.",
+    "The order suspends voting rights for around 400,000 citizens naturalized under the Grandchildren's Law.",
+    "The board requested reports to verify exiled status and adjust census data at consulates.",
+    "The Spanish government criticized the Supreme Court's decision as politically motivated."
+   ],
+   "topics": [
+    "elections",
+    "government",
+    "immigration",
+    "judiciary"
    ],
    "entities": [
     "Tribunal Supremo",
     "Junta Electoral Central",
     "Supremo",
-    "Alberto Ruiz-Gallardón",
-    "Canal de Isabel II",
-    "Inassa",
     "Óscar López",
-    "Manuel García Castellón"
+    "Alberto Ruiz-Gallardón",
+    "Manuel García Castellón",
+    "Pedro Calvo",
+    "Juan Bravo"
    ],
-   "importance": 0.97,
+   "importance": 0.8,
    "relevance": 0.9,
-   "score": 5.237,
+   "score": 4.888,
    "publishers": [
     "20minutos",
     "3Cat (324)",
@@ -691,7 +992,7 @@
     "ca",
     "es"
    ],
-   "article_count": 21,
+   "article_count": 18,
    "first_published": "2026-09-14T03:30:01+00:00",
    "last_published": "2026-09-15T06:03:58+00:00",
    "articles": [
@@ -729,18 +1030,6 @@
      "published_at": "2026-09-14T21:30:00+00:00",
      "author": "Miguel Muñoz",
      "summary": "Tensions have escalated between the Spanish government and top judicial officials following the court suspension of voting rights under the 'grandchild law'. Government ministers criticized judicial corporatism after Supreme Court President Isabel Perelló denounced political attacks against magistrates.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "4d93432ccf124d98",
-     "title": "El expresidente Gallardón declara como testigo por la compra de una empresa colombiana de aguas hace 25 años",
-     "source": "eldiario.es",
-     "publisher": "eldiario.es",
-     "url": "https://www.eldiario.es/politica/expresidente-gallardon-declara-testigo-compra-empresa-colombiana-aguas-25-anos_1_13507950.html",
-     "language": "es",
-     "published_at": "2026-09-14T20:09:54+00:00",
-     "author": "elDiario.es",
-     "summary": "Former Madrid president Alberto Ruiz-Gallardón testified as a witness in the Caso Lezo trial regarding the 2001 acquisition of Colombian water firm Inassa by Canal de Isabel II.",
      "content_type": "reporting"
     },
     {
@@ -888,30 +1177,6 @@
      "content_type": null
     },
     {
-     "id": "01317e60734a780e",
-     "title": "La jueza Tardón pide la querella que estudia un juzgado de Ceuta contra el delegado del Gobierno",
-     "source": "El País España",
-     "publisher": "El País",
-     "url": "https://elpais.com/espana/2026-09-14/la-jueza-tardon-pide-a-un-juzgado-de-ceuta-la-querella-que-estudia-contra-el-delegado-del-gobierno.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:29:52+00:00",
-     "author": "Liliana Ochoa",
-     "summary": "La instructora recuerda que la Audiencia Nacional ya ha asumido la competencia para investigar la entrada masiva de inmigrantes a la ciudad autónoma",
-     "content_type": null
-    },
-    {
-     "id": "a45b028015eb7a30",
-     "title": "La Audiencia Nacional plantea asumir la investigación de la denuncia contra el delegado del Gobierno en Ceuta",
-     "source": "20minutos",
-     "publisher": "20minutos",
-     "url": "https://www.20minutos.es/nacional/audiencia-nacional-plantea-asumir-investigacion-denuncia-contra-delegado-gobierno-ceuta_7036422_0.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:29:08+00:00",
-     "author": "Pedro Buenaventura",
-     "summary": "La jueza María Tardón remite al Juzgado de Instrucción número 6 de Ceuta el auto en el que asumió investigar la entrada masiva de migrantes en la ciudad autónoma para que valore si debe inhibirse en su favor.",
-     "content_type": null
-    },
-    {
      "id": "ba5edb102c56de92",
      "title": "López califica de \"salvajada\" la suspensión de la 'ley de nietos' por el Supremo: \"Hay jueces que son salvapatrias\"",
      "source": "RTVE Noticias",
@@ -950,292 +1215,21 @@
    ]
   },
   {
-   "id": "s73e2372ff2bc18a",
-   "headline": "Trump lleva la democracia de Estados Unidos a su nivel más bajo en al menos medio siglo",
-   "summary": "International IDEA reports a severe degradation of key democratic indicators in the United States under Donald Trump.",
-   "why_it_matters": "US democracy has reached its lowest point in at least half a century.",
-   "key_facts": [
-    "International IDEA released its annual democracy report from Stockholm.",
-    "Global democracy experienced major setbacks in 2025.",
-    "Spain maintains a high-performance democratic rating despite corruption issues.",
-    "Report published on September 15, International Day of Democracy."
-   ],
-   "topics": [
-    "politics",
-    "elections",
-    "polling",
-    "spanish politics"
-   ],
-   "entities": [
-    "Ceuta",
-    "PSOE",
-    "Vox",
-    "CIS",
-    "PP",
-    "Sumar",
-    "Podemos",
-    "International IDEA"
-   ],
-   "importance": 1.0,
-   "relevance": 0.8,
-   "score": 5.175,
-   "publishers": [
-    "20minutos",
-    "3Cat (324)",
-    "Ara",
-    "El País",
-    "El Salto",
-    "La Vanguardia",
-    "Nació Digital",
-    "Público",
-    "RAC1",
-    "RTVE",
-    "VilaWeb",
-    "eldiario.es"
-   ],
-   "publisher_count": 12,
-   "languages": [
-    "ca",
-    "es"
-   ],
-   "article_count": 18,
-   "first_published": "2026-09-14T03:00:00+00:00",
-   "last_published": "2026-09-15T02:05:00+00:00",
-   "articles": [
-    {
-     "id": "7d9baa966e59dac6",
-     "title": "España se mantiene como una democracia de \"alto rendimiento\" pero sufre un retroceso por la corrupción",
-     "source": "Público",
-     "publisher": "Público",
-     "url": "https://www.publico.es/politica/espana-mantiene-democracia-alto-rendimiento-pero-sufre-retroceso-corrupcion.html",
-     "language": "es",
-     "published_at": "2026-09-15T02:05:00+00:00",
-     "author": "Danilo Albin",
-     "summary": "International IDEA's annual report shows a global decline in democracy in 2025. While Spain retains its high-performance status, it experienced setbacks due to corruption.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "eb6c09699f048d2d",
-     "title": "La democracia peligra en todo el mundo y está en sus horas más bajas en EE.UU., según IDEA",
-     "source": "RTVE Noticias",
-     "publisher": "RTVE",
-     "url": "https://www.rtve.es/noticias/20260915/democracia-peligra-todo-mundo-horas-mas-bajas-eeuu/17219385.shtml",
-     "language": "es",
-     "published_at": "2026-09-15T00:01:14+00:00",
-     "author": "Miguel Charte",
-     "summary": "An annual report by International IDEA warns that US democracy is at its lowest level in 50 years, threatening global democratic stability and judicial independence.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "ebdd910f9a08deb2",
-     "title": "Trump lleva la democracia de Estados Unidos a su nivel más bajo en al menos medio siglo",
-     "source": "El País Internacional",
-     "publisher": "El País",
-     "url": "https://elpais.com/internacional/2026-09-15/trump-lleva-la-democracia-de-estados-unidos-a-su-nivel-mas-bajo-de-la-historia-reciente.html",
-     "language": "es",
-     "published_at": "2026-09-14T22:01:00+00:00",
-     "author": "Ignacio Fariza",
-     "summary": "International IDEA reports a severe degradation of key democratic indicators in the United States under Donald Trump.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "a1c93fb4c39e4839",
-     "title": "La crisi a Ceuta passa factura al PSOE, i qui més ho aprofitaria és Vox, segons el CIS",
-     "source": "RAC1",
-     "publisher": "RAC1",
-     "url": "https://www.rac1.cat/politica/20260914/371650/crisi-ceuta-passa-factura-psoe-ho-aprofitaria-vox-cis.html",
-     "language": "ca",
-     "published_at": "2026-09-14T14:22:29+00:00",
-     "author": null,
-     "summary": "According to the latest CIS barometer, the Ceuta crisis led to a two-point drop for PSOE, while Vox gained support. The left-wing and right-wing blocs remain in a tight tie.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "0d8734cbd319be44",
-     "title": "El PP \"no parará\" hasta que se asuman responsabilidades por Ceuta: \"No es una crisis, es un esperpento\"",
-     "source": "RTVE Noticias",
-     "publisher": "RTVE",
-     "url": "https://www.rtve.es/noticias/20260914/pp-avisa-parara-responsabilidades-ceuta-no-crisis-esperpento/17223672.shtml",
-     "language": "es",
-     "published_at": "2026-09-14T13:00:26+00:00",
-     "author": "RTVE.es",
-     "summary": "El portavoz del PP , Borja Sémper, ha avisado este lunes de que su partido no va a \"parar\" hasta que en el Gobierno asuman responsabilidades por la situación en Ceuta , de la que ha dicho que \"ya no es una crisis, es un esperpento\" . El presidente de la formación, Alberto Núñez…",
-     "content_type": null
-    },
-    {
-     "id": "208a296ab6917ef8",
-     "title": "Podemos sube más de un punto en intención de voto, pero la izquierda sigue en KO técnico en el CIS",
-     "source": "El Salto",
-     "publisher": "El Salto",
-     "url": "https://www.elsaltodiario.com/partidos-politicos/podemos-sube-un-punto-izquierda-sigue-ko-tecnico-cis?utm_source=feed",
-     "language": "es",
-     "published_at": "2026-09-14T12:44:00+00:00",
-     "author": "Pablo Elorduy",
-     "summary": "September's CIS barometer indicates a decline in support for PSOE amidst the Ceuta crisis, although it still leads national polling while left-wing parties struggle to gain broader momentum.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "5f68d97b1d8cc116",
-     "title": "Feijóo viajará a Ceuta acompañado de los líderes del PP en Bruselas para “europeizar” la crisis",
-     "source": "El País España",
-     "publisher": "El País",
-     "url": "https://elpais.com/espana/2026-09-14/feijoo-viajara-a-ceuta-acompanado-de-los-lideres-del-pp-en-bruselas-para-europeizar-la-crisis.html",
-     "language": "es",
-     "published_at": "2026-09-14T12:31:58+00:00",
-     "author": "Elsa García de Blas",
-     "summary": "El presidente popular se reúne el jueves con el comisario de Inmigración en Madrid y ha forzado un debate específico sobre la ciudad autónoma en el Parlamento Europeo",
-     "content_type": null
-    },
-    {
-     "id": "bd9dfef3fa144c46",
-     "title": "El PP va a “europeizar” la crisis de Ceuta y cree que “ha empeorado”",
-     "source": "La Vanguardia",
-     "publisher": "La Vanguardia",
-     "url": "https://www.lavanguardia.com/politica/20260914/11634336/pp-europeizar-crisis-ceuta-cree-empeorado.html",
-     "language": "es",
-     "published_at": "2026-09-14T12:02:32+00:00",
-     "author": "Javier Gallego",
-     "summary": "Spanish opposition leader Alberto Núñez Feijóo plans to visit Ceuta with European People's Party leadership to escalate the local border situation to the European level.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "99002bd3c35b051f",
-     "title": "La crisi a Ceuta passa factura al PSOE segons el CIS: perd dos punts i el PP puja 4 dècimes",
-     "source": "3Cat (324)",
-     "publisher": "3Cat (324)",
-     "url": "https://www.3cat.cat/3catinfo/la-crisi-a-ceuta-passa-factura-al-psoe-segons-el-cis-perd-dos-punts-i-el-pp-puja-4-decimes/noticia/3428459/",
-     "language": "ca",
-     "published_at": "2026-09-14T10:51:05+00:00",
-     "author": null,
-     "summary": "The CIS barometer shows PSOE losing two percentage points following the Ceuta crisis, while PP gained 0.4 points and Vox increased by more than a point.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "b0d6927e4c5512a2",
-     "title": "El PSOE baja en el CIS de Tezanos por la crisis de Ceuta pero se mantiene en primera posición",
-     "source": "20minutos",
-     "publisher": "20minutos",
-     "url": "https://www.20minutos.es/nacional/psoe-baja-cis-tezanos-por-crisis-ceuta-pero-se-mantiene-primera-posicion-saca-4-5-puntos-pp_7036441_0.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:49:47+00:00",
-     "author": "Ana Moreno",
-     "summary": "According to the latest CIS survey following the Ceuta crisis, PSOE lost support but remains in first place. Vox and Podemos gained ground, rising to 16.6% and 3.7% respectively.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "5c56eeaab56c9973",
-     "title": "El PP i Vox rendibilitzen la crisi de Ceuta a costa del PSOE, segons el CIS",
-     "source": "VilaWeb",
-     "publisher": "VilaWeb",
-     "url": "https://www.vilaweb.cat/noticies/pp-retalla-distancia-psoe-vox-puja-despre-crisi-ceuta-segons-el-cis/",
-     "language": "ca",
-     "published_at": "2026-09-14T10:40:44+00:00",
-     "author": null,
-     "summary": "A CIS poll indicates changing voting intentions among Spanish political parties after the Ceuta crisis. Sumar slightly decreased, while ERC lost ground, Podem gained, and Junts remained stable.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "0694ccde94f9bade",
-     "title": "El PSOE cau dos punts per la crisi de Ceuta i el PP s'estanca, segons el CIS",
-     "source": "Ara",
-     "publisher": "Ara",
-     "url": "https://www.ara.cat/politica/psoe-cau-punts-crisi-ceuta-pp-s-estanca-segons-cis_1_5849439.html",
-     "language": "ca",
-     "published_at": "2026-09-14T10:39:44+00:00",
-     "author": "ARA",
-     "summary": "El PSOE perd suports per la crisi a Ceuta però resisteix i tornaria a guanyar les eleccions, segons el CIS. El baròmetre publicat aquest dijous dona als socialistes el 31% dels vots, dos menys que a l'enquesta del juliol, i veu com el PP li retalla distàncies, situant-se a només…",
-     "content_type": null
-    },
-    {
-     "id": "7cf9607dcd9d1585",
-     "title": "El PSOE baja dos puntos pero sigue por delante del PP y Vox crece tras la crisis en Ceuta, según el CIS",
-     "source": "RTVE Noticias",
-     "publisher": "RTVE",
-     "url": "https://www.rtve.es/noticias/20260914/barometro-cis-septiembre-estimacion-voto-psoe-pp/17223668.shtml",
-     "language": "es",
-     "published_at": "2026-09-14T10:39:23+00:00",
-     "author": "RTVE.es",
-     "summary": "The latest CIS barometer reveals that despite a two-point drop following the Ceuta migration crisis, PSOE remains ahead of PP. Vox saw the largest gain, rising 1.3 points to 16.6%.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "a3abbe6844377956",
-     "title": "Ceuta passa factura a Sánchez i el PP retalla distàncies, segons el CIS",
-     "source": "Nació Digital",
-     "publisher": "Nació Digital",
-     "url": "https://naciodigital.cat/politica/ceuta-passa-factura-a-sanchez-i-el-pp-retalla-distancies-segons-el-cis.html",
-     "language": "ca",
-     "published_at": "2026-09-14T10:38:23+00:00",
-     "author": "Bernat Surroca",
-     "summary": "The migration crisis in Ceuta has weakened PSOE, allowing PP to narrow the gap to 5.5 points according to CIS data. Regional parties ERC and Junts remained virtually unchanged.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "8dff11f39ca83d1f",
-     "title": "El CIS reduce a 5,5 puntos la ventaja del PSOE sobre el PP tras la crisis de Ceuta",
-     "source": "La Vanguardia",
-     "publisher": "La Vanguardia",
-     "url": "https://www.lavanguardia.com/politica/20260914/11634279/cis-reduce-5-5-puntos-ventaja-psoe-sobre-pp-crisis-ceuta.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:34:14+00:00",
-     "author": "Josep Maria Calvet Fransesch",
-     "summary": "Vox subiría 1,3 puntos respecto a julio y Podemos se acercaría a Sumar",
-     "content_type": null
-    },
-    {
-     "id": "4b7bb30317ab7a86",
-     "title": "El CIS aumenta la ventaja del PSOE sobre el PP a 5,5 puntos pese a la crisis en Ceuta",
-     "source": "eldiario.es",
-     "publisher": "eldiario.es",
-     "url": "https://www.eldiario.es/politica/cis-aumenta-ventaja-psoe-pp-5-5-puntos-pese-crisis-ceuta_1_13507458.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:26:33+00:00",
-     "author": "Iñigo Aduriz, Ainhoa Díez",
-     "summary": "Los socialistas logran un 31% de los votos, solo tres décimas menos que en julio; el PP, un 25,5%, 1,6 puntos por debajo que el último estudio; Vox, un 16,6%; Sumar, un 5,7%, y Podemos, el 3,7%, según el barómetro de septiembre del instituto que dirige José Félix Tezanos El…",
-     "content_type": null
-    },
-    {
-     "id": "61d9a8b17def54d9",
-     "title": "La situación de Ceuta, más allá de los políticos",
-     "source": "La Vanguardia",
-     "publisher": "La Vanguardia",
-     "url": "https://www.lavanguardia.com/politica/20260914/11633790/situacion-ceuta-mas-politicos.html",
-     "language": "es",
-     "published_at": "2026-09-14T04:00:00+00:00",
-     "author": "Mari Carmen Del Riego De Lucas",
-     "summary": "An article discussing the ongoing political and societal situation in Ceuta.",
-     "content_type": "other"
-    },
-    {
-     "id": "0d281c8400bcae05",
-     "title": "El PSOE se queda sin balas y lo fía todo a unos Presupuestos imposibles como única salida para rebajar la crisis política por Ceuta",
-     "source": "20minutos",
-     "publisher": "20minutos",
-     "url": "https://www.20minutos.es/nacional/psoe-se-queda-sin-balas-fia-todo-unos-presupuestos-imposibles-como-unica-salida-para-rebajar-crisis-politica-por-ceuta_7035693_0.html",
-     "language": "es",
-     "published_at": "2026-09-14T03:00:00+00:00",
-     "author": "Marta Moreno",
-     "summary": "Internal voices within PSOE are calling to expedite the national budget to move past the Ceuta political crisis. If rejected, the budget could serve as a setup for early elections in early 2027.",
-     "content_type": "analysis"
-    }
-   ]
-  },
-  {
    "id": "seb7924fce4b225a",
-   "headline": "Los líderes de Escocia, Gales e Irlanda del Norte acuerdan luchar juntos para independizarse del Reino Unido",
-   "summary": "Pro-independence leaders of Scotland, Wales, and Northern Ireland pledged to campaign together to separate from the UK and join the EU. They urged Andy Burnham's Labour government to facilitate constitutional change.",
-   "why_it_matters": "A unified independence push from all three devolved nations presents a major constitutional threat to the UK.",
+   "headline": "Leaders from Scotland, Wales, and Northern Ireland unite for self-determination",
+   "summary": "Leaders from Scotland, Wales, and Northern Ireland have signed a declaration supporting self-determination. They argue that Westminster has no right to block democratic processes and demand constitutional reform. The leaders called for an end to the current political relationship with the UK.",
+   "why_it_matters": "This agreement could reshape the political landscape of the UK and its relationship with its constituent nations.",
    "key_facts": [
-    "Meeting took place in Cardiff",
-    "Leaders of Wales, Scotland, and Northern Ireland participated",
-    "Declaration signed by leaders of Scotland, Wales, and Northern Ireland",
-    "Asserted Westminster cannot block democracy"
+    "Leaders from Scotland, Wales, and Northern Ireland signed a declaration supporting self-determination.",
+    "They argue that Westminster has no right to block democratic processes.",
+    "The leaders called for constitutional reform and an equal relationship among nations.",
+    "The declaration was signed by the first ministers of the three regions."
    ],
    "topics": [
-    "politics",
-    "independence",
-    "uk politics",
-    "escocia"
+    "constitutional reform",
+    "political alliance",
+    "self-determination",
+    "uk politics"
    ],
    "entities": [
     "Wales",
@@ -1247,9 +1241,9 @@
     "Los",
     "Escocia"
    ],
-   "importance": 0.9,
-   "relevance": 0.8,
-   "score": 5.09,
+   "importance": 0.8,
+   "relevance": 0.9,
+   "score": 4.881,
    "publishers": [
     "3Cat (324)",
     "Ara",
@@ -1354,290 +1348,105 @@
    ]
   },
   {
-   "id": "s842c9c5909006af",
-   "headline": "¿Por qué la ultraderecha baja en Suecia mientras avanza en Europa?",
-   "summary": "The Sweden Democrats experienced their first electoral decline in four decades as conservative parties adopted elements of their platform. This shift has brought the center-left coalition closer to an election victory.",
-   "why_it_matters": "Mainstream parties adopting far-right rhetoric is shifting political dynamics and election outcomes in Sweden.",
+   "id": "s69e47b3961b3ae5",
+   "headline": "Israeli NGO accuses government of pursuing 'elimination' project in West Bank",
+   "summary": "An Israeli NGO claims Israeli authorities are using violence, mobility restrictions, and economic pressure to undermine Palestinian life in the West Bank. Multiple sources report that these actions are part of a coordinated effort to erode Palestinian collective existence. Some outlets note that the strategy has intensified since the formation of Netanyahu's government in 2022.",
+   "why_it_matters": "The alleged 'elimination project' could have long-term consequences for Palestinian society and its ability to sustain itself in the occupied territories.",
    "key_facts": [
-    "The Sweden Democrats lost their position as the second-largest political force.",
-    "The Sweden Democrats suffered their first election drop since entering Parliament in 2010.",
-    "The Social Democrats recorded their worst electoral result in over a century.",
-    "The opposition bloc leads with 95% of the votes counted."
+    "Israeli NGO B’Tselem accuses the government of implementing a 'project of elimination' in the West Bank.",
+    "The strategy includes violence, mobility barriers, and economic hardship to undermine Palestinian life.",
+    "The approach has intensified since the formation of Netanyahu's government in 2022.",
+    "The NGO argues that these actions collectively aim to dismantle Palestinian collective existence."
    ],
    "topics": [
-    "politics",
-    "elections",
-    "sweden"
+    "human rights",
+    "israeli occupation",
+    "palestinian rights",
+    "west bank"
    ],
    "entities": [
-    "Suècia",
-    "Swedish",
-    "Sweden",
-    "Ulf Kristersson",
-    "Demòcrates de Suècia",
-    "Partit Socialdemòcrata",
-    "Riksdag",
-    "Demócratas Suecos"
+    "Una ONG",
+    "Gobierno de Netanyahu",
+    "Cisjordania",
+    "Tselem"
    ],
-   "importance": 0.88,
-   "relevance": 0.8,
-   "score": 5.054,
+   "importance": 0.8,
+   "relevance": 0.9,
+   "score": 4.817,
    "publishers": [
     "Al Jazeera",
-    "Ara",
-    "BBC World",
     "El País",
-    "Nació Digital",
-    "The Guardian World",
-    "VilaWeb"
-   ],
-   "publisher_count": 7,
-   "languages": [
-    "ca",
-    "en",
-    "es"
-   ],
-   "article_count": 8,
-   "first_published": "2026-09-14T00:11:39+00:00",
-   "last_published": "2026-09-15T05:00:26+00:00",
-   "articles": [
-    {
-     "id": "c42164872440e60e",
-     "title": "Per què l'extrema dreta és el partit que més cau a Suècia?",
-     "source": "Ara",
-     "publisher": "Ara",
-     "url": "https://www.ara.cat/internacional/europa/l-extrema-dreta-partit-mes-cau-suecia_1_5849672.html",
-     "language": "ca",
-     "published_at": "2026-09-15T05:00:26+00:00",
-     "author": "Núria Vila Masclans",
-     "summary": "Sweden's legislative elections resulted in no clear winner, but saw significant losses for key parties. The far-right Sweden Democrats lost ground for the first time since 2010, while the Social Democrats suffered their worst electoral outcome in over a century.",
-     "content_type": "analysis"
-    },
-    {
-     "id": "c478c4d5d286b538",
-     "title": "Sweden election is too close to call as far right loses ground",
-     "source": "Al Jazeera",
-     "publisher": "Al Jazeera",
-     "url": "https://www.aljazeera.com/news/2026/9/15/sweden-election-is-too-close-to-call-as-far-right-loses-ground?traffic_source=rss",
-     "language": "en",
-     "published_at": "2026-09-15T00:06:34+00:00",
-     "author": null,
-     "summary": "The opposition bloc holds a narrow lead in Sweden's tight general election as far-right parties lose support. Results remain unconfirmed with 95% of votes counted.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "0828990d4e61a5a5",
-     "title": "¿Por qué la ultraderecha baja en Suecia mientras avanza en Europa?",
-     "source": "El País Internacional",
-     "publisher": "El País",
-     "url": "https://elpais.com/internacional/2026-09-14/por-que-la-ultraderecha-baja-en-suecia-mientras-avanza-en-europa.html",
-     "language": "es",
-     "published_at": "2026-09-14T17:51:21+00:00",
-     "author": "Carlos Torralba",
-     "summary": "The Sweden Democrats experienced their first electoral decline in four decades as conservative parties adopted elements of their platform. This shift has brought the center-left coalition closer to an election victory.",
-     "content_type": "analysis"
-    },
-    {
-     "id": "086b0b1cf9858445",
-     "title": "The far right’s march to power in Sweden has been halted, but its influence remains",
-     "source": "The Guardian World",
-     "publisher": "The Guardian World",
-     "url": "https://www.theguardian.com/world/2026/sep/14/far-right-march-to-power-election-sweden-halted-influence-remains",
-     "language": "en",
-     "published_at": "2026-09-14T12:19:24+00:00",
-     "author": "Miranda Bryant Nordic correspondent",
-     "summary": "The Sweden Democrats slipped to third after decades of growth, but their hardline positions have already reshaped the political mainstream Swedish centre-left opposition widens lead to three seats with 95% of votes counted – live Since the party was founded in 1988, the story of…",
-     "content_type": null
-    },
-    {
-     "id": "f53ae9a9f6dd7e46",
-     "title": "Swedish centre-left opposition widens lead to three seats with 95% of votes counted – Europe live",
-     "source": "The Guardian World",
-     "publisher": "The Guardian World",
-     "url": "https://www.theguardian.com/world/live/2026/sep/14/sweden-election-magdalena-andersson-social-democrats-centre-left-latest-news-updates",
-     "language": "en",
-     "published_at": "2026-09-14T09:57:40+00:00",
-     "author": "Jakub Krupa in Stockholm",
-     "summary": "The parliament isn’t set to meet until late September to elect a new speaker, and then prime minister Perhaps we should all just channel the Swedish PM, Ulf Kristersson, who essentially said this morning he was “going to take it pretty easy” until the final results are in. He…",
-     "content_type": null
-    },
-    {
-     "id": "66a0fa7222606505",
-     "title": "Swedish left-wing bloc narrowly ahead with election too close to call",
-     "source": "BBC World",
-     "publisher": "BBC World",
-     "url": "https://www.bbc.co.uk/news/articles/c0qx5d79kdeo?at_medium=RSS&at_campaign=rss",
-     "language": "en",
-     "published_at": "2026-09-14T08:36:09+00:00",
-     "author": null,
-     "summary": "A preliminary count by Sweden's election authority projected that left-wing opposition bloc would win a three-seat majority.",
-     "content_type": null
-    },
-    {
-     "id": "c86cd3e4f65a24a0",
-     "title": "El centreesquerra guanya les eleccions a Suècia per la mínima gràcies al retrocés de l'extrema dreta",
-     "source": "Nació Digital",
-     "publisher": "Nació Digital",
-     "url": "https://naciodigital.cat/internacional/el-centreesquerra-guanya-les-eleccions-a-suecia-per-la-minima-gracies-al-retroces-de-lextrema-dreta.html",
-     "language": "ca",
-     "published_at": "2026-09-14T07:09:42+00:00",
-     "author": "Marc Orts i Cussó",
-     "summary": "Sweden's progressive bloc holds a narrow three-seat lead over conservatives following a decline in far-right support. The final election outcome depends on the upcoming count of overseas ballots.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "1cd211061d440b11",
-     "title": "L’esquerra sueca s’imposa a la dreta i l’extrema dreta, però per un sol escó",
-     "source": "VilaWeb",
-     "publisher": "VilaWeb",
-     "url": "https://www.vilaweb.cat/noticies/lesquerra-sueca-simposa-a-la-dreta-i-lextrema-dreta-pero-per-un-sol-esco/",
-     "language": "ca",
-     "published_at": "2026-09-14T00:11:39+00:00",
-     "author": null,
-     "summary": "Sweden's left-wing coalition holds a single-seat lead over the right and far-right parties following recent elections. Swedish electoral authorities will resume counting overseas votes on Wednesday to determine the final winner.",
-     "content_type": "reporting"
-    }
-   ]
-  },
-  {
-   "id": "s38b128a45726529",
-   "headline": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
-   "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
-   "why_it_matters": "Managing high influxes of migrants presents significant administrative and humanitarian challenges.",
-   "key_facts": [
-    "Government partners suspect blackmail due to opacity on Morocco.",
-    "Pedro Sánchez denied Pegasus spyware blackmail allegations.",
-    "Sánchez set a timeline to normalize Ceuta by the end of the year.",
-    "CNI reports point toward Morocco regarding Ceuta's migration crisis."
-   ],
-   "topics": [
-    "politics",
-    "diplomacy",
-    "migration",
-    "elections"
-   ],
-   "entities": [
-    "Pedro Sánchez",
-    "Morocco",
-    "Ceuta",
-    "Spain",
-    "Pegasus",
-    "Podemos",
-    "Irene Montero",
-    "Juan Jesús Vivas"
-   ],
-   "importance": 0.82,
-   "relevance": 0.8,
-   "score": 4.928,
-   "publishers": [
-    "20minutos",
-    "El País",
-    "Público",
+    "La Vanguardia",
     "RTVE",
     "eldiario.es"
    ],
    "publisher_count": 5,
    "languages": [
+    "en",
     "es"
    ],
-   "article_count": 8,
-   "first_published": "2026-09-14T08:01:02+00:00",
-   "last_published": "2026-09-15T03:00:00+00:00",
+   "article_count": 5,
+   "first_published": "2026-09-14T07:00:00+00:00",
+   "last_published": "2026-09-14T12:58:12+00:00",
    "articles": [
     {
-     "id": "d51f1890ee32db20",
-     "title": "La opacidad de Sánchez con Marruecos dispara entre sus socios las sospechas de \"chantaje\"",
-     "source": "20minutos",
-     "publisher": "20minutos",
-     "url": "https://www.20minutos.es/nacional/opacidad-sanchez-con-marruecos-dispara-entre-sus-socios-las-sospechas-chantaje_7036649_0.html",
-     "language": "es",
-     "published_at": "2026-09-15T03:00:00+00:00",
-     "author": "Alejandro Tobalina, Marta Moreno",
-     "summary": "Pedro Sánchez's opacity regarding Morocco has raised suspicions of blackmail among his political partners.",
-     "content_type": "reporting"
+     "id": "3191f5eec0226a23",
+     "title": "Israel working to eliminate Palestinian presence from West Bank, NGO warns",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/14/israel-working-to-eliminate-palestinian-presence-from-west-bank-ngo-warns?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-14T12:58:12+00:00",
+     "author": null,
+     "summary": "Israeli human rights group B’Tselem details five mechanisms used by Israel to dismantle Palestinian collective life.",
+     "content_type": null
     },
     {
-     "id": "213e79ae6857fcc6",
-     "title": "Sánchez rechaza las teorías sobre un chantaje de Marruecos: \"La realidad se tiene que construir en base a hechos y no a bulos\"",
-     "source": "Público",
-     "publisher": "Público",
-     "url": "https://www.publico.es/politica/gobierno/sanchez-rechaza-teorias-sobre-chantaje-marruecos-realidad-construir-base-hechos-bulos.html",
+     "id": "3b74f39fe464a55b",
+     "title": "Israel aplica un “proyecto de eliminación” de los palestinos, según la oenegé israelí Betselem",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/internacional/20260914/11634370/israel-aplica-proyecto-eliminacion-palestinos-oenege-israeli-betselem.html",
      "language": "es",
-     "published_at": "2026-09-14T22:26:22+00:00",
-     "author": "Miguel Muñoz",
-     "summary": "Spanish Prime Minister Pedro Sánchez dismissed claims that Morocco is blackmailing his government using Pegasus spyware, calling the rumors fake news. He set a target to restore normality in Ceuta by the end of the year.",
-     "content_type": "reporting"
+     "published_at": "2026-09-14T11:54:43+00:00",
+     "author": "Gina Tosas de Molina",
+     "summary": "Un informe señala que se está llevando a cabo un ataque sistemático y generalizado contra las condiciones necesarias para la vida de los palestinos en Cisjordania",
+     "content_type": null
     },
     {
-     "id": "3f200a291e9086c6",
-     "title": "Sánchez, sobre los informes del CNI que apuntan a Marruecos en la crisis migratoria de Ceuta: \"No hay datos sólidos que lo prueben\"",
-     "source": "20minutos",
-     "publisher": "20minutos",
-     "url": "https://www.20minutos.es/nacional/sanchez-sobre-los-informes-cni-que-apuntan-marruecos-crisis-ceuta-no-hay-informacion-solida-que-pruebe_7036700_0.html",
+     "id": "589e2fc206daa934",
+     "title": "'Proyecto eliminación': el plan de Israel para hacer la vida imposible a los palestinos de Cisjordania",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/internacional/proyecto-eliminacion-plan-israel-destruir-condiciones-vida-palestinos-cisjordania_1_13507353.html",
      "language": "es",
-     "published_at": "2026-09-14T21:46:17+00:00",
-     "author": "Alexandra Smith",
-     "summary": "Spanish Prime Minister Pedro Sánchez stated there is no solid data proving Morocco's involvement in Ceuta's migration crisis, but promised a firm response if evidence emerges.",
-     "content_type": "reporting"
+     "published_at": "2026-09-14T10:33:56+00:00",
+     "author": "Francesca Cicardi",
+     "summary": "La organización israelí B'Tselem denuncia en un nuevo informe el \"proyecto\" que busca desmantelar la sociedad palestina en los territorios ocupados, que se ha acelerado desde la formación en 2022 del Gobierno ultraderechista de Benjamín Netanyahu Tropas israelíes expulsan de sus casas a familias palestinas tras el asedio de colonos: “Un intento meticuloso de limpieza étnica” Desde ir al trabajo o a la escuela, recibir tratamiento médico u otros servicios, hasta visitar a familiares o amigos y tener una casa y un terreno para cultivar se han convertido en actividades complicadas y peligrosas para los más de 3 millones de palestinos que viven bajo la ocupación israelí en Cisjordania. Aunque esta realidad no es nueva, ha degenerado desde la formación del actual Gobierno a finales de 2022 y, especialmente, a partir del 7 de octubre de 2023 —cuando dio comienzo el genocidio en Gaza, a raíz del ataque del grupo Hamás de ese día—. La ONG israelí B'Tselem ha reunido en un amplio informe todas las violaciones que sufren los palestinos en su día a día, en el marco de los que califica de “ataque combinado” contra los individuos y contra toda la sociedad, con el objetivo de eliminar “las…",
+     "content_type": null
     },
     {
-     "id": "20e6056333c2ce20",
-     "title": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
+     "id": "b008a256d55810cf",
+     "title": "Israel lleva a cabo un \"proyecto de eliminación\" de la población palestina en Cisjordania, según la ONG israelí B'Tselem",
      "source": "RTVE Noticias",
      "publisher": "RTVE",
-     "url": "https://www.rtve.es/noticias/20260914/sanchez-situa-hasta-finales-ano-mando-unico-ceuta-para-situacion-pueda-quedar-estabilizada/17224839.shtml",
+     "url": "https://www.rtve.es/noticias/20260914/israel-proyecto-eliminacion-poblacion-palestina-cisjordania-btselem/17223645.shtml",
      "language": "es",
-     "published_at": "2026-09-14T20:30:52+00:00",
-     "author": "RTVE Noticias",
-     "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
-     "content_type": "reporting"
+     "published_at": "2026-09-14T10:01:59+00:00",
+     "author": "Ana Garralda",
+     "summary": "La violencia de soldados y colonos, los puestos de control, el cierre de escuelas o la apropiación de tierras suelen quedar registrados como episodios distintos de la ocupación israelí en Cisjordania. Pero, la ONG israelí B'Tselem sostiene que, leídos juntos, revelan un mismo engranaje: un \"proyecto de eliminación\" dirigido a deshacer las condiciones que permiten a los palestinos mantenerse como sociedad en Cisjordania y, en paralelo, a consolidar una presencia israelí continua y permanente. Es la conclusión de un informe de 249 páginas publicado este lunes por esta organización de derechos humanos. Titulado \"El proyecto de eliminación: el desmantelamiento sistemático israelí de la vida colectiva palestina en Cisjordania\" , se basa en cerca de 2.000 testimonios , trabajo de campo, documentos oficiales y datos de Naciones Unidas y otras ONG. El estudio incluye Jerusalén Este y analiza la vida de unos 3,5 millones de palestinos. El documento sitúa la aceleración de este proceso en la llegada al poder de la actual coalición, a finales de 2022, y en el 7 de octubre de 2023. Asimismo, B'Tselem califica los actos cometidos por Hamás y otras milicias de crímenes de guerra y probablemente…",
+     "content_type": null
     },
     {
-     "id": "6a5dce44bda0dc3d",
-     "title": "Pedro Sánchez: \"Nos hemos dado de aquí al final del año para arreglar la situación en Ceuta\"",
-     "source": "eldiario.es",
-     "publisher": "eldiario.es",
-     "url": "https://www.eldiario.es/politica/pedro-sanchez-hemos-dado-final-ano-arreglar-situacion-ceuta_1_13509833.html",
-     "language": "es",
-     "published_at": "2026-09-14T20:18:54+00:00",
-     "author": "José Enrique Monrosi",
-     "summary": "Prime Minister Pedro Sánchez expects to resolve the diplomatic and migrant crisis in Ceuta by the end of the year, dismissing claims of Moroccan Pegasus spyware blackmail as persistent rumors.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "9389c2d7c4ac0b18",
-     "title": "Sumar evita responder a las primarias que ofrece Podemos: \"Hay que buscar pactos\" pero \"la fórmula no nos preocupa\"",
-     "source": "eldiario.es",
-     "publisher": "eldiario.es",
-     "url": "https://www.eldiario.es/politica/sumar-evita-responder-primarias-ofrece-hay-buscar-pactos-formula-no-preocupa_1_13508417.html",
-     "language": "es",
-     "published_at": "2026-09-14T12:28:20+00:00",
-     "author": "Daniel Ríos",
-     "summary": "Movimiento Sumar leader Rosa Martínez welcomed Podemos' desire for a joint electoral list but avoided committing to Podemos' proposed open primary process.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "25583c6dc9253ed6",
-     "title": "Irene Montero: \"Con unas primarias a las que se pueda presentar todo el mundo tenemos más garantías de acertar\"",
-     "source": "Público",
-     "publisher": "Público",
-     "url": "https://www.publico.es/politica/irene-montero-primarias-pueda-presentar-mundo-tenemos-garantias-acertar.html",
-     "language": "es",
-     "published_at": "2026-09-14T10:01:50+00:00",
-     "author": "Inés García Rábade",
-     "summary": "Irene Montero, Podemos' candidate for the 2027 Spanish general election, has called for open primaries to build a unified left-wing ballot. She criticized the current government for failing to address housing speculation and price caps.",
-     "content_type": "reporting"
-    },
-    {
-     "id": "2ad4c45ff1e3f126",
-     "title": "Irene Montero defiende las primarias abiertas para “salir del bucle” de la izquierda y que la gente “tome la palabra”",
-     "source": "El País España",
+     "id": "2dd702b26d917062",
+     "title": "Una ONG israelí acusa al Gobierno de Netanyahu de tratar de “eliminar” las condiciones de vida en Cisjordania",
+     "source": "El País Internacional",
      "publisher": "El País",
-     "url": "https://elpais.com/espana/2026-09-14/irene-montero-defiende-las-primarias-abiertas-para-salir-del-bucle-de-la-izquierda-y-que-la-gente-tome-la-palabra.html",
+     "url": "https://elpais.com/internacional/2026-09-14/una-ong-israeli-denuncia-el-proyecto-de-eliminacion-en-cisjordania.html",
      "language": "es",
-     "published_at": "2026-09-14T08:01:02+00:00",
-     "author": "Paula Chouza Candeira",
-     "summary": "La eurodiputada, sobre un hipotético chantaje de Marruecos a Sánchez: “Parece bastante evidente que algo hay”",
+     "published_at": "2026-09-14T07:00:00+00:00",
+     "author": "Antonio Pita",
+     "summary": "B’Tselem culpa a las autoridades israelíes de combinar la violencia, las barreras a la movilidad y la asfixia económica para desmantelar “las condiciones necesarias para la existencia colectiva palestina” en el territorio ocupado",
      "content_type": null
     }
    ]

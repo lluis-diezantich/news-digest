@@ -1,0 +1,375 @@
+{
+ "id": "2026-W37",
+ "label": "7–14 September 2026",
+ "period_start": "2026-09-07T00:00:00+00:00",
+ "period_end": "2026-09-14T00:00:00+00:00",
+ "generated_at": "2026-09-15T11:03:02+00:00",
+ "story_count": 6,
+ "article_count": 9,
+ "title": "Weekly Digest",
+ "subtitle": "The week's main stories from your sources",
+ "output_language": "en",
+ "topics": [
+  "world",
+  "ai",
+  "politics"
+ ],
+ "publishers": [
+  {
+   "name": "BBC World",
+   "articles": 2
+  },
+  {
+   "name": "The Guardian World",
+   "articles": 1
+  },
+  {
+   "name": "VilaWeb",
+   "articles": 1
+  },
+  {
+   "name": "Nació Digital",
+   "articles": 1
+  },
+  {
+   "name": "The Verge",
+   "articles": 1
+  },
+  {
+   "name": "TechCrunch",
+   "articles": 1
+  },
+  {
+   "name": "RTVE",
+   "articles": 1
+  },
+  {
+   "name": "El País",
+   "articles": 1
+  }
+ ],
+ "languages": [
+  {
+   "code": "en",
+   "articles": 5
+  },
+  {
+   "code": "ca",
+   "articles": 2
+  },
+  {
+   "code": "es",
+   "articles": 2
+  }
+ ],
+ "stories": [
+  {
+   "id": "se7170b51b787c2c",
+   "headline": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+   "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [],
+   "entities": [
+    "Indonesian",
+    "Java Sea",
+    "Virgo Transport",
+    "Search",
+    "Java Sea Rescue",
+    "Indonesia",
+    "Java",
+    "Borneo"
+   ],
+   "importance": 0.5,
+   "relevance": 0.3,
+   "score": 2.699,
+   "publishers": [
+    "BBC World",
+    "The Guardian World"
+   ],
+   "publisher_count": 2,
+   "languages": [
+    "en"
+   ],
+   "article_count": 2,
+   "first_published": "2026-09-13T12:18:49+00:00",
+   "last_published": "2026-09-13T13:30:38+00:00",
+   "articles": [
+    {
+     "id": "021e83f3e97f6e47",
+     "title": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cvgykzgljlyo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T13:30:38+00:00",
+     "author": null,
+     "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
+     "content_type": null
+    },
+    {
+     "id": "323941e4965faec7",
+     "title": "At least six dead and 130 missing after Indonesian ferry capsizes, officials say",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/indonesian-rescue-crews-searching-for-140-people-after-ferry-hit-bad-weather",
+     "language": "en",
+     "published_at": "2026-09-13T12:18:49+00:00",
+     "author": "Jon Henley and agencies",
+     "summary": "Search and rescue agency says 107 people brought to safety from vessel hit by bad weather in Java Sea Rescue workers in Indonesia said at least six people had died and 130 others were missing on Sunday after a ferry sailing between the islands of Java and Borneo capsized in bad…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s4de554cff0038da",
+   "headline": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+   "summary": "Un dels aparells ha impactat a un quilòmetre de la frontera polonesa · Un tren de passatgers que feia el trajecte entre Kíiv i Varsòvia ha sofert danys materials",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Rússia",
+    "Ucraïna",
+    "Polònia",
+    "Kíiv",
+    "Varsòvia",
+    "Defensa"
+   ],
+   "importance": 0.38,
+   "relevance": 0.5,
+   "score": 2.46,
+   "publishers": [
+    "Nació Digital",
+    "VilaWeb"
+   ],
+   "publisher_count": 2,
+   "languages": [
+    "ca"
+   ],
+   "article_count": 2,
+   "first_published": "2026-09-13T13:47:48+00:00",
+   "last_published": "2026-09-13T13:51:25+00:00",
+   "articles": [
+    {
+     "id": "f577587187b1be57",
+     "title": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/russia-ataca-drons-frontera-ucraina-polonia/",
+     "language": "ca",
+     "published_at": "2026-09-13T13:51:25+00:00",
+     "author": null,
+     "summary": "Un dels aparells ha impactat a un quilòmetre de la frontera polonesa · Un tren de passatgers que feia el trajecte entre Kíiv i Varsòvia ha sofert danys materials",
+     "content_type": null
+    },
+    {
+     "id": "562b21cec9b973ee",
+     "title": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/internacional/russia-ataca-amb-drons-la-frontera-ducraina-amb-polonia.html",
+     "language": "ca",
+     "published_at": "2026-09-13T13:47:48+00:00",
+     "author": "Pau Espí Solé",
+     "summary": "Rússia ha atacat amb drons l’oest d’ Ucraïna , a prop de la frontera amb Polònia , segons han denunciat les autoritats dels dos països. Un tren de passatgers que cobria el trajecte entre Kíiv i Varsòvia ha patit danys, tot i que no s’han registrat víctimes mortals .",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s7de77a58af1cd20",
+   "headline": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
+   "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "ai"
+   ],
+   "entities": [
+    "Sam Altman",
+    "OpenAI",
+    "OpenAI CEO Sam Altman",
+    "OpenAI IPO",
+    "Fortune",
+    "Altman",
+    "While OpenAI",
+    "IPO"
+   ],
+   "importance": 0.38,
+   "relevance": 0.3,
+   "score": 2.431,
+   "publishers": [
+    "TechCrunch",
+    "The Verge"
+   ],
+   "publisher_count": 2,
+   "languages": [
+    "en"
+   ],
+   "article_count": 2,
+   "first_published": "2026-09-12T20:19:16+00:00",
+   "last_published": "2026-09-12T21:16:28+00:00",
+   "articles": [
+    {
+     "id": "8aaadb08e36c69c4",
+     "title": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
+     "source": "The Verge",
+     "publisher": "The Verge",
+     "url": "https://www.theverge.com/ai-artificial-intelligence/994384/sam-altman-no-openai-ipo-ill-advised",
+     "language": "en",
+     "published_at": "2026-09-12T21:16:28+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
+     "content_type": null
+    },
+    {
+     "id": "22407f1a50da6d6a",
+     "title": "OpenAI’s Sam Altman says it would be ‘ill-advised’ to go public in 2026",
+     "source": "TechCrunch",
+     "publisher": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
+     "language": "en",
+     "published_at": "2026-09-12T20:19:16+00:00",
+     "author": "Anthony Ha",
+     "summary": "While OpenAI has filed confidentially for an IPO, the company will not be going public this year, according to CEO Sam Altman.",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s71d1d1e309fdd30",
+   "headline": "Zverev domina al local Shelton para lograr el US Open y afianza la temporada con sus dos primeros Grand Slam",
+   "summary": "El tenista alemán Alexander Zverev completa su año de consagración como un 'grande' del tenis y conquista su primer US Open al derrotar en la final al estadounidense Ben Shelton en cuatro sets por 6-3, 7-6(2), 5-7 y 6-2, en tres horas y 33 minutos. ' Sascha ' llevaba años…",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Zverev",
+    "Shelton",
+    "US Open",
+    "Grand Slam",
+    "Alexander Zverev",
+    "Ben Shelton"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 1.979,
+   "publishers": [
+    "RTVE"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T22:57:17+00:00",
+   "last_published": "2026-09-13T22:57:17+00:00",
+   "articles": [
+    {
+     "id": "71d1d1e309fdd30d",
+     "title": "Zverev domina al local Shelton para lograr el US Open y afianza la temporada con sus dos primeros Grand Slam",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/deportes/20260914/us-open-final-zverev-shelton-resultado-cronica/17223371.shtml",
+     "language": "es",
+     "published_at": "2026-09-13T22:57:17+00:00",
+     "author": "RTVE.es / AGENCIAS",
+     "summary": "El tenista alemán Alexander Zverev completa su año de consagración como un 'grande' del tenis y conquista su primer US Open al derrotar en la final al estadounidense Ben Shelton en cuatro sets por 6-3, 7-6(2), 5-7 y 6-2, en tres horas y 33 minutos. ' Sascha ' llevaba años…",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s6ff8d70bb4bfc03",
+   "headline": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
+   "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "politics"
+   ],
+   "entities": [
+    "Los",
+    "Suecia",
+    "Las"
+   ],
+   "importance": 0.35,
+   "relevance": 0.3,
+   "score": 1.971,
+   "publishers": [
+    "El País"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "es"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T19:17:05+00:00",
+   "last_published": "2026-09-13T19:17:05+00:00",
+   "articles": [
+    {
+     "id": "6ff8d70bb4bfc037",
+     "title": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/los-socialdemocratas-ganan-las-elecciones-en-suecia-segun-los-sondeos-a-pie-de-urna.html",
+     "language": "es",
+     "published_at": "2026-09-13T19:17:05+00:00",
+     "author": "Carlos Torralba",
+     "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s2db488239574dc2",
+   "headline": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+   "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+   "why_it_matters": "",
+   "key_facts": [],
+   "topics": [
+    "world"
+   ],
+   "entities": [
+    "Russia",
+    "Ukrainian",
+    "Boris Johnson",
+    "European",
+    "UK PM",
+    "Putin"
+   ],
+   "importance": 0.35,
+   "relevance": 0.5,
+   "score": 1.971,
+   "publishers": [
+    "BBC World"
+   ],
+   "publisher_count": 1,
+   "languages": [
+    "en"
+   ],
+   "article_count": 1,
+   "first_published": "2026-09-13T19:14:21+00:00",
+   "last_published": "2026-09-13T19:14:21+00:00",
+   "articles": [
+    {
+     "id": "2db488239574dc25",
+     "title": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cy5zg41dkqwo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T19:14:21+00:00",
+     "author": null,
+     "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+     "content_type": null
+    }
+   ]
+  }
+ ]
+}

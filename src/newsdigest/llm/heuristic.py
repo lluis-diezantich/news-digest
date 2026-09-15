@@ -17,6 +17,7 @@ from functools import lru_cache
 
 from ..text import capitalized_phrases, normalize, sentences, truncate
 from .base import (
+    TOPICS,
     Brief,
     BriefInput,
     Context,
@@ -26,8 +27,10 @@ from .base import (
     PairInput,
 )
 
-# Cheap multilingual topic classification. Keywords are given in all three
-# supported languages so a Catalan article is not simply untagged.
+# Cheap multilingual topic classification over the shared vocabulary in
+# `base.TOPICS`, so the offline path and the LLM path tag alike. Keywords are
+# given in all three supported languages so a Catalan article is not simply
+# untagged.
 TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
     "ai": ("ai", "artificial intelligence", "llm", "openai", "anthropic", "chatbot",
            "inteligencia artificial", "intel·ligència artificial", "ia"),
@@ -57,6 +60,10 @@ TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
     "culture": ("film", "album", "novel", "museum", "festival", "artist",
                 "película", "novela", "museo", "artista", "pel·lícula", "novel·la"),
 }
+
+# The two must not drift: `clamp` drops any topic outside TOPICS, so a keyword
+# group named off-vocabulary would classify articles into nothing.
+assert set(TOPIC_KEYWORDS) == set(TOPICS), sorted(set(TOPIC_KEYWORDS) ^ set(TOPICS))
 
 HIGH_SIGNAL = (
     "killed", "dead", "war", "ceasefire", "invasion", "earthquake", "collapse",
@@ -141,7 +148,10 @@ class HeuristicProvider(LLMProvider):
             summary=summary,
             why_it_matters="",
             key_facts=[],
-            topics=topics or ["general"],
+            # No "general" fallback: it is not a topic, and as a tag it ranked
+            # second across the whole archive while telling the reader nothing.
+            # An untagged article inherits its feed's topics in `clustering.py`.
+            topics=topics,
             entities=capitalized_phrases(text, limit=6),
             importance=importance,
             relevance=relevance,

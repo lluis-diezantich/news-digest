@@ -77,15 +77,51 @@ headlines gave 99.5%; the wrapper's length and confidence guards account for the
 rest. `lingua` was tried and rejected — 99.0% at 307 MB against py3langid's
 4.6 MB.
 
-The story-level output names every language and outlet covering an event:
+One story gathers every outlet covering the event, each link marked with the
+language it opens in:
 
 ```
-EU announces new sanctions against Russia          [EN] [ES] [CA]  3 outlets
+EU announces new sanctions against Russia                          3 outlets
 
   EN  BBC World      EU announces new sanctions against Russia
   ES  El País        La UE anuncia nuevas sanciones contra Rusia
   CA  Ara            La UE anuncia noves sancions contra Rússia
 ```
+
+The per-link marker is the only language the page shows. A story-level
+`[EN] [ES] [CA]` badge row and a per-digest `EN 12 · ES 30 · CA 8` tally were both
+removed: which languages a story happened to be covered in is an artefact of the
+source list, not something the reader is choosing between. On a link it is
+different — it says what you get if you click.
+
+## Tags
+
+Tags come from four places, in this order: a feed's own `<category>` terms plus
+the `topics:` you set on that source in `config/sources.yaml`; the LLM, per
+article; the offline provider's keyword matcher when no LLM is configured; and
+`clustering.py`, which counts what a cluster's articles were tagged with and
+keeps the top four. A multi-source brief then overwrites the story's tags with
+its own.
+
+The vocabulary is **closed** — the ten topics in `llm/base.TOPICS`. Both prompts
+list them and forbid anything else, `normalize_topics` folds known synonyms and
+drops whatever is left, and `Enrichment.clamp` / `Brief.clamp` put every path
+through it. The offline matcher keys on exactly the same ten, asserted at import
+so the two cannot drift.
+
+It is closed because it was once open — "2-4 broad lowercase topics" with no
+list. Over one archive that produced 48 distinct tags for 95 stories: `ai`
+beside `artificial intelligence`, `politics` beside `spanish politics` and
+`us politics`, `world` beside `geopolitics`, `diplomacy` and `international
+relations`, and 27 tags used exactly once, most of them place names that were
+already in `entities`. Folded onto the vocabulary the same archive is 10 tags.
+The chips are a filter, and a filter whose values are mostly unique is not one.
+
+Dropping an unrecognized tag is deliberate: it is either a synonym of a tag that
+already exists, splitting one filter in two, or an entity wearing a topic's
+clothes. A story left with nothing falls back to its feed-declared topics. There
+is no `general` — it was the second most common tag in that archive and told the
+reader nothing.
 
 ## Known limits
 
@@ -104,3 +140,6 @@ EU announces new sanctions against Russia          [EN] [ES] [CA]  3 outlets
   can satisfy it alone.
 - The scrape adapter depends on per-site CSS selectors and will break when a site
   redesigns. `news-digest sources --check` tells you which.
+- Tags already written to `data/news.db` keep whatever vocabulary was in force
+  when they were written; the closed vocabulary applies to new runs. A story
+  whose only tag was `general` shows none until it is re-enriched.

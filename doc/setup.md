@@ -1,18 +1,47 @@
 # Setup
 
-## Locally, in five minutes
+## Locally, with no API key
+
+The recommended setup: real embeddings and a real model, nothing hosted.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
+pip install -e '.[dev,local]'
 
+brew install ollama                    # or the installer from ollama.com
+ollama serve &
+ollama pull qwen3:8b
+```
+
+`.env`:
+
+```bash
+EMBEDDING_PROVIDER=local
+EMBEDDING_SIMILARITY_THRESHOLD=0.70    # model-specific, see providers.md
+EMBEDDING_AMBIGUOUS_THRESHOLD=0.60
+LLM_PROVIDER=ollama
+LLM_MODEL=qwen3:8b
+```
+
+```bash
 news-digest collect
-news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)
+news-digest digest --week $(date -u +%G-W%V)
 make serve            # then open http://localhost:8000
 ```
 
-That is the whole pipeline with no API key and no model — degraded, but end to
-end. See [providers.md](providers.md) for the three ways to make it good.
+Pin the embedding cache too, or it lands in `$TMPDIR` and macOS eventually clears
+it — which quietly turns the next run into a 220 MB download:
+
+```bash
+FASTEMBED_CACHE_PATH=$HOME/.cache/fastembed
+```
+
+Collection needs a connection; nothing after it does. See
+[providers.md](providers.md) for what each provider costs and what it is good at.
+
+To see the pipeline work before installing anything, `pip install -e '.[dev]'` and
+`news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)` runs end to
+end on built-in heuristics — meaningfully worse, and measured as such.
 
 > **Serve it over http, not `file://`.** The page fetches `index.json` at
 > runtime and browsers block `fetch()` from file origins, so `open

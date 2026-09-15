@@ -19,7 +19,11 @@ embeddings via ONNX, a local LLM via Ollama. See [Providers](doc/providers.md).
 
 ---
 
-## Try it in five minutes
+## Try it locally
+
+### Version 1 - no LLM, no embeddings
+
+Just want to see it work, without installing a model?
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
@@ -27,11 +31,57 @@ pip install -e '.[dev]'
 
 news-digest collect
 news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)
-make serve            # then open http://localhost:8000
+make serve
+
+# then open http://localhost:8000
 ```
 
-No API key, no model — degraded but end to end. [Setup](doc/setup.md) explains
-what to do next, and why that command needs `--week`.
+End to end in a couple of minutes, but meaningfully worse: coverage of one event
+in different languages stays split into separate stories, and `importance` is
+close to a constant. [Providers](doc/providers.md) has the measurements.
+
+
+### Version 2 - Full version with LLM and embeddings
+
+Real embeddings and a real model, nothing hosted. This is the recommended setup.
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e '.[dev,local]'          # local embeddings, ONNX
+
+brew install ollama                    # or the installer from ollama.com
+ollama serve &                         # background server on :11434
+ollama pull qwen3:8b                   # ~5 GB, once
+```
+
+Then create `.env`:
+
+```bash
+EMBEDDING_PROVIDER=local
+EMBEDDING_SIMILARITY_THRESHOLD=0.70    # model-specific; see doc/providers.md
+EMBEDDING_AMBIGUOUS_THRESHOLD=0.60
+LLM_PROVIDER=ollama
+LLM_MODEL=qwen3:8b
+```
+
+and run it:
+
+```bash
+news-digest collect
+news-digest digest --week $(date -u +%G-W%V)
+make serve                             # then open http://localhost:8000
+```
+
+Collection needs a connection — it is fetching news. Everything after it runs on
+your machine: no key, no quota, no rate limit, nothing that can be withdrawn from
+under you. Weights download once (~220 MB for embeddings, ~5 GB for the model),
+so the first run is not five minutes; later ones are.
+
+With 16 GB or more, a 12–14B model is a clear upgrade for the `importance`
+judgements — set `LLM_MODEL` and pull it instead.
+
+[Setup](doc/setup.md) explains why that command needs `--week`, and how to deploy
+to GitHub.
 
 ---
 

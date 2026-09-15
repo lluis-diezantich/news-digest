@@ -10,7 +10,8 @@ from conftest import PER_DAY_429, PER_MINUTE_429
 from newsdigest.config import LLMSettings, Preferences, Settings
 from newsdigest.llm import build_context, get_provider
 from newsdigest.llm.base import (
-    BriefInput, Context, EnrichInput, LLMError, LLMQuotaError, PairInput, language_name,
+    TOPICS, Brief, BriefInput, Context, EnrichInput, Enrichment, LLMError, LLMQuotaError,
+    PairInput, enrich_system_prompt, language_name, normalize_topics,
 )
 from newsdigest.llm.gemini import GeminiProvider
 from newsdigest.llm.heuristic import HeuristicProvider
@@ -332,6 +333,55 @@ class TestHeuristic:
         provider = HeuristicProvider()
         assert provider.write_brief(BriefInput("s", ["a"], ["A"], ["en"], ["x"]), context) is None
         assert provider.same_event([], context) == {}
+
+
+class TestTopicVocabulary:
+    """The tag vocabulary is closed. These are the drifts seen in real output."""
+
+    def test_keeps_canonical_topics(self):
+        assert normalize_topics(["politics", "ai"]) == ["politics", "ai"]
+
+    def test_folds_synonyms_onto_one_tag(self):
+        """`ai` and `artificial intelligence` were two chips for one topic."""
+        assert normalize_topics(["artificial intelligence"]) == ["ai"]
+        assert normalize_topics(["economy"]) == ["economics"]
+        assert normalize_topics(["elections"]) == ["politics"]
+        assert normalize_topics(["geopolitics"]) == ["world"]
+        assert normalize_topics(["football"]) == ["sports"]
+
+    def test_folds_qualified_variants(self):
+        """"spanish politics" and "us politics" split the politics filter."""
+        assert normalize_topics(["spanish politics", "us politics"]) == ["politics"]
+
+    def test_drops_place_names(self):
+        """A country is an entity, not a topic -- it has its own field."""
+        assert normalize_topics(["sweden", "west bank", "catalonia"]) == []
+
+    def test_drops_the_offline_placeholder(self):
+        """`general` was the second most common tag and means nothing."""
+        assert normalize_topics(["general"]) == []
+
+    def test_is_accent_and_case_insensitive(self):
+        assert normalize_topics(["Economía", " AI "]) == ["economics", "ai"]
+
+    def test_deduplicates_after_folding(self):
+        assert normalize_topics(["ai", "artificial intelligence", "llm"]) == ["ai"]
+
+    def test_caps_the_count(self):
+        assert len(normalize_topics(list(TOPICS))) == 4
+
+    def test_enrichment_clamp_enforces_the_vocabulary(self):
+        e = Enrichment(id="a", summary="s", topics=["Politics", "Sweden", "elections"])
+        assert e.clamp().topics == ["politics"]
+
+    def test_brief_clamp_enforces_the_vocabulary(self):
+        b = Brief(headline="h", summary="s", topics=["technology regulation", "usa"])
+        assert b.clamp().topics == ["technology"]
+
+    def test_prompt_lists_the_allowed_topics(self):
+        """A closed vocabulary the model is never shown is only half enforced."""
+        prompt = enrich_system_prompt(Context(interests=["ai"]))
+        assert ", ".join(TOPICS) in prompt
 
 
 class TestRegistryAndContext:

@@ -25,7 +25,14 @@ from collections import Counter
 import numpy as np
 
 from .embeddings.base import cosine_matrix
-from .llm.base import Context, LLMError, LLMProvider, PairInput
+from .llm.base import (
+    MAX_TOPICS,
+    Context,
+    LLMError,
+    LLMProvider,
+    PairInput,
+    normalize_topics,
+)
 from .models import Article, Story, utcnow
 from .text import article_similarity, truncate
 
@@ -248,7 +255,7 @@ def build_story(articles: list[Article]) -> Story:
     entity_counts: Counter[str] = Counter()
     facts: list[str] = []
     for article in articles:
-        topic_counts.update(article.topics or article.source_topics)
+        topic_counts.update(normalize_topics(article.topics or article.source_topics))
         entity_counts.update(article.entities)
         for fact in article.key_facts:
             if fact not in facts:
@@ -263,7 +270,7 @@ def build_story(articles: list[Article]) -> Story:
         summary=lead.best_summary(),
         why_it_matters=lead.why_it_matters or "",
         key_facts=facts[:4],
-        topics=[t for t, _ in topic_counts.most_common(4)],
+        topics=[t for t, _ in topic_counts.most_common(MAX_TOPICS)],
         entities=[e for e, _ in entity_counts.most_common(10)],
         # A story is as important as its most important article, nudged up when
         # several publishers independently thought it worth covering.

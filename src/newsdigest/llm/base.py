@@ -13,8 +13,103 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
+from ..text import normalize
+
 #: Article kinds the model may return.
 CONTENT_TYPES = ("reporting", "analysis", "opinion", "other")
+
+#: The controlled tag vocabulary. Asked for in the prompts and enforced on the
+#: way back in, because "2-4 broad lowercase topics" with no list produced a
+#: long tail nobody can filter by: `ai` alongside `artificial intelligence`,
+#: `politics` alongside `spanish politics` and `us politics`, and 27 tags used
+#: exactly once, most of them place names that belong in `entities`.
+#:
+#: Deliberately short and flat. These are filter chips on one page, not a
+#: taxonomy -- a vocabulary large enough to be precise is too large to be a
+#: useful filter. It is also the offline provider's contract (`heuristic.py`
+#: keyword-matches exactly these), so both paths tag alike.
+TOPICS = (
+    "ai",
+    "technology",
+    "science",
+    "health",
+    "climate",
+    "economics",
+    "politics",
+    "world",
+    "sports",
+    "culture",
+)
+_TOPIC_SET = frozenset(TOPICS)
+
+#: Off-vocabulary labels worth keeping rather than dropping. Every entry here
+#: was actually emitted by a model or declared by a feed. Anything absent is
+#: dropped by `normalize_topics` -- including country and city names, and the
+#: offline provider's old `general` placeholder.
+TOPIC_ALIASES = {
+    "artificial intelligence": "ai", "machine learning": "ai", "llm": "ai",
+    "generative ai": "ai", "ia": "ai", "intelligencia artificial": "ai",
+    "tech": "technology", "technology regulation": "technology",
+    "software": "technology", "internet": "technology", "cyber": "technology",
+    "cybersecurity": "technology", "semiconductors": "technology",
+    "telecoms": "technology", "tecnologia": "technology",
+    "research": "science", "space": "science", "physics": "science",
+    "biology": "science", "ciencia": "science", "recerca": "science",
+    "healthcare": "health", "medicine": "health", "public health": "health",
+    "salud": "health", "salut": "health",
+    "environment": "climate", "energy": "climate", "weather": "climate",
+    "disaster": "climate", "natural disaster": "climate", "clima": "climate",
+    "economy": "economics", "business": "economics", "trade": "economics",
+    "markets": "economics", "finance": "economics", "inflation": "economics",
+    "labour": "economics", "labor": "economics", "housing": "economics",
+    "economia": "economics",
+    "election": "politics", "elections": "politics", "polling": "politics",
+    "voting rights": "politics", "us politics": "politics",
+    "uk politics": "politics", "spanish politics": "politics",
+    "catalan politics": "politics", "government": "politics",
+    "judiciary": "politics", "law": "politics", "courts": "politics",
+    "corruption": "politics", "constitutional reform": "politics",
+    "self-determination": "politics", "political alliance": "politics",
+    "referendum": "politics", "parliament": "politics", "policy": "politics",
+    "geopolitics": "world", "diplomacy": "world", "international": "world",
+    "international relations": "world", "international affairs": "world",
+    "foreign policy": "world", "migration": "world", "immigration": "world",
+    "human rights": "world", "war": "world", "conflict": "world",
+    "military": "world", "defence": "world", "defense": "world",
+    "security": "world", "terrorism": "world", "europe": "world",
+    "football": "sports", "soccer": "sports", "tennis": "sports",
+    "cycling": "sports", "basketball": "sports", "olympics": "sports",
+    "motorsport": "sports", "formula 1": "sports", "futbol": "sports",
+    "art": "culture", "arts": "culture", "film": "culture", "cinema": "culture",
+    "music": "culture", "literature": "culture", "media": "culture",
+    "entertainment": "culture", "cultura": "culture",
+}
+
+#: Tags per article or story. Four is what the prompts ask for and what the
+#: story card has room for.
+MAX_TOPICS = 4
+
+
+def normalize_topics(values: list[str] | None, limit: int = MAX_TOPICS) -> list[str]:
+    """Map free-text labels onto `TOPICS`, dropping anything unrecognized.
+
+    The dropping is the point: an unmapped label is either a synonym of one
+    already here (splitting a filter in two) or an entity masquerading as a
+    topic. Both are worse than no tag -- a story with no usable tag still falls
+    back to its feed-declared topics in `clustering.py`.
+
+    Runs through `text.normalize`, so an accented `economia` and a stray
+    `Economics ` both land on the same key.
+    """
+    out: list[str] = []
+    for value in values or []:
+        key = normalize(str(value))
+        if not key:
+            continue
+        topic = key if key in _TOPIC_SET else TOPIC_ALIASES.get(key)
+        if topic and topic not in out:
+            out.append(topic)
+    return out[:limit]
 
 LANGUAGE_NAMES = {
     "en": "English",
@@ -84,7 +179,7 @@ class Enrichment:
     def clamp(self) -> "Enrichment":
         self.importance = min(1.0, max(0.0, float(self.importance or 0.0)))
         self.relevance = min(1.0, max(0.0, float(self.relevance or 0.0)))
-        self.topics = [t.strip().lower() for t in self.topics if str(t).strip()][:6]
+        self.topics = normalize_topics(self.topics)
         self.entities = [e.strip() for e in self.entities if str(e).strip()][:10]
         self.key_facts = [f.strip() for f in self.key_facts if str(f).strip()][:5]
         kind = (self.content_type or "").strip().lower()
@@ -112,6 +207,11 @@ class Brief:
     topics: list[str] = field(default_factory=list)
     importance: float | None = None
     relevance: float | None = None
+
+    def clamp(self) -> "Brief":
+        """A brief's topics overwrite the whole story's, so they matter most."""
+        self.topics = normalize_topics(self.topics)
+        return self
 
 
 @dataclass
@@ -163,6 +263,7 @@ class LLMProvider(ABC):
 def enrich_system_prompt(context: Context) -> str:
     interests = ", ".join(context.interests) or "general news"
     excluded = ", ".join(context.excluded_topics) or "none"
+    topic_list = ", ".join(TOPICS)
     return f"""\
 You are a news desk editor building one reader's personal weekly digest.
 
@@ -181,7 +282,11 @@ Return for every article:
   the excerpt does not support one.
 - key_facts: up to 3 short factual statements the excerpt actually contains
   (numbers, dates, names, decisions). No inference.
-- topics: 2-4 broad lowercase topics.
+- topics: 1-3 chosen ONLY from this exact list, copied exactly:
+  {topic_list}
+  Use no other word, invent nothing, and do not qualify them ("politics", never
+  "spanish politics"). A country, city or organization is never a topic -- it is
+  an entity. Return an empty list rather than a topic that is not on the list.
 - entities: the people, organizations, places and products the article is about.
   Canonical names, at most 6. Keep names in their original form.
 - importance: 0.0-1.0, how consequential to a general audience. 0.9+ major world
@@ -197,6 +302,7 @@ Return one object per input article, keeping the given id. No commentary."""
 
 
 def brief_system_prompt(context: Context) -> str:
+    topic_list = ", ".join(TOPICS)
     return f"""\
 Several outlets covered one event, possibly in different languages. Write the
 single digest entry for it, in {language_name(context.output_language)}.
@@ -207,7 +313,9 @@ single digest entry for it, in {language_name(context.output_language)}.
   conflict on a material fact, say so plainly rather than picking a side.
 - why_it_matters: one sentence on the consequence.
 - key_facts: up to 4 short factual statements supported by the excerpts.
-- topics: 2-4 broad lowercase topics.
+- topics: 1-3 chosen ONLY from this exact list, copied exactly:
+  {topic_list}
+  No other word, no qualifiers, no place names. Empty list if none fit.
 - importance: 0.0-1.0 for a general audience.
 - relevance: 0.0-1.0 for a reader interested in {', '.join(context.interests) or 'general news'}.
 
