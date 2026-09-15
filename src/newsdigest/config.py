@@ -97,6 +97,14 @@ class Settings:
     output_language: str = "en"
 
 
+#: Publisher count at which corroboration tops out. 13, not 4: over one measured
+#: week the multi-publisher stories ran 2,3,4,5,6,10,11,13 publishers, and a base
+#: of 4 put 13 of those 20 stories at exactly 1.000 -- a four-outlet soft story
+#: scoring identically to a thirteen-outlet lead. Saturating at the observed
+#: maximum spreads the term across the range that actually occurs.
+DEFAULT_CORROBORATION_SATURATION = 13.0
+
+
 @dataclass
 class Preferences:
     topics: dict[str, float] = field(default_factory=dict)
@@ -120,6 +128,10 @@ class Preferences:
     excluded_penalty: float = 1.5
     preferred_source_bonus: float = 0.5
     recency_half_life_hours: float = 72.0
+    #: Publisher count at which `corroboration` reaches 1.0. Set it to the widest
+    #: coverage your source list actually produces, or the term saturates below
+    #: the range your stories live in and stops discriminating.
+    corroboration_saturation: float = DEFAULT_CORROBORATION_SATURATION
 
 
 @dataclass
@@ -363,6 +375,12 @@ def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
         excluded_penalty=float(raw_ranking.get("excluded_penalty", 1.5)),
         preferred_source_bonus=float(raw_ranking.get("preferred_source_bonus", 0.5)),
         recency_half_life_hours=float(raw_ranking.get("recency_half_life_hours", 72.0)),
+        corroboration_saturation=max(
+            2.0,
+            float(raw_ranking.get(
+                "corroboration_saturation", DEFAULT_CORROBORATION_SATURATION
+            )),
+        ),
     )
 
     week_ends_on = int(raw_digest.get("week_ends_on", 6))

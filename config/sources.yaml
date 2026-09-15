@@ -39,6 +39,17 @@ exclude_url_patterns:
   - /loterias?/          # lottery results
   - /horoscopo?/         # horoscopes
   - /el-tiempo/          # weather service pages
+  # TV and film sections. Added 2026-09-15 after an Emmy awards report ranked
+  # 10th of 15: awards coverage maxes every signal the formula has (every outlet
+  # runs it, on the front page, the same morning) while being industry trivia,
+  # and asking the LLM to score it low did not work -- told an awards ceremony was
+  # "at most 0.4", qwen3:8b still returned 0.80.
+  # Partial by nature: this catches RAC1's /televisio/ and Ara's /media/series/,
+  # but VilaWeb files everything under /noticies/ and RTVE under /noticias/, so
+  # those copies still arrive. Dropping two of four articles is usually enough --
+  # it puts the story under `min_articles`.
+  - /televisi[oó]n?/     # ca "televisio", es "television"
+  - /media/              # Ara's TV and film section
   # Sports. Measured on 909 collected articles: these three section names cover
   # 45 of them across all three languages -- /deportes/ (es), /esports/ (ca),
   # /sports/ (en) -- and every sub-section (tenis, futbol, ciclisme) sits under

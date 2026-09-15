@@ -59,6 +59,11 @@ TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
                "barça", "madrid"),
     "culture": ("film", "album", "novel", "museum", "festival", "artist",
                 "película", "novela", "museo", "artista", "pel·lícula", "novel·la"),
+    # Narrow on purpose. Broad words like "actor" or "singer" would pull in the
+    # arts coverage `culture` is for -- an Emmy report names actors throughout.
+    "celebrity": ("celebrity", "celebrities", "gossip", "paparazzi", "influencer",
+                  "red carpet", "famoso", "famosos", "famosa", "famosas",
+                  "prensa del corazón", "celebritats", "famós", "tafaneries"),
 }
 
 # The two must not drift: `clamp` drops any topic outside TOPICS, so a keyword

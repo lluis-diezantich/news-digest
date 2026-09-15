@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 from datetime import datetime
 
-from .config import Preferences
+from .config import DEFAULT_CORROBORATION_SATURATION, Preferences
 from .models import Article, Story, hours_since, utcnow
 from .text import normalize
 
@@ -64,15 +64,22 @@ def recency(
     return math.exp(-math.log(2) * hours_since(newest, now=now or utcnow()) / half_life)
 
 
-def corroboration(articles: list[Article]) -> float:
+def corroboration(
+    articles: list[Article], saturation: float = DEFAULT_CORROBORATION_SATURATION
+) -> float:
     """Saturating bonus for multi-publisher coverage, in [0, 1].
 
     Counts publishers, not feeds. Seven El País section feeds covering one story
     are one outlet's view of it, and treating them as seven would let a single
     publisher dominate the digest.
+
+    `saturation` is where the curve reaches 1.0, and it has to sit at the top of
+    the range your sources produce rather than below it: at the old value of 4,
+    every story with four or more outlets scored exactly 1.000, so the term said
+    nothing about the stories competing for the digest's slots.
     """
     distinct = len({a.publisher for a in articles})
-    return 0.0 if distinct <= 1 else min(1.0, math.log(distinct, 4))
+    return 0.0 if distinct <= 1 else min(1.0, math.log(distinct, max(2.0, saturation)))
 
 
 def story_size(articles: list[Article]) -> float:
@@ -140,7 +147,7 @@ def signals(
         "relevance": story.relevance,
         "interest": interest(story, prefs),
         "recency": recency(story, articles, prefs, now=now),
-        "corroboration": corroboration(articles),
+        "corroboration": corroboration(articles, prefs.corroboration_saturation),
         "editorial_position": editorial_position(articles),
         "source_preference": source_preference(articles, prefs),
         "story_size": story_size(articles),

@@ -39,6 +39,12 @@ TOPICS = (
     "world",
     "sports",
     "culture",
+    # Present so `excluded_topics: [celebrity]` has something to match. Closing
+    # the vocabulary silently disarmed that: a topic that can never be emitted
+    # can never be excluded, leaving only the weak headline-substring half --
+    # and "celebrity" appears in no celebrity headline. Kept distinct from
+    # `culture` on purpose, so excluding gossip does not exclude the arts.
+    "celebrity",
 )
 _TOPIC_SET = frozenset(TOPICS)
 
@@ -83,6 +89,8 @@ TOPIC_ALIASES = {
     "art": "culture", "arts": "culture", "film": "culture", "cinema": "culture",
     "music": "culture", "literature": "culture", "media": "culture",
     "entertainment": "culture", "cultura": "culture",
+    "gossip": "celebrity", "celebrities": "celebrity", "showbiz": "celebrity",
+    "famosos": "celebrity", "corazon": "celebrity",
 }
 
 #: Tags per article or story. Four is what the prompts ask for and what the
@@ -316,7 +324,13 @@ single digest entry for it, in {language_name(context.output_language)}.
 - topics: 1-3 chosen ONLY from this exact list, copied exactly:
   {topic_list}
   No other word, no qualifiers, no place names. Empty list if none fit.
-- importance: 0.0-1.0 for a general audience.
+- importance: 0.0-1.0, how consequential to a general audience. 0.9+ a major world
+  event, 0.6 significant national or industry news, 0.3 routine, 0.1 trivia. Be
+  sparing with high scores. Wide coverage is NOT importance -- you are being shown
+  a story precisely because several outlets ran it, and soft news is the most
+  syndicated kind there is. An awards ceremony, a match result, a celebrity item,
+  a lottery draw or a human-interest obituary is at most 0.4 however many outlets
+  ran it and however prominently they placed it.
 - relevance: 0.0-1.0 for a reader interested in {', '.join(context.interests) or 'general news'}.
 
 Use only what the excerpts support. Do not add background you were not given.

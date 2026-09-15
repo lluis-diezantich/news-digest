@@ -32,6 +32,24 @@ class TestSignals:
         assert scoring.corroboration(sections) == 0.0
         assert scoring.corroboration(outlets) > 0.5
 
+    def test_corroboration_does_not_saturate_below_the_observed_range(self):
+        """At the old base of 4, everything from 4 outlets up scored 1.000."""
+        def outlets(n):
+            return [make_article(f"Story {i}", source=f"S{i}", publisher=f"P{i}",
+                                 importance=0.5) for i in range(n)]
+        four, thirteen = scoring.corroboration(outlets(4)), scoring.corroboration(outlets(13))
+        assert four < thirteen, "a 4-outlet story must not tie a 13-outlet one"
+        assert thirteen == 1.0
+        # Still monotonic in between, which is the point of moving the base.
+        values = [scoring.corroboration(outlets(n)) for n in (2, 3, 4, 5, 6, 10, 13)]
+        assert values == sorted(values) and len(set(values)) == len(values)
+
+    def test_saturation_point_is_configurable(self):
+        arts = [make_article(f"S{i}", source=f"S{i}", publisher=f"P{i}", importance=0.5)
+                for i in range(4)]
+        assert scoring.corroboration(arts, saturation=4) == 1.0
+        assert scoring.corroboration(arts, saturation=13) < 1.0
+
     def test_recency_decays_over_the_week(self, config):
         fresh = [make_article("Event", hours_ago=1, importance=0.5)]
         stale = [make_article("Event", hours_ago=140, importance=0.5)]

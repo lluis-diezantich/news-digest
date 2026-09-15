@@ -92,6 +92,13 @@ ranking:
   keyword_bonus: 0.15
   excluded_penalty: 1.5
   preferred_source_bonus: 0.5
+  # Publisher count at which `corroboration` reaches 1.0. Was hardcoded to 4,
+  # which saturated below the range that matters: over one measured week the
+  # multi-publisher stories ran 2,3,4,5,6,10,11,13 publishers, and at base 4
+  # thirteen of those twenty scored exactly 1.000. A four-outlet Emmy report and
+  # a thirteen-outlet lead story were indistinguishable on the one term that is
+  # supposed to measure newsworthiness. 13 is the observed maximum.
+  corroboration_saturation: 13
   # Over a weekly window a long half-life is right: Monday's news should still
   # be readable on Sunday.
   recency_half_life_hours: 72
@@ -99,10 +106,13 @@ ranking:
 digest:
   title: "Weekly Digest"
   subtitle: "The week's main stories from your sources"
-  # 6, not 10: the week corroborated only 5 clusters at 6+ outlets and 9 at 3+,
-  # so asking for 10 stories reaches into pairs and singletons. Fewer stories
-  # also halves what the model is asked to write (12 candidates instead of 20).
-  max_stories: 15
+  # 8, down from 15 on 2026-09-15. The pipeline enriches `2 * max_stories`
+  # candidates and publishes half of them, so 15 meant publishing 15 of 30 --
+  # and the week only corroborated 5 clusters at 6+ outlets and 9 at 3+, so the
+  # bottom third was pairs and soft news by arithmetic, not by bad ranking. At 8
+  # the same week's Emmy report and human-interest obituary both fall below the
+  # cut. Raise it only if the tail still looks worth reading.
+  max_stories: 8
   # 3, not 1: "the main news of the week" is what several outlets covered.
   # 411 of 440 clusters were a single outlet reporting alone. The digest falls
   # back to the ranked list if this would empty it, so it cannot yield nothing.

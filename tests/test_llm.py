@@ -11,7 +11,7 @@ from newsdigest.config import LLMSettings, Preferences, Settings
 from newsdigest.llm import build_context, get_provider
 from newsdigest.llm.base import (
     TOPICS, Brief, BriefInput, Context, EnrichInput, Enrichment, LLMError, LLMQuotaError,
-    PairInput, enrich_system_prompt, language_name, normalize_topics,
+    PairInput, brief_system_prompt, enrich_system_prompt, language_name, normalize_topics,
 )
 from newsdigest.llm.gemini import GeminiProvider
 from newsdigest.llm.heuristic import HeuristicProvider
@@ -374,9 +374,32 @@ class TestTopicVocabulary:
         e = Enrichment(id="a", summary="s", topics=["Politics", "Sweden", "elections"])
         assert e.clamp().topics == ["politics"]
 
+    def test_brief_prompt_anchors_importance(self):
+        """The brief's importance overwrites the story's, so an unanchored scale
+        here flattened the whole ranking to ~0.8."""
+        prompt = brief_system_prompt(Context(interests=["ai"]))
+        assert "0.3 routine" in prompt and "sparing" in prompt
+        assert "Wide coverage is NOT importance" in prompt
+
     def test_brief_clamp_enforces_the_vocabulary(self):
         b = Brief(headline="h", summary="s", topics=["technology regulation", "usa"])
         assert b.clamp().topics == ["technology"]
+
+    def test_excluded_topics_can_still_be_matched(self):
+        """A topic that can never be emitted can never be excluded.
+
+        Closing the vocabulary silently disarmed `excluded_topics: [celebrity]`,
+        leaving only the headline-substring half -- and no celebrity headline
+        contains the word "celebrity".
+        """
+        assert normalize_topics(["celebrity"]) == ["celebrity"]
+        assert normalize_topics(["sports"]) == ["sports"]
+        assert normalize_topics(["gossip"]) == ["celebrity"]
+
+    def test_celebrity_is_separate_from_culture(self):
+        """Excluding gossip must not exclude the arts."""
+        assert normalize_topics(["film"]) == ["culture"]
+        assert normalize_topics(["paparazzi"]) != ["culture"]
 
     def test_prompt_lists_the_allowed_topics(self):
         """A closed vocabulary the model is never shown is only half enforced."""
