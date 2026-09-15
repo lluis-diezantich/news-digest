@@ -33,7 +33,7 @@ is worth doing before trusting a schedule with them.
    folder `/docs`.
 3. **Secret**, only if using a hosted model — Settings → Secrets and variables →
    Actions: `GEMINI_API_KEY`. Both workflows succeed without it; the digest is
-   just built with offline heuristics.
+   just built with the built-in heuristics.
 4. **Variables** (optional) — anything in [providers.md](providers.md) or
    [configuration.md](configuration.md) can be set here instead of editing
    workflows. `SITE_URL` gives the RSS feed absolute links.

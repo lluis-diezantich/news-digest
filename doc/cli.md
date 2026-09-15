@@ -5,7 +5,7 @@
 | `news-digest collect` | Daily: fetch, detect language, dedupe, store. No model calls. |
 | `news-digest digest` | Weekly: embed, cluster, LLM, rank, publish. |
 | `news-digest digest --week 2026-W36` | Build a specific week. Needed for the current, partial week. |
-| `news-digest digest --no-llm --no-embeddings` | Fully offline. |
+| `news-digest digest --no-llm --no-embeddings` | No model at all, built-in heuristics instead. |
 | `news-digest digest --dry-run` | Process, persist nothing (caches still fill). |
 | `news-digest build` | Regenerate `docs/` from the database. |
 | `news-digest sources --check` | Fetch every enabled source once and report. |

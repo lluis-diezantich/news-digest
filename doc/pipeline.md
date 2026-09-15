@@ -98,7 +98,7 @@ EU announces new sanctions against Russia          [EN] [ES] [CA]  3 outlets
   `embedding_retention_days` is the knob. Switching embedding provider leaves both
   sets cached, since `cache_key` includes the provider — deliberate, so nothing
   silently mixes, but it doubles that storage until retention prunes it.
-- The offline provider cannot translate, so `output_language` is only honoured
+- The heuristic provider cannot translate, so `output_language` is only honoured
   with a real LLM.
 - `min_articles` counts articles rather than publishers, so a multi-feed publisher
   can satisfy it alone.

@@ -6,9 +6,16 @@ The LLM and the embedder sit behind small interfaces (`llm/base.py`,
 | Role | Options | Set with |
 |---|---|---|
 | Embeddings | `local` (fastembed/ONNX), `gemini`, `none` | `EMBEDDING_PROVIDER` |
-| LLM | `gemini`, `ollama` (local), `none` (offline heuristics) | `LLM_PROVIDER` |
+| LLM | `gemini`, `ollama` (local), `none` (built-in heuristics) | `LLM_PROVIDER` |
 
 The two halves have genuinely different answers, and it is worth knowing why.
+
+**Local does not mean offline.** Collection fetches feeds and scrapes pages, so it
+needs a connection whatever the providers are. What local buys is independence
+from anyone's API: no key, no quota, no rate limit, and nothing that can be
+retired from under you — `gemini-2.5-flash` was withdrawn for new keys mid-use.
+The practical effect is that `digest` can be re-run as often as you like once the
+articles are collected, which is not true of a hosted model on a daily quota.
 
 ## Embeddings: local is the better option
 
@@ -131,7 +138,7 @@ Everything still runs. Two things get worse, both visible:
 
 1. **Summaries are extractive and untranslated** — a Spanish article keeps a
    Spanish summary under `output_language: en`.
-2. **`importance` becomes near-useless.** Offline it is `0.35 + 0.12` per hit on a
+2. **`importance` becomes near-useless.** Without a model it is `0.35 + 0.12` per hit on a
    33-word list; 91% of articles match nothing, so it is a constant wearing a
    signal's clothes. It sits in `ranking.terms` at weight 2.0 and only earns that
    with a real model.
