@@ -50,8 +50,17 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev,local]'          # local embeddings, ONNX
 
 brew install ollama                    # or the installer from ollama.com
-ollama serve &                         # background server on :11434
+brew services start ollama             # background server on :11434, logs to a file
 ollama pull qwen3:8b                   # ~5 GB, once
+```
+
+Start it as a service, not as `ollama serve &`. A backgrounded `serve` writes
+llama-server's startup dump, per-token timings and one `[GIN]` line per request to
+whatever terminal you launched it from, interleaved with the digest's own output.
+Without brew, redirect it yourself:
+
+```bash
+ollama serve >/tmp/ollama.log 2>&1 &
 ```
 
 Then create `.env`:

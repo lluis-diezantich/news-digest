@@ -102,7 +102,7 @@ digest:
   # 6, not 10: the week corroborated only 5 clusters at 6+ outlets and 9 at 3+,
   # so asking for 10 stories reaches into pairs and singletons. Fewer stories
   # also halves what the model is asked to write (12 candidates instead of 20).
-  max_stories: 6
+  max_stories: 15
   # 3, not 1: "the main news of the week" is what several outlets covered.
   # 411 of 440 clusters were a single outlet reporting alone. The digest falls
   # back to the ranked list if this would empty it, so it cannot yield nothing.

@@ -82,7 +82,7 @@ runner (2 vCPU, no GPU) cannot do this inside the 45-minute job; an
 Apple-silicon laptop can.
 
 ```bash
-brew install ollama && ollama serve
+brew install ollama && brew services start ollama   # see setup.md: not `ollama serve &`
 ollama pull qwen3:8b
 LLM_PROVIDER=ollama
 ```

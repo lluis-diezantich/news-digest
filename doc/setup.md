@@ -9,9 +9,22 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev,local]'
 
 brew install ollama                    # or the installer from ollama.com
-ollama serve &
+brew services start ollama             # not `ollama serve &` -- see below
 ollama pull qwen3:8b
 ```
+
+**Run the server as a service, not as a shell job.** `ollama serve &` inherits your
+terminal, so llama-server's model-loading dump, per-token timing lines and a `[GIN]`
+line per request land on top of the digest's own output. `brew services` hands it to
+launchd and the logs go to a file. Without brew:
+
+```bash
+ollama serve >/tmp/ollama.log 2>&1 &
+```
+
+If the output is unusually chatty — sampler parameters, `n_gen` timings — ollama is
+passing `--log-verbosity 4` to llama-server, which means `OLLAMA_DEBUG` is set
+somewhere. Check `~/.zshrc`.
 
 `.env`:
 
