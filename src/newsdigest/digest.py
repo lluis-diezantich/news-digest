@@ -178,18 +178,17 @@ def build_digest(
     candidates = groups[:keep]
     log.info("enriching the top %d of %d clusters", len(candidates), len(groups))
 
-    # 4. LLM enrichment for the candidates' articles only.
-    candidate_articles = [a for group in candidates for a in group]
-    enrich_report = enrich.enrich_articles(
-        store, llm, config.llm, context, candidate_articles, persist=persist
-    )
-    stats.enriched = enrich_report.enriched
-    stats.enrich_cached = enrich_report.cached
-    stats.enrich_failed = enrich_report.failed
-
-    # 5. Build stories, with a merged brief for multi-publisher ones.
+    # 4. Briefs FIRST, before per-article enrichment.
+    #
+    # The order used to be the other way round, and on a free tier that spent
+    # the whole daily allowance analysing articles and then had nothing left to
+    # write the digest with. Enrichment is scaffolding -- it feeds ranking and is
+    # cached for next time -- while the brief is the only LLM output a reader
+    # actually sees on the page. So the brief is paid for first and enrichment
+    # gets the remainder. Observed 2026-09-15: 13 enrichment requests plus
+    # retries exhausted the day, and all six briefs fell back to raw article text.
     ranked: list[tuple[Story, list[Article]]] = []
-    quota_hit = enrich_report.quota_exhausted
+    quota_hit = False
     for group in candidates:
         story = clustering.build_story(group)
         if config.llm.write_story_briefs and not quota_hit:
@@ -211,8 +210,27 @@ def build_digest(
                     story.relevance = brief.relevance
                 story.written_by = llm.name
 
-        story.score = scoring.score_story(story, group, config.preferences)
         ranked.append((story, group))
+
+    # 5. Per-article enrichment with whatever budget survived the briefs.
+    candidate_articles = [a for group in candidates for a in group]
+    enrich_report = enrich.enrich_articles(
+        store, llm, config.llm, context, candidate_articles, persist=persist
+    )
+    stats.enriched = enrich_report.enriched
+    stats.enrich_cached = enrich_report.cached
+    stats.enrich_failed = enrich_report.failed
+
+    # A story whose brief failed took its fields from articles that were not yet
+    # enriched. Now that they are, rebuild it -- build_story derives the id from
+    # the cluster's URLs, so this refreshes in place rather than duplicating.
+    for index, (story, group) in enumerate(ranked):
+        if story.written_by is None and enrich_report.enriched:
+            ranked[index] = (clustering.build_story(group), group)
+
+    # 6. Score once, after every source of story fields has had its turn.
+    for story, group in ranked:
+        story.score = scoring.score_story(story, group, config.preferences)
 
     stats.llm_calls = llm.calls
 

@@ -80,7 +80,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.6-flash' }}
-          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '100' }}
+          LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '40' }}
+          # On a free tier the request count is what runs out, not the tokens.
+          LLM_BATCH_SIZE: ${{ vars.LLM_BATCH_SIZE || '16' }}
+          LLM_MAX_CLUSTER_CHECKS: ${{ vars.LLM_MAX_CLUSTER_CHECKS || '0' }}
           EMBEDDING_PROVIDER: ${{ vars.EMBEDDING_PROVIDER || 'gemini' }}
           EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'gemini-embedding-2' }}
           EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '256' }}

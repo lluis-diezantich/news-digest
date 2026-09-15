@@ -1,0 +1,1646 @@
+{
+ "id": "2026-W38",
+ "label": "14–21 September 2026",
+ "period_start": "2026-09-14T00:00:00+00:00",
+ "period_end": "2026-09-21T00:00:00+00:00",
+ "generated_at": "2026-09-15T07:05:37+00:00",
+ "story_count": 6,
+ "article_count": 102,
+ "title": "Weekly Digest",
+ "subtitle": "Curated from your sources in English, Spanish and Catalan",
+ "output_language": "en",
+ "topics": [
+  "politics",
+  "elections",
+  "artificial intelligence",
+  "technology",
+  "geopolitics",
+  "technology regulation",
+  "judiciary",
+  "corruption",
+  "polling",
+  "spanish politics",
+  "independence",
+  "uk politics",
+  "escocia",
+  "sweden",
+  "diplomacy",
+  "migration"
+ ],
+ "publishers": [
+  {
+   "name": "La Vanguardia",
+   "articles": 17
+  },
+  {
+   "name": "eldiario.es",
+   "articles": 15
+  },
+  {
+   "name": "Público",
+   "articles": 10
+  },
+  {
+   "name": "El País",
+   "articles": 10
+  },
+  {
+   "name": "20minutos",
+   "articles": 9
+  },
+  {
+   "name": "RTVE",
+   "articles": 8
+  },
+  {
+   "name": "Ara",
+   "articles": 7
+  },
+  {
+   "name": "Nació Digital",
+   "articles": 5
+  },
+  {
+   "name": "3Cat (324)",
+   "articles": 5
+  },
+  {
+   "name": "VilaWeb",
+   "articles": 5
+  },
+  {
+   "name": "RAC1",
+   "articles": 4
+  },
+  {
+   "name": "BBC World",
+   "articles": 2
+  },
+  {
+   "name": "The Guardian World",
+   "articles": 2
+  },
+  {
+   "name": "La Directa",
+   "articles": 1
+  },
+  {
+   "name": "El Salto",
+   "articles": 1
+  },
+  {
+   "name": "Al Jazeera",
+   "articles": 1
+  }
+ ],
+ "languages": [
+  {
+   "code": "es",
+   "articles": 69
+  },
+  {
+   "code": "ca",
+   "articles": 27
+  },
+  {
+   "code": "en",
+   "articles": 6
+  }
+ ],
+ "stories": [
+  {
+   "id": "sf8b455221000d70",
+   "headline": "China también pide un sistema de seguridad ante la IA mientras acusa a EE.UU. de difundir mensajes amenazantes",
+   "summary": "China has called for an international security and monitoring system to oversee AI development while criticizing US tech firms for spreading alarming messages that hinder global governance.",
+   "why_it_matters": "Global powers are vying over international regulations and safety frameworks for AI.",
+   "key_facts": [
+    "Anthropic researcher Jacob Coxon resigned last week",
+    "Former Google researcher warned AI could end humanity",
+    "Trump opposes AI regulations suggested by OpenAI and Anthropic",
+    "Will Rinehart is a researcher at the American Enterprise Institute"
+   ],
+   "topics": [
+    "artificial intelligence",
+    "technology",
+    "geopolitics",
+    "technology regulation"
+   ],
+   "entities": [
+    "Anthropic",
+    "China",
+    "Donald Trump",
+    "OpenAI",
+    "Dario Amodei",
+    "Sam Altman",
+    "Elon Musk",
+    "Google"
+   ],
+   "importance": 1.0,
+   "relevance": 0.9,
+   "score": 5.297,
+   "publishers": [
+    "20minutos",
+    "3Cat (324)",
+    "Ara",
+    "BBC World",
+    "El País",
+    "La Vanguardia",
+    "Nació Digital",
+    "Público",
+    "RAC1",
+    "RTVE",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 12,
+   "languages": [
+    "ca",
+    "en",
+    "es"
+   ],
+   "article_count": 40,
+   "first_published": "2026-09-14T03:00:00+00:00",
+   "last_published": "2026-09-15T06:07:31+00:00",
+   "articles": [
+    {
+     "id": "8676e69f1e8219d3",
+     "title": "Un exinvestigador de Google se suma a las advertencias de que la IA podría “acabar con toda la humanidad”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260915/11635060/exinvestigador-google-suma-advertencias-ia-acabar-toda-humanidad.html",
+     "language": "es",
+     "published_at": "2026-09-15T06:07:31+00:00",
+     "author": "Reuters Reuters",
+     "summary": "A former Google researcher has joined warnings that artificial intelligence could potentially wipe out humanity. Public concern over AI dangers has risen following the recent resignation of Anthropic researcher Jacob Coxon.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "fee13252e9c158cc",
+     "title": "La carrera entre EE.UU. y China por la IA frena cualquier intento de control",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260915/11634797/carrera-ee-uu-china-ia-frena-intento-control.html",
+     "language": "es",
+     "published_at": "2026-09-15T04:00:00+00:00",
+     "author": "Francesc Peiron Arques",
+     "summary": "The technological race between the United States and China over artificial intelligence is hindering regulatory efforts. Donald Trump opposes any AI regulation, despite suggestions from companies like OpenAI and Anthropic.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "243d96d16a239172",
+     "title": "Will Rinehart: “Un pacto para frenar la IA podría infringir la ley antimonopolio”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/economia/20260915/11634761/will-rinehart-pacto-frenar-ia-infringir-ley-antimonopolio.html",
+     "language": "es",
+     "published_at": "2026-09-15T04:00:00+00:00",
+     "author": "Blanca Gispert Hernandez",
+     "summary": "American Enterprise Institute scholar Will Rinehart suggested that an agreement to slow down AI development could violate antitrust laws. He predicts a new phase of controlled technological progress.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "adf18ddb4c2d392f",
+     "title": "Alarma IA, fiebre Data Center",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/economia/20260915/11634820/alarma-ia-fiebre-data-center.html",
+     "language": "es",
+     "published_at": "2026-09-15T04:00:00+00:00",
+     "author": "Enric Juliana Ricart",
+     "summary": "Public alarm and intense focus on artificial intelligence coincide with growing public backlash against data center developments.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "9bf5c22fe15fb09f",
+     "title": "Les grans tecnològiques cauen a borsa, mentre Donald Trump rebaixa les preocupacions dels grans magnats de la IA",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/economia/20260914/371741/grans-tecnologiques-cauen-borsa-donald-trump-rebaixa-preocupacions-dels-grans-magnats-ia.html",
+     "language": "ca",
+     "published_at": "2026-09-14T22:01:23+00:00",
+     "author": null,
+     "summary": "Major tech stocks fell globally, with the Nasdaq dropping nearly 1%, after AI industry leaders warned of future risks and urged a development slowdown. US President Donald Trump downplayed these concerns, while semiconductor firms suffered notable declines.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "71033b35025f6cb3",
+     "title": "IA: nada ha cambiado, todo debe cambiar",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/opinion/columnas/ia-cambiado-debe-cambiar.html",
+     "language": "es",
+     "published_at": "2026-09-14T21:30:00+00:00",
+     "author": "Álvaro San Román",
+     "summary": "An opinion piece argues that recent calls by AI executives to slow development are disingenuous. The author contends that despite acknowledging the risks, developers remain committed to pushing forward their technological advancements.",
+     "content_type": "opinion"
+    },
+    {
+     "id": "a83ec722eb7ae4f8",
+     "title": "Por qué los dueños de la IA dan un giro de 180 grados y en qué consiste su propuesta de pisar el freno",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/ciencias/tecnologia/duenos-ia-dan-giro-180-grados-consiste-propuesta-pisar-freno.html",
+     "language": "es",
+     "published_at": "2026-09-14T21:30:00+00:00",
+     "author": "Adhik Arrilucea",
+     "summary": "Key executives from major AI companies, including Anthropic, OpenAI, Google, and xAI, have aligned in advocating for a slower pace of AI development. Following the debate, OpenAI has delayed its planned initial public offering.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "b1a8c90e843f57bf",
+     "title": "La IA se ha caído de un guindo",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/opinion/tribuna-abierta/ia-caido-guindo_129_13509045.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:09:53+00:00",
+     "author": "Carme Artigas",
+     "summary": "AI industry leaders have recently united to urge a pause in development, but the White House rejected the idea, framing AI dominance as a geopolitical necessity. Critics view the tech industry's sudden focus on self-regulation with skepticism.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "faf17f64cbec90fc",
+     "title": "¿Se puede 'frenar' la IA? Por qué el resto del mundo desconfía del plan de Silicon Valley",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/tecnologia/frenar-ia-resto-mundo-desconfia-plan-silicon-valley_1_13507439.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:09:52+00:00",
+     "author": "Carlos del Castillo",
+     "summary": "Leaders from top AI organizations have surprisingly agreed on the need to slow advanced AI research to ensure control. However, experts, foreign nations like China, and other stakeholders question Silicon Valley's intent and authority to set the pace.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "d558fe2e10c61315",
+     "title": "Las alertas sobre la IA sacuden unos mercados dependientes de la tecnología",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/economia/20260914/11634759/alertas-sobre-ia-sacuden-mercados-dependientes-tecnologia.html",
+     "language": "es",
+     "published_at": "2026-09-14T18:23:43+00:00",
+     "author": "Piergiorgio Sandri",
+     "summary": "Recent warnings regarding artificial intelligence risks have unsettled financial markets heavily reliant on tech investments. The Bank for International Settlements noted that the sector harbors underlying vulnerabilities.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "06c4c396a54207d3",
+     "title": "Trump al·lega una «conspiració malaltissa» contra la IA i els centres de dades que la generen",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/internacional/trump-allega-una-conspiracio-malaltissa-contra-la-ia-i-els-centres-de-dades-que-la-generen.html",
+     "language": "ca",
+     "published_at": "2026-09-14T16:52:55+00:00",
+     "author": "Pau Espí Solé",
+     "summary": "US President Donald Trump dismissed warnings from AI company executives, labeling opposition to AI and data centers a sick conspiracy that benefits China. He argued that a strong president is the only necessary safeguard for AI.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "2e26e1639bfbdcc3",
+     "title": "Per què hi ha una allau d'alertes i por a la intel·ligència artificial?",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/economia/tecnologia/hi-allau-d-alertes-intel-ligencia-artificial_1_5849519.html",
+     "language": "ca",
+     "published_at": "2026-09-14T15:39:29+00:00",
+     "author": "Agustí Sala",
+     "summary": "Prominent AI leaders have issued warnings about risks posed by untested models, sparking market anxieties. Experts suggest companies fear severe financial backlash if unverified technologies cause major real-world incidents.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "44765c757de8a281",
+     "title": "Nvidia lidera la caiguda a Wall Street per la por sobre la IA",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/economia/nvidia-lidera-la-caiguda-a-wall-street-per-la-por-sobre-la-ia.html",
+     "language": "ca",
+     "published_at": "2026-09-14T15:26:23+00:00",
+     "author": "Gerard Mira Sánchez",
+     "summary": "Tech stocks led by Nvidia fell on Wall Street following fears around artificial intelligence development. Concerns grew after the resignation of Jacob Coxon and calls from Anthropic co-founder Dario Amodei for increased AI safety measures.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "804bb621cb76d512",
+     "title": "Trump califica de “conspiración enfermiza” la oposición a la IA y dice que él es la barrera de protección",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260914/11634644/trump-califica-conspiracion-enfermiza-oposicion-ia-dice-barrera-proteccion.html",
+     "language": "es",
+     "published_at": "2026-09-14T15:24:56+00:00",
+     "author": "Francesc Peiron Arques",
+     "summary": "U.S. President Donald Trump has rejected calls to slow down artificial intelligence development, labeling opposition to AI a sick conspiracy. He argued that existing restrictions are sufficient and that limiting progress only benefits China.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "14c9882905241d77",
+     "title": "De la seguretat a la cursa comercial: la pugna EUA-Xina per la intel·ligència artificial generativa",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/de-la-seguretat-a-la-cursa-comercial-la-pugna-eua-xina-per-la-intelligencia-artificial-generativa/noticia/3428539/",
+     "language": "ca",
+     "published_at": "2026-09-14T15:23:58+00:00",
+     "author": null,
+     "summary": "The dispute over Anthropic has intensified the debate on generative AI regulation between the US and China. China supports regulatory oversight, whereas the United States opposes placing limits on the technology.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "39f2132493340bba",
+     "title": "EEUU y China se enfrentan en el debate sobre la regulación de la IA en plena carrera por su dominio",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/internacional/eeuu-china-enfrentan-debate-sobre-regulacion-ia-plena-carrera-dominio.html",
+     "language": "es",
+     "published_at": "2026-09-14T14:31:07+00:00",
+     "author": "EFE",
+     "summary": "The US and China are clashing over AI regulation amid competing for technological dominance. Donald Trump opposed new rules after tech leaders like Dario Amodei, Sam Altman, and Elon Musk advocated slowing advanced model development.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "a49737437b73f76d",
+     "title": "Trump descarta nuevas regulaciones para la IA: \"Hay una conspiración enfermiza\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/internacional/trump-descarta-nuevas-regulaciones-ia-hay-conspiracion-enfermiza_1_13508835.html",
+     "language": "es",
+     "published_at": "2026-09-14T14:16:07+00:00",
+     "author": "Andrés Gil",
+     "summary": "US President Donald Trump dismissed calls for new AI regulations following safety warnings from tech leaders and international bodies. The controversy flared up after engineer Jacob Coxon resigned from Anthropic over undisclosed risks in AI models.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "ebefc9f1fc2f20a8",
+     "title": "El debate de la inteligencia artificial: qué dicen sus cuatro líderes sobre frenar su desarrollo",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/sociedad/debate-inteligencia-artificial-dicen-cuatro-lideres-sobre-frenar-desarrollo.html",
+     "language": "es",
+     "published_at": "2026-09-14T14:00:05+00:00",
+     "author": "David Cuéllar del Rey",
+     "summary": "Prominent tech leaders are calling for caution regarding the rapid advancement of artificial intelligence. An essay by Anthropic CEO Dario Amodei proposing slower development and stricter safety measures received backing from Sam Altman, Elon Musk, and Demis Hassabis.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "1e5a014ef482af64",
+     "title": "La ONU alerta del peligro de la IA y pide regularla: \"Todos los derechos humanos están en riesgo\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/tecnologia/onu-alerta-peligro-ia-pide-regularla-derechos-humanos-riesgo_1_13508447.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:00:46+00:00",
+     "author": "David Romero González",
+     "summary": "UN High Commissioner for Human Rights Volker Türk warned that unchecked AI development poses existential threats to human rights, including health, privacy, and safety. His statement follows concerns raised by former Anthropic engineer Jacob Coxon.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "4732e6ed6161fce9",
+     "title": "L’ONU adverteix que l’avenç de la intel·ligència artificial fa perillar tots els drets humans",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/onu-intelligencia-artificial-risc-drets-humans/",
+     "language": "ca",
+     "published_at": "2026-09-14T12:51:25+00:00",
+     "author": null,
+     "summary": "UN official Volker Türk warned that rapid advancements in artificial intelligence threaten human rights. He highlighted that advanced systems could endanger essential services, critical infrastructure, and democratic institutions.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "dc5aab2513753fd7",
+     "title": "La ONU advierte que todos los derechos humanos “están en riesgo” ante el avance de la IA",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260914/11634496/onu-advierte-todos-derechos-humanos-riesgo-avance-ia.html",
+     "language": "es",
+     "published_at": "2026-09-14T12:18:24+00:00",
+     "author": "Autor Agencias",
+     "summary": "UN High Commissioner Volker Türk warned that artificial intelligence presents flaws that threaten human rights and could undermine democratic institutions.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "dd61a79fdd7eb156",
+     "title": "Un expert en IA desacredita l'alerta dels grans magnats: \"És absurd pensar que l'eina pot desenvolupar consciència\"",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/tecnologia/20260914/371588/expert-ia-desacredita-l-alerta-dels-grans-magnats-absurd-pensar-l-eina-desenvolupar-consciencia.html",
+     "language": "ca",
+     "published_at": "2026-09-14T11:50:49+00:00",
+     "author": null,
+     "summary": "An AI expert dismissed recent warnings from tech magnates who claimed AI could become self-aware and destroy humanity. The expert argues the true risks stem from how systems are currently designed rather than sci-fi scenarios.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "2d8ef5f75c8b9a63",
+     "title": "China criticises idea it is in 'malicious competition' over AI",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cn8me133119o?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-14T11:31:39+00:00",
+     "author": null,
+     "summary": "It follows the Anthropic CEO's calls for a slowdown in AI development - but in a way that prevents China from pulling ahead in the race.",
+     "content_type": null
+    },
+    {
+     "id": "ae2ea32ffbc3a8f0",
+     "title": "Qué ha pasado con la IA para que sus propios creadores empiecen a temer que pueda escapar a su control",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/tecnologia/inteligencia-artificial/que-ha-pasado-ia-creadores-temen-escape-control_7036449_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T11:25:53+00:00",
+     "author": "Marta Gascón",
+     "summary": "Concerns over artificial intelligence have surged in recent months, leading its own creators to worry that the technology might escape human control.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "e648eb14221f1412",
+     "title": "The risks of AI, according to those who have seen it from the inside: ‘The world is not ready and we are not ready’",
+     "source": "El País (English)",
+     "publisher": "El País",
+     "url": "https://english.elpais.com/technology/2026-09-14/the-risks-of-ai-according-to-those-who-have-seen-it-from-the-inside-the-world-is-not-ready-and-we-are-not-ready.html",
+     "language": "en",
+     "published_at": "2026-09-14T11:11:56+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "Former researchers, executives, and engineers from major AI companies have warned about critical safety failures, military applications, and uncontrollable systems, stating the world is unprepared for these risks.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "d45bf8142d695ab3",
+     "title": "China también pide un sistema de seguridad ante la IA mientras acusa a EE.UU. de difundir mensajes amenazantes",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/china-amenazas-riesgos-inteligencia-artificial/17223664.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T10:50:38+00:00",
+     "author": "Sofía Soler",
+     "summary": "China has called for an international security and monitoring system to oversee AI development while criticizing US tech firms for spreading alarming messages that hinder global governance.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "ce9b110ad6e9f1fa",
+     "title": "China defiende una IA “orientada al bien” y se opone a narrativas de amenaza o confrontación",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260914/11634287/china-defiende-ia-orientada-opone-narrativas-amenaza-confrontacion.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:45:14+00:00",
+     "author": "Autor Agencias",
+     "summary": "China advocates for AI aimed at the public good while opposing threat narratives, cautioning that misusing the technology could endanger its own political and institutional stability amid competition with the US.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "2148261a7fb9295f",
+     "title": "Quién gana cuando los dueños de la IA piden que los regulen",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/tecnologia/gana-duenos-ia-piden-regulen_129_13507386.html",
+     "language": "es",
+     "published_at": "2026-09-14T09:35:53+00:00",
+     "author": "Esteve Almirall",
+     "summary": "Tech CEOs including Dario Amodei and Sam Altman are advocating for AI slowdowns and independent safety checks, raising questions about whether regulatory calls serve public safety or corporate self-interest.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "9a9c03c66fe1253c",
+     "title": "Teresa Ribera considera “absolutamente preocupantes” los avisos de los gigantes de la IA y aboga por la regulación",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/economia/teresa-ribera-considera-absolutamente-preocupantes-avisos-gigantes-ia-aboga-regulacion_1_13507150.html",
+     "language": "es",
+     "published_at": "2026-09-14T09:04:40+00:00",
+     "author": "Antonio M. Vélez",
+     "summary": "European Commission Vice-President Teresa Ribera expressed strong concern over AI power concentration and supported regulating data centers and AI models to prevent systems from growing out of control.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "da6006e7adce4557",
+     "title": "El 'freno' a la IA castiga a ACS y Solaria en el Ibex y arrastra a las tecnológicas asiáticas",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/economia/acs-solaria-caen-ibex-tecnologicas-asiaticas-desploman-lastradas-freno-ia_1_13507356.html",
+     "language": "es",
+     "published_at": "2026-09-14T08:58:56+00:00",
+     "author": "Economía",
+     "summary": "Debate over a potential slowdown in artificial intelligence development has caused global stock market drops. Asian tech companies as well as Spanish firms like ACS and Solaria experienced notable losses.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "778c2f40b9b76a7e",
+     "title": "Las tecnológicas sufren en bolsa en medio de los temores por el avance de la IA",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/economia/20260914/11634146/tecnologicas-bolsa-openai-ia-anthropic.html",
+     "language": "es",
+     "published_at": "2026-09-14T08:49:59+00:00",
+     "author": "Luis Federico Florio",
+     "summary": "Technology companies across Europe, the United States, and Asia are experiencing stock market declines due to growing fears surrounding the advancement of artificial intelligence.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "7eaa9ad92c868b7c",
+     "title": "Sam Altman: “Podríamos perder el control del futuro ante la IA”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260914/11634119/sam-altman-perder-control-futuro-ia.html",
+     "language": "es",
+     "published_at": "2026-09-14T08:07:53+00:00",
+     "author": "Francisco Bracero Osuna",
+     "summary": "OpenAI CEO Sam Altman warned that humanity could lose control of the future to AI and highlighted the risk of excessive power concentration within a single government or corporation.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "ab24b99b01df3001",
+     "title": "China pide una \"barrera de seguridad\" para la IA ante los intentos de Trump de frenar una regulación global",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/tecnologia/pekin-denuncia-eeuu-busca-frenar-ia-impedir-china-pueda-mejorar-capacidades_1_13507168.html",
+     "language": "es",
+     "published_at": "2026-09-14T07:54:29+00:00",
+     "author": "EFE",
+     "summary": "China's Minister of State Security, Chen Yixin, called for a safety barrier around AI amid global geopolitical competition. China criticized US efforts to restrict its technological advancement, including chip embargoes.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "fba3c54a2317b246",
+     "title": "La IA, pal de paller de molts nous màsters de casa nostra",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/especials/masters/ia-pal-paller-nous-masters-casa-nostra_1_5837152.html",
+     "language": "ca",
+     "published_at": "2026-09-14T07:50:19+00:00",
+     "author": "Esther Escolán",
+     "summary": "Si hi ha una tecnologia que ha aconseguit revolucionar tots i cadascun dels sectors industrials, empresarials i econòmics a escala global, aquesta ha estat la intel·ligència artificial (IA). Es tracta d’una eina que, entre d'altres, permet automatitzar un gran nombre de…",
+     "content_type": null
+    },
+    {
+     "id": "167d92b332ff45b0",
+     "title": "China lanza una alerta sobre los riesgos de la IA en pleno debate sobre los límites de su desarrollo",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/vida/20260914/11634094/china-lanza-alerta-sobre-riesgos-ia-pleno-debate-sobre-limites-desarrollo.html",
+     "language": "es",
+     "published_at": "2026-09-14T07:36:27+00:00",
+     "author": "Autor Agencias",
+     "summary": "China has issued an alert highlighting the risks posed by artificial intelligence amid ongoing debates about setting boundaries on its development. This follows calls from AI firms like OpenAI and Anthropic to slow down advancement.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "18318b653cde3a30",
+     "title": "Los cuatro gigantes de la IA piden frenar su desarrollo ante el riesgo de descontrol",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/tecnologia/inteligencia-artificial/gigantes-ia-musk-amodei-altman-hassabis-frenar-desarrollo-riesgo-descontrol_7036280_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T07:09:24+00:00",
+     "author": "Marta Gascón",
+     "summary": "Prominent tech leaders Dario Amodei, Sam Altman, Elon Musk, and Demis Hassabis all agree that advanced artificial intelligence development requires stricter controls to prevent a loss of control.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "945227603b1644e3",
+     "title": "La Xina reclama una \"barrera de seguretat\" per a la IA en ple debat sobre els seus riscos",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/economia/tecnologia/xina-reclama-barrera-seguretat-ia-ple-debat-riscos_1_5849163.html",
+     "language": "ca",
+     "published_at": "2026-09-14T06:50:36+00:00",
+     "author": "ARA",
+     "summary": "El ministre xinès de Seguretat de l’Estat, Chen Yixin, ha reclamat la creació d’una \"barrera de seguretat\" per a la intel·ligència artificial, en un moment de creixent competència tecnològica entre la Xina i els Estats Units. Chen ha situat la IA com un dels principals camps de…",
+     "content_type": null
+    },
+    {
+     "id": "3a824083818efd52",
+     "title": "Donald Trump es nega a frenar el desenvolupament de la intel·ligència artificial: \"Qui guanyi amb la IA, guanya\"",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/internacional/20260914/371538/donald-trump-es-nega-frenar-desenvolupament-inteligencia-artificial-guanyi-amb-ia-guanya.html",
+     "language": "ca",
+     "published_at": "2026-09-14T06:20:31+00:00",
+     "author": null,
+     "summary": "Tech leaders are warning about risks from autonomous AI, leading OpenAI CEO Sam Altman to delay the company's IPO. Meanwhile, Donald Trump opposes restricting AI development, framing it as a global race to win.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "f12ebb20593619f2",
+     "title": "Claus del debat sobre la IA: més veus demanen frenar una tecnologia que pot amenaçar la humanitat",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/claus-del-debat-sobre-la-ia-mes-veus-demanen-frenar-una-tecnologia-que-pot-amenacar-la-humanitat/noticia/3428410/",
+     "language": "ca",
+     "published_at": "2026-09-14T04:46:28+00:00",
+     "author": null,
+     "summary": "Calls to slow down AI development are growing globally, with China joining demands for caution. Conversely, Donald Trump opposes limits on the technology, viewing it as a competitive global race.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "ff66a97da773785a",
+     "title": "Los impulsores de la IA se asustan",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/internacional/los-impulsores-ia-se-asustan_7036224_3.html",
+     "language": "es",
+     "published_at": "2026-09-14T03:00:00+00:00",
+     "author": "Jesús Morales",
+     "summary": "An opinion piece discusses human resilience when facing technological challenges such as artificial intelligence.",
+     "content_type": "opinion"
+    }
+   ]
+  },
+  {
+   "id": "s13f79d36f41199d",
+   "headline": "Fractura en la Junta Electoral: del \"despropósito\" del fallo de la ley de nietos a evitar el pulso con el Supremo",
+   "summary": "Spain's Central Electoral Board decided in a divided 7-6 vote to comply with a Supreme Court ruling that suspends voting rights for around 400,000 citizens naturalized under the Grandchildren's Law.",
+   "why_it_matters": "The ruling temporarily disenfranchises hundreds of thousands of newly naturalized citizens ahead of upcoming elections.",
+   "key_facts": [
+    "Alberto Ruiz-Gallardón testifies as a witness in the Lezo case on Tuesday.",
+    "The trial investigates the 2001 purchase of Colombian company Inassa by Canal de Isabel II.",
+    "Magistrate Manuel García Castellón sent 22 people to trial, including Pedro Calvo and Juan Bravo.",
+    "Judge Antonio Narváez blocked voting rights associated with the Democratic Memory Law."
+   ],
+   "topics": [
+    "politics",
+    "judiciary",
+    "elections",
+    "corruption"
+   ],
+   "entities": [
+    "Tribunal Supremo",
+    "Junta Electoral Central",
+    "Supremo",
+    "Alberto Ruiz-Gallardón",
+    "Canal de Isabel II",
+    "Inassa",
+    "Óscar López",
+    "Manuel García Castellón"
+   ],
+   "importance": 0.97,
+   "relevance": 0.9,
+   "score": 5.237,
+   "publishers": [
+    "20minutos",
+    "3Cat (324)",
+    "Ara",
+    "El País",
+    "La Directa",
+    "La Vanguardia",
+    "Público",
+    "RTVE",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 10,
+   "languages": [
+    "ca",
+    "es"
+   ],
+   "article_count": 21,
+   "first_published": "2026-09-14T03:30:01+00:00",
+   "last_published": "2026-09-15T06:03:58+00:00",
+   "articles": [
+    {
+     "id": "c10375c011730abc",
+     "title": "El exministro y expresidente madrileño Ruiz-Gallardón declara este martes como testigo en el primer juicio del caso Lezo",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260915/gallardon-testigo-juicio-caso-lezo/17224960.shtml",
+     "language": "es",
+     "published_at": "2026-09-15T06:03:58+00:00",
+     "author": "RTVE Noticias",
+     "summary": "Former Justice Minister Alberto Ruiz-Gallardón is testifying as a witness in the Lezo case trial regarding alleged irregularities in Canal de Isabel II's 2001 acquisition of Inassa. Magistrate Manuel García Castellón sent 22 people to trial, including former Madrid officials.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "471225301b6a025e",
+     "title": "El jutge que va titllar el Procés de \"cop d'estat encobert\" frena ara el dret de vot de la ‘llei de nets’",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/politica/jutge-titllar-proces-cop-d-encobert-frena-ara-dret-vot-llei-nets_1_5849718.html",
+     "language": "ca",
+     "published_at": "2026-09-15T05:00:27+00:00",
+     "author": "Martí Odriozola i Marcé",
+     "summary": "Supreme Court judge Antonio Narváez has issued an order blocking voting rights for descendants granted citizenship under Spain's Democratic Memory Law. Narváez previously recused himself from Catalan independence trials in 2021 due to past controversial remarks.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "5b4d16467d64c1b2",
+     "title": "El Gobierno se planta tras el discurso de la presidenta del Supremo y la suspensión judicial de la 'ley de nietos': \"No nos vamos a callar\"",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/gobierno/gobierno-planta-discurso-presidenta-supremo-suspension-judicial-ley-nietos-callar.html",
+     "language": "es",
+     "published_at": "2026-09-14T21:30:00+00:00",
+     "author": "Miguel Muñoz",
+     "summary": "Tensions have escalated between the Spanish government and top judicial officials following the court suspension of voting rights under the 'grandchild law'. Government ministers criticized judicial corporatism after Supreme Court President Isabel Perelló denounced political attacks against magistrates.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "4d93432ccf124d98",
+     "title": "El expresidente Gallardón declara como testigo por la compra de una empresa colombiana de aguas hace 25 años",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/expresidente-gallardon-declara-testigo-compra-empresa-colombiana-aguas-25-anos_1_13507950.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:09:54+00:00",
+     "author": "elDiario.es",
+     "summary": "Former Madrid president Alberto Ruiz-Gallardón testified as a witness in the Caso Lezo trial regarding the 2001 acquisition of Colombian water firm Inassa by Canal de Isabel II.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "71ce56a31eccd331",
+     "title": "Fractura en la Junta Electoral: del \"despropósito\" del fallo de la ley de nietos a evitar el pulso con el Supremo",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/fractura-junta-electoral-desproposito-sentencia-ley-nietos-evitar-pulso-supremo_1_13509752.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:09:50+00:00",
+     "author": "Elena Herrera, José Enrique Monrosi",
+     "summary": "Spain's Central Electoral Board decided in a divided 7-6 vote to comply with a Supreme Court ruling that suspends voting rights for around 400,000 citizens naturalized under the Grandchildren's Law.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "3ad98903e9b65f4c",
+     "title": "La Junta Electoral evita el xoc amb el Suprem i acata el mandat sobre la llei de nets",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/la-junta-electoral-evita-el-xoc-amb-el-suprem-i-acata-el-mandat-sobre-la-llei-de-nets/noticia/3428558/",
+     "language": "ca",
+     "published_at": "2026-09-14T18:41:17+00:00",
+     "author": null,
+     "summary": "The Spanish government criticized the Supreme Court's decision to suspend voting rights under the Grandchildren's Law, claiming political intent behind the ruling.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "8ce7c4585ebb7f1c",
+     "title": "Manel Pérez: “El Supremo ha abierto un conflicto al retirar el derecho de voto a españoles reconocidos por la ley de nietos”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/videos/claves-del-dia/20260914/11634677/manel-perez-supremo-abierto-conflicto-retirar-derecho-voto-espanoles-reconocidos-ley-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-14T15:59:46+00:00",
+     "author": "Martí Paola",
+     "summary": "La Vanguardia's deputy director Manel Pérez criticized the Supreme Court's injunction stripping voting rights from 400,000 citizens naturalized under the Grandchildren's Law.",
+     "content_type": "opinion"
+    },
+    {
+     "id": "db1017caf7a9666f",
+     "title": "La Junta Electoral ejecuta dividida la orden del Supremo sobre la 'ley de nietos'",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/tribunales/junta-electoral-atiende-orden-supremo-sobre-suspension-voto-ley-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-14T15:37:40+00:00",
+     "author": "Agencias",
+     "summary": "Spain's Central Electoral Board voted 7-6 to comply with the Supreme Court's injunction regarding the Grandchildren's Law while requesting reports to verify exiled status.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "d2c18db0283f1c34",
+     "title": "Óscar López critica a los jueces \"salvapatrias\" y califica de \"salvajada\" la decisión de suspender el derecho al voto de miles de españoles",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/oscar-lopez-critica-jueces-salvapatrias-califica-salvajada-decision-suspender-derecho-voto-miles-espanoles.html",
+     "language": "es",
+     "published_at": "2026-09-14T15:13:07+00:00",
+     "author": "Europa Press",
+     "summary": "Public Function Minister Óscar López strongly denounced the Supreme Court's ruling to suspend voting rights for over 400,000 descendants of Spanish exiles.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "057bf842e487c63b",
+     "title": "La JEC ejecuta el requerimiento del Supremo sobre la ley de nietos sin compartir su criterio",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260914/11634547/junta-electoral-jec-ejecuta-requerimiento-supremo-sobre-ley-nietos-compartir-criterio.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:35:37+00:00",
+     "author": "Asier Martiarena Olveira",
+     "summary": "The Central Electoral Board agreed to carry out the Supreme Court's order on the Grandchildren's Law without endorsing the court's legal reasoning.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "df59aac3a1ad37c0",
+     "title": "La Junta Electoral evita el choque con el Supremo y acuerda dividida trasladar a los consulados el freno al censo de la ley de nietos",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/junta-electoral-evita-choque-supremo-acuerda-dividida-trasladar-consulados-freno-censo-ley-nietos_1_13508679.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:23:06+00:00",
+     "author": "Elena Herrera",
+     "summary": "The Central Electoral Board approved by a narrow majority to enforce the Supreme Court's order requiring consulates to break down census data for Grandchildren's Law applicants.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "1854147a2826c096",
+     "title": "La Junta Electoral acata dividida el mandato del Supremo sobre la ‘ley de nietos’",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/la-junta-electoral-acata-dividida-el-mandato-del-supremo-sobre-la-ley-de-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:17:00+00:00",
+     "author": "Javier Casqueiro Barreiro",
+     "summary": "La mayoría de los vocales no comparten que se haya suspendido el derecho al voto de los nacionalizados sin permitir alegaciones",
+     "content_type": null
+    },
+    {
+     "id": "047a356925b04be1",
+     "title": "La Junta Electoral acata la orden del TS y revisará que los nacionalizados a través de la 'ley de nietos' tengan vínculo con el exilio",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/jec-acata-orden-supremo-revisara-vinculo-con-exilio-los-nacionalizados-por-ley-nietos_7036534_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:08:30+00:00",
+     "author": "20minutos |",
+     "summary": "El organismo electoral pedirá informes al Censo y a los registros consulares para comprobar qué beneficiarios cumplen los requisitos fijados por el alto tribunal para votar desde el extranjero.",
+     "content_type": null
+    },
+    {
+     "id": "94c5e3b70a441446",
+     "title": "El judici als quatre antifeixistes d’Alacant “busca fer callar la contestació” als actes de VOX, segons Alerta Solidària",
+     "source": "La Directa",
+     "publisher": "La Directa",
+     "url": "https://directa.cat/el-judici-als-quatre-antifeixistes-dalacant-busca-fer-callar-la-contestacio-als-actes-de-vox-segons-alerta-solidaria/",
+     "language": "ca",
+     "published_at": "2026-09-14T11:42:21+00:00",
+     "author": "Laia Gordi",
+     "summary": "El judici als quatre antifeixistes de la Universitat d’Alacant que el 2021 van ser acusats d’amenaces se celebra aquest dimarts 15 de setembre. Els fets es van produir presumptament després d’una concentració a favor del valencià i en contra d’un acte “en defensa de l’espanyol” a la Universitat d’Alacant (UA) on participaven diversos membres de … Continuar The post El judici als quatre antifeixistes d’Alacant “busca fer callar la contestació” als actes de VOX, segons Alerta Solidària appeared first on directa.cat .",
+     "content_type": null
+    },
+    {
+     "id": "bc25f27437a86cf4",
+     "title": "La jueza Tardón reclama la causa contra el delegado del Gobierno en Ceuta",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260914/11634316/jueza-tardon-reclama-causa-delegado-gobierno-ceuta.html",
+     "language": "es",
+     "published_at": "2026-09-14T11:10:45+00:00",
+     "author": "Carlota Guindal",
+     "summary": "La magistrada pide a un juzgado de Ceuta que le envíe la causa contra Miguel Ángel Pérez Triano para investar un delito contra la integridad territorial de España",
+     "content_type": null
+    },
+    {
+     "id": "d971895459d58bea",
+     "title": "La jutgessa de l’Audiència espanyola reclama la causa contra el delegat del govern espanyol a Ceuta",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/jutgessa-audiencia-espanyola-causa-delegat-govern-ceuta-entrada-migrants/",
+     "language": "ca",
+     "published_at": "2026-09-14T10:47:11+00:00",
+     "author": null,
+     "summary": "María Tardón vol determinar si la querella contra Miguel Ángel Pérez s’ha d’incorporar a la investigació per l’arribada de milers de persones al juliol",
+     "content_type": null
+    },
+    {
+     "id": "01317e60734a780e",
+     "title": "La jueza Tardón pide la querella que estudia un juzgado de Ceuta contra el delegado del Gobierno",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/la-jueza-tardon-pide-a-un-juzgado-de-ceuta-la-querella-que-estudia-contra-el-delegado-del-gobierno.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:29:52+00:00",
+     "author": "Liliana Ochoa",
+     "summary": "La instructora recuerda que la Audiencia Nacional ya ha asumido la competencia para investigar la entrada masiva de inmigrantes a la ciudad autónoma",
+     "content_type": null
+    },
+    {
+     "id": "a45b028015eb7a30",
+     "title": "La Audiencia Nacional plantea asumir la investigación de la denuncia contra el delegado del Gobierno en Ceuta",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/audiencia-nacional-plantea-asumir-investigacion-denuncia-contra-delegado-gobierno-ceuta_7036422_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:29:08+00:00",
+     "author": "Pedro Buenaventura",
+     "summary": "La jueza María Tardón remite al Juzgado de Instrucción número 6 de Ceuta el auto en el que asumió investigar la entrada masiva de migrantes en la ciudad autónoma para que valore si debe inhibirse en su favor.",
+     "content_type": null
+    },
+    {
+     "id": "ba5edb102c56de92",
+     "title": "López califica de \"salvajada\" la suspensión de la 'ley de nietos' por el Supremo: \"Hay jueces que son salvapatrias\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/lopez-califica-salvajada-suspension-ley-nietos-por-supremo-hay-jueces-son-salvapatrias/17223556.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T08:02:05+00:00",
+     "author": "RTVE.es",
+     "summary": "El ministro para la Transformación Digital y de la Función Pública, Óscar López, ha calificado de \"salvajada\" y \"atropello democrático\" la decisión del Tribunal Supremo de suspender cautelarmente la 'ley de nietos', que preveía dar la nacionalidad a los descendientes de los…",
+     "content_type": null
+    },
+    {
+     "id": "beadff1688f5e024",
+     "title": "La Junta Electoral Central estudia la decisión del Supremo de suspender el voto de los nacionalizados con la ley de nietos",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/junta-electoral-central-supremo-ley-nietos/17223400.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T05:55:37+00:00",
+     "author": "RTVE Noticias",
+     "summary": "La Junta Electoral Central (JEC) se reúne este lunes para estudiar la decisión del Tribunal Supremo de dejar en suspenso las altas incorporadas al Censo Electoral de Residentes Ausentes (CERA) tras la aplicación de la conocida como ley de nietos , por la que han obtenido la…",
+     "content_type": null
+    },
+    {
+     "id": "db566b466bb4cf99",
+     "title": "La Junta Electoral debate cómo dar cumplimiento a la orden del Supremo sobre la ‘ley de nietos’",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/la-mayoria-de-la-junta-electoral-pretende-evitar-el-debate-sobre-la-decision-del-supremo-por-la-ley-de-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-14T03:30:01+00:00",
+     "author": "Reyes Rincón ,Javier Casqueiro Barreiro",
+     "summary": "El tribunal ordenó “el desglose” de los nacionalizados que han acreditado la condición de descendientes de exiliados políticos y de los que no",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s73e2372ff2bc18a",
+   "headline": "Trump lleva la democracia de Estados Unidos a su nivel más bajo en al menos medio siglo",
+   "summary": "International IDEA reports a severe degradation of key democratic indicators in the United States under Donald Trump.",
+   "why_it_matters": "US democracy has reached its lowest point in at least half a century.",
+   "key_facts": [
+    "International IDEA released its annual democracy report from Stockholm.",
+    "Global democracy experienced major setbacks in 2025.",
+    "Spain maintains a high-performance democratic rating despite corruption issues.",
+    "Report published on September 15, International Day of Democracy."
+   ],
+   "topics": [
+    "politics",
+    "elections",
+    "polling",
+    "spanish politics"
+   ],
+   "entities": [
+    "Ceuta",
+    "PSOE",
+    "Vox",
+    "CIS",
+    "PP",
+    "Sumar",
+    "Podemos",
+    "International IDEA"
+   ],
+   "importance": 1.0,
+   "relevance": 0.8,
+   "score": 5.175,
+   "publishers": [
+    "20minutos",
+    "3Cat (324)",
+    "Ara",
+    "El País",
+    "El Salto",
+    "La Vanguardia",
+    "Nació Digital",
+    "Público",
+    "RAC1",
+    "RTVE",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 12,
+   "languages": [
+    "ca",
+    "es"
+   ],
+   "article_count": 18,
+   "first_published": "2026-09-14T03:00:00+00:00",
+   "last_published": "2026-09-15T02:05:00+00:00",
+   "articles": [
+    {
+     "id": "7d9baa966e59dac6",
+     "title": "España se mantiene como una democracia de \"alto rendimiento\" pero sufre un retroceso por la corrupción",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/espana-mantiene-democracia-alto-rendimiento-pero-sufre-retroceso-corrupcion.html",
+     "language": "es",
+     "published_at": "2026-09-15T02:05:00+00:00",
+     "author": "Danilo Albin",
+     "summary": "International IDEA's annual report shows a global decline in democracy in 2025. While Spain retains its high-performance status, it experienced setbacks due to corruption.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "eb6c09699f048d2d",
+     "title": "La democracia peligra en todo el mundo y está en sus horas más bajas en EE.UU., según IDEA",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260915/democracia-peligra-todo-mundo-horas-mas-bajas-eeuu/17219385.shtml",
+     "language": "es",
+     "published_at": "2026-09-15T00:01:14+00:00",
+     "author": "Miguel Charte",
+     "summary": "An annual report by International IDEA warns that US democracy is at its lowest level in 50 years, threatening global democratic stability and judicial independence.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "ebdd910f9a08deb2",
+     "title": "Trump lleva la democracia de Estados Unidos a su nivel más bajo en al menos medio siglo",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-15/trump-lleva-la-democracia-de-estados-unidos-a-su-nivel-mas-bajo-de-la-historia-reciente.html",
+     "language": "es",
+     "published_at": "2026-09-14T22:01:00+00:00",
+     "author": "Ignacio Fariza",
+     "summary": "International IDEA reports a severe degradation of key democratic indicators in the United States under Donald Trump.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "a1c93fb4c39e4839",
+     "title": "La crisi a Ceuta passa factura al PSOE, i qui més ho aprofitaria és Vox, segons el CIS",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/politica/20260914/371650/crisi-ceuta-passa-factura-psoe-ho-aprofitaria-vox-cis.html",
+     "language": "ca",
+     "published_at": "2026-09-14T14:22:29+00:00",
+     "author": null,
+     "summary": "According to the latest CIS barometer, the Ceuta crisis led to a two-point drop for PSOE, while Vox gained support. The left-wing and right-wing blocs remain in a tight tie.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "0d8734cbd319be44",
+     "title": "El PP \"no parará\" hasta que se asuman responsabilidades por Ceuta: \"No es una crisis, es un esperpento\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/pp-avisa-parara-responsabilidades-ceuta-no-crisis-esperpento/17223672.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T13:00:26+00:00",
+     "author": "RTVE.es",
+     "summary": "El portavoz del PP , Borja Sémper, ha avisado este lunes de que su partido no va a \"parar\" hasta que en el Gobierno asuman responsabilidades por la situación en Ceuta , de la que ha dicho que \"ya no es una crisis, es un esperpento\" . El presidente de la formación, Alberto Núñez…",
+     "content_type": null
+    },
+    {
+     "id": "208a296ab6917ef8",
+     "title": "Podemos sube más de un punto en intención de voto, pero la izquierda sigue en KO técnico en el CIS",
+     "source": "El Salto",
+     "publisher": "El Salto",
+     "url": "https://www.elsaltodiario.com/partidos-politicos/podemos-sube-un-punto-izquierda-sigue-ko-tecnico-cis?utm_source=feed",
+     "language": "es",
+     "published_at": "2026-09-14T12:44:00+00:00",
+     "author": "Pablo Elorduy",
+     "summary": "September's CIS barometer indicates a decline in support for PSOE amidst the Ceuta crisis, although it still leads national polling while left-wing parties struggle to gain broader momentum.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "5f68d97b1d8cc116",
+     "title": "Feijóo viajará a Ceuta acompañado de los líderes del PP en Bruselas para “europeizar” la crisis",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/feijoo-viajara-a-ceuta-acompanado-de-los-lideres-del-pp-en-bruselas-para-europeizar-la-crisis.html",
+     "language": "es",
+     "published_at": "2026-09-14T12:31:58+00:00",
+     "author": "Elsa García de Blas",
+     "summary": "El presidente popular se reúne el jueves con el comisario de Inmigración en Madrid y ha forzado un debate específico sobre la ciudad autónoma en el Parlamento Europeo",
+     "content_type": null
+    },
+    {
+     "id": "bd9dfef3fa144c46",
+     "title": "El PP va a “europeizar” la crisis de Ceuta y cree que “ha empeorado”",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260914/11634336/pp-europeizar-crisis-ceuta-cree-empeorado.html",
+     "language": "es",
+     "published_at": "2026-09-14T12:02:32+00:00",
+     "author": "Javier Gallego",
+     "summary": "Spanish opposition leader Alberto Núñez Feijóo plans to visit Ceuta with European People's Party leadership to escalate the local border situation to the European level.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "99002bd3c35b051f",
+     "title": "La crisi a Ceuta passa factura al PSOE segons el CIS: perd dos punts i el PP puja 4 dècimes",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/la-crisi-a-ceuta-passa-factura-al-psoe-segons-el-cis-perd-dos-punts-i-el-pp-puja-4-decimes/noticia/3428459/",
+     "language": "ca",
+     "published_at": "2026-09-14T10:51:05+00:00",
+     "author": null,
+     "summary": "The CIS barometer shows PSOE losing two percentage points following the Ceuta crisis, while PP gained 0.4 points and Vox increased by more than a point.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "b0d6927e4c5512a2",
+     "title": "El PSOE baja en el CIS de Tezanos por la crisis de Ceuta pero se mantiene en primera posición",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/psoe-baja-cis-tezanos-por-crisis-ceuta-pero-se-mantiene-primera-posicion-saca-4-5-puntos-pp_7036441_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:49:47+00:00",
+     "author": "Ana Moreno",
+     "summary": "According to the latest CIS survey following the Ceuta crisis, PSOE lost support but remains in first place. Vox and Podemos gained ground, rising to 16.6% and 3.7% respectively.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "5c56eeaab56c9973",
+     "title": "El PP i Vox rendibilitzen la crisi de Ceuta a costa del PSOE, segons el CIS",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/pp-retalla-distancia-psoe-vox-puja-despre-crisi-ceuta-segons-el-cis/",
+     "language": "ca",
+     "published_at": "2026-09-14T10:40:44+00:00",
+     "author": null,
+     "summary": "A CIS poll indicates changing voting intentions among Spanish political parties after the Ceuta crisis. Sumar slightly decreased, while ERC lost ground, Podem gained, and Junts remained stable.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "0694ccde94f9bade",
+     "title": "El PSOE cau dos punts per la crisi de Ceuta i el PP s'estanca, segons el CIS",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/politica/psoe-cau-punts-crisi-ceuta-pp-s-estanca-segons-cis_1_5849439.html",
+     "language": "ca",
+     "published_at": "2026-09-14T10:39:44+00:00",
+     "author": "ARA",
+     "summary": "El PSOE perd suports per la crisi a Ceuta però resisteix i tornaria a guanyar les eleccions, segons el CIS. El baròmetre publicat aquest dijous dona als socialistes el 31% dels vots, dos menys que a l'enquesta del juliol, i veu com el PP li retalla distàncies, situant-se a només…",
+     "content_type": null
+    },
+    {
+     "id": "7cf9607dcd9d1585",
+     "title": "El PSOE baja dos puntos pero sigue por delante del PP y Vox crece tras la crisis en Ceuta, según el CIS",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/barometro-cis-septiembre-estimacion-voto-psoe-pp/17223668.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T10:39:23+00:00",
+     "author": "RTVE.es",
+     "summary": "The latest CIS barometer reveals that despite a two-point drop following the Ceuta migration crisis, PSOE remains ahead of PP. Vox saw the largest gain, rising 1.3 points to 16.6%.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "a3abbe6844377956",
+     "title": "Ceuta passa factura a Sánchez i el PP retalla distàncies, segons el CIS",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/politica/ceuta-passa-factura-a-sanchez-i-el-pp-retalla-distancies-segons-el-cis.html",
+     "language": "ca",
+     "published_at": "2026-09-14T10:38:23+00:00",
+     "author": "Bernat Surroca",
+     "summary": "The migration crisis in Ceuta has weakened PSOE, allowing PP to narrow the gap to 5.5 points according to CIS data. Regional parties ERC and Junts remained virtually unchanged.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "8dff11f39ca83d1f",
+     "title": "El CIS reduce a 5,5 puntos la ventaja del PSOE sobre el PP tras la crisis de Ceuta",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260914/11634279/cis-reduce-5-5-puntos-ventaja-psoe-sobre-pp-crisis-ceuta.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:34:14+00:00",
+     "author": "Josep Maria Calvet Fransesch",
+     "summary": "Vox subiría 1,3 puntos respecto a julio y Podemos se acercaría a Sumar",
+     "content_type": null
+    },
+    {
+     "id": "4b7bb30317ab7a86",
+     "title": "El CIS aumenta la ventaja del PSOE sobre el PP a 5,5 puntos pese a la crisis en Ceuta",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/cis-aumenta-ventaja-psoe-pp-5-5-puntos-pese-crisis-ceuta_1_13507458.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:26:33+00:00",
+     "author": "Iñigo Aduriz, Ainhoa Díez",
+     "summary": "Los socialistas logran un 31% de los votos, solo tres décimas menos que en julio; el PP, un 25,5%, 1,6 puntos por debajo que el último estudio; Vox, un 16,6%; Sumar, un 5,7%, y Podemos, el 3,7%, según el barómetro de septiembre del instituto que dirige José Félix Tezanos El…",
+     "content_type": null
+    },
+    {
+     "id": "61d9a8b17def54d9",
+     "title": "La situación de Ceuta, más allá de los políticos",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260914/11633790/situacion-ceuta-mas-politicos.html",
+     "language": "es",
+     "published_at": "2026-09-14T04:00:00+00:00",
+     "author": "Mari Carmen Del Riego De Lucas",
+     "summary": "An article discussing the ongoing political and societal situation in Ceuta.",
+     "content_type": "other"
+    },
+    {
+     "id": "0d281c8400bcae05",
+     "title": "El PSOE se queda sin balas y lo fía todo a unos Presupuestos imposibles como única salida para rebajar la crisis política por Ceuta",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/psoe-se-queda-sin-balas-fia-todo-unos-presupuestos-imposibles-como-unica-salida-para-rebajar-crisis-politica-por-ceuta_7035693_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T03:00:00+00:00",
+     "author": "Marta Moreno",
+     "summary": "Internal voices within PSOE are calling to expedite the national budget to move past the Ceuta political crisis. If rejected, the budget could serve as a setup for early elections in early 2027.",
+     "content_type": "analysis"
+    }
+   ]
+  },
+  {
+   "id": "seb7924fce4b225a",
+   "headline": "Los líderes de Escocia, Gales e Irlanda del Norte acuerdan luchar juntos para independizarse del Reino Unido",
+   "summary": "Pro-independence leaders of Scotland, Wales, and Northern Ireland pledged to campaign together to separate from the UK and join the EU. They urged Andy Burnham's Labour government to facilitate constitutional change.",
+   "why_it_matters": "A unified independence push from all three devolved nations presents a major constitutional threat to the UK.",
+   "key_facts": [
+    "Meeting took place in Cardiff",
+    "Leaders of Wales, Scotland, and Northern Ireland participated",
+    "Declaration signed by leaders of Scotland, Wales, and Northern Ireland",
+    "Asserted Westminster cannot block democracy"
+   ],
+   "topics": [
+    "politics",
+    "independence",
+    "uk politics",
+    "escocia"
+   ],
+   "entities": [
+    "Wales",
+    "Scotland",
+    "Northern Ireland",
+    "Westminster",
+    "Irlanda",
+    "Cardiff",
+    "Los",
+    "Escocia"
+   ],
+   "importance": 0.9,
+   "relevance": 0.8,
+   "score": 5.09,
+   "publishers": [
+    "3Cat (324)",
+    "Ara",
+    "El País",
+    "Nació Digital",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 6,
+   "languages": [
+    "ca",
+    "es"
+   ],
+   "article_count": 7,
+   "first_published": "2026-09-14T10:23:53+00:00",
+   "last_published": "2026-09-15T03:30:01+00:00",
+   "articles": [
+    {
+     "id": "e32fc07c2878c71d",
+     "title": "Independentismo en el Reino Unido: un mismo rechazo a Londres, pero distintos ritmos en su afán por separarse",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-15/independentismo-en-el-reino-unido-un-mismo-rechazo-a-londres-pero-distintos-ritmos-en-su-afan-por-separarse.html",
+     "language": "es",
+     "published_at": "2026-09-15T03:30:01+00:00",
+     "author": "Rafa De Miguel",
+     "summary": "El impulso independentista escocés es muy superior al galés, e Irlanda del Norte tiene su propio laberinto constitucional",
+     "content_type": null
+    },
+    {
+     "id": "8406549e665b7ad2",
+     "title": "Els líders de Gal·les, Escòcia i Irlanda del Nord proclamen el seu dret a l'autodeterminació",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/els-liders-de-galles-escocia-i-irlanda-del-nord-proclamen-el-seu-dret-a-lautodeterminacio/noticia/3428581/",
+     "language": "ca",
+     "published_at": "2026-09-14T18:12:44+00:00",
+     "author": null,
+     "summary": "Leaders from Wales, Scotland, and Northern Ireland held an unusual meeting in Cardiff to demand self-determination. They declared their right to decide their own futures at differing speeds.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "653a556ad3685063",
+     "title": "Los nacionalistas de Escocia, Gales e Irlanda del Norte se unen para impulsar su independencia del Reino Unido",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-14/los-nacionalistas-de-escocia-gales-e-irlanda-del-norte-se-unen-para-impulsar-su-independencia-del-reino-unido.html",
+     "language": "es",
+     "published_at": "2026-09-14T13:11:21+00:00",
+     "author": "Rafa De Miguel",
+     "summary": "Los líderes firman un manifiesto en el que reclaman a Londres que comience a preparar las reformas constitucionales",
+     "content_type": null
+    },
+    {
+     "id": "8f77a0f4c062a688",
+     "title": "Escòcia, Gal·les i el Nord d'Irlanda signen a favor del dret a l'autodeterminació",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/internacional/escocia-galles-i-el-nord-dirlanda-signen-a-favor-del-dret-a-lautodeterminacio.html",
+     "language": "ca",
+     "published_at": "2026-09-14T12:58:42+00:00",
+     "author": "Gerard Mira Sánchez",
+     "summary": "Political leaders from Scotland, Wales, and Northern Ireland signed a declaration supporting self-determination. They asserted that Westminster has no right to block democratic processes.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "e223202ed065b833",
+     "title": "Escòcia, Gal·les i Irlanda del Nord redoblen la pressió per la independència: \"El temps de Westminster s'està acabant\"",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/internacional/europa/escocia-gal-irlanda-nord-redoblen-pressio-independencia-temps-westminster-s-acabant_1_5849478.html",
+     "language": "ca",
+     "published_at": "2026-09-14T12:40:55+00:00",
+     "author": "Nazaret Romero",
+     "summary": "Els líders d'Escòcia, Gal·les i Irlanda del Nord han escenificat a Cardiff, la capital gal·lesa, un front comú per intensificar la pressió sobre Londres per la independència. \"El temps de Westminster s'està acabant\", diu una declaració conjunta signada pel primer ministre…",
+     "content_type": null
+    },
+    {
+     "id": "b2a35945a0cec57a",
+     "title": "Els primers ministres d’Escòcia, Gal·les i el Nord d’Irlanda segellen l’aliança per l’autodeterminació",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/primers-ministres-escocia-galles-nord-irlanda-alianca-autodeterminacioo/",
+     "language": "ca",
+     "published_at": "2026-09-14T11:31:35+00:00",
+     "author": null,
+     "summary": "The first ministers of Scotland, Wales, and Northern Ireland sealed an alliance for self-determination. They stated that Westminster's era is ending and called for an equal relationship among nations.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "3ab49f95b8fcdba1",
+     "title": "Los líderes de Escocia, Gales e Irlanda del Norte acuerdan luchar juntos para independizarse del Reino Unido",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/internacional/lideres-escocia-gales-e-irlanda-norte-acuerdan-luchar-independizarse-reino-unido_1_13507512.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:23:53+00:00",
+     "author": "María Ramírez",
+     "summary": "Pro-independence leaders of Scotland, Wales, and Northern Ireland pledged to campaign together to separate from the UK and join the EU. They urged Andy Burnham's Labour government to facilitate constitutional change.",
+     "content_type": "reporting"
+    }
+   ]
+  },
+  {
+   "id": "s842c9c5909006af",
+   "headline": "¿Por qué la ultraderecha baja en Suecia mientras avanza en Europa?",
+   "summary": "The Sweden Democrats experienced their first electoral decline in four decades as conservative parties adopted elements of their platform. This shift has brought the center-left coalition closer to an election victory.",
+   "why_it_matters": "Mainstream parties adopting far-right rhetoric is shifting political dynamics and election outcomes in Sweden.",
+   "key_facts": [
+    "The Sweden Democrats lost their position as the second-largest political force.",
+    "The Sweden Democrats suffered their first election drop since entering Parliament in 2010.",
+    "The Social Democrats recorded their worst electoral result in over a century.",
+    "The opposition bloc leads with 95% of the votes counted."
+   ],
+   "topics": [
+    "politics",
+    "elections",
+    "sweden"
+   ],
+   "entities": [
+    "Suècia",
+    "Swedish",
+    "Sweden",
+    "Ulf Kristersson",
+    "Demòcrates de Suècia",
+    "Partit Socialdemòcrata",
+    "Riksdag",
+    "Demócratas Suecos"
+   ],
+   "importance": 0.88,
+   "relevance": 0.8,
+   "score": 5.054,
+   "publishers": [
+    "Al Jazeera",
+    "Ara",
+    "BBC World",
+    "El País",
+    "Nació Digital",
+    "The Guardian World",
+    "VilaWeb"
+   ],
+   "publisher_count": 7,
+   "languages": [
+    "ca",
+    "en",
+    "es"
+   ],
+   "article_count": 8,
+   "first_published": "2026-09-14T00:11:39+00:00",
+   "last_published": "2026-09-15T05:00:26+00:00",
+   "articles": [
+    {
+     "id": "c42164872440e60e",
+     "title": "Per què l'extrema dreta és el partit que més cau a Suècia?",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/internacional/europa/l-extrema-dreta-partit-mes-cau-suecia_1_5849672.html",
+     "language": "ca",
+     "published_at": "2026-09-15T05:00:26+00:00",
+     "author": "Núria Vila Masclans",
+     "summary": "Sweden's legislative elections resulted in no clear winner, but saw significant losses for key parties. The far-right Sweden Democrats lost ground for the first time since 2010, while the Social Democrats suffered their worst electoral outcome in over a century.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "c478c4d5d286b538",
+     "title": "Sweden election is too close to call as far right loses ground",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/15/sweden-election-is-too-close-to-call-as-far-right-loses-ground?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-15T00:06:34+00:00",
+     "author": null,
+     "summary": "The opposition bloc holds a narrow lead in Sweden's tight general election as far-right parties lose support. Results remain unconfirmed with 95% of votes counted.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "0828990d4e61a5a5",
+     "title": "¿Por qué la ultraderecha baja en Suecia mientras avanza en Europa?",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-14/por-que-la-ultraderecha-baja-en-suecia-mientras-avanza-en-europa.html",
+     "language": "es",
+     "published_at": "2026-09-14T17:51:21+00:00",
+     "author": "Carlos Torralba",
+     "summary": "The Sweden Democrats experienced their first electoral decline in four decades as conservative parties adopted elements of their platform. This shift has brought the center-left coalition closer to an election victory.",
+     "content_type": "analysis"
+    },
+    {
+     "id": "086b0b1cf9858445",
+     "title": "The far right’s march to power in Sweden has been halted, but its influence remains",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/14/far-right-march-to-power-election-sweden-halted-influence-remains",
+     "language": "en",
+     "published_at": "2026-09-14T12:19:24+00:00",
+     "author": "Miranda Bryant Nordic correspondent",
+     "summary": "The Sweden Democrats slipped to third after decades of growth, but their hardline positions have already reshaped the political mainstream Swedish centre-left opposition widens lead to three seats with 95% of votes counted – live Since the party was founded in 1988, the story of…",
+     "content_type": null
+    },
+    {
+     "id": "f53ae9a9f6dd7e46",
+     "title": "Swedish centre-left opposition widens lead to three seats with 95% of votes counted – Europe live",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/live/2026/sep/14/sweden-election-magdalena-andersson-social-democrats-centre-left-latest-news-updates",
+     "language": "en",
+     "published_at": "2026-09-14T09:57:40+00:00",
+     "author": "Jakub Krupa in Stockholm",
+     "summary": "The parliament isn’t set to meet until late September to elect a new speaker, and then prime minister Perhaps we should all just channel the Swedish PM, Ulf Kristersson, who essentially said this morning he was “going to take it pretty easy” until the final results are in. He…",
+     "content_type": null
+    },
+    {
+     "id": "66a0fa7222606505",
+     "title": "Swedish left-wing bloc narrowly ahead with election too close to call",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c0qx5d79kdeo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-14T08:36:09+00:00",
+     "author": null,
+     "summary": "A preliminary count by Sweden's election authority projected that left-wing opposition bloc would win a three-seat majority.",
+     "content_type": null
+    },
+    {
+     "id": "c86cd3e4f65a24a0",
+     "title": "El centreesquerra guanya les eleccions a Suècia per la mínima gràcies al retrocés de l'extrema dreta",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/internacional/el-centreesquerra-guanya-les-eleccions-a-suecia-per-la-minima-gracies-al-retroces-de-lextrema-dreta.html",
+     "language": "ca",
+     "published_at": "2026-09-14T07:09:42+00:00",
+     "author": "Marc Orts i Cussó",
+     "summary": "Sweden's progressive bloc holds a narrow three-seat lead over conservatives following a decline in far-right support. The final election outcome depends on the upcoming count of overseas ballots.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "1cd211061d440b11",
+     "title": "L’esquerra sueca s’imposa a la dreta i l’extrema dreta, però per un sol escó",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/lesquerra-sueca-simposa-a-la-dreta-i-lextrema-dreta-pero-per-un-sol-esco/",
+     "language": "ca",
+     "published_at": "2026-09-14T00:11:39+00:00",
+     "author": null,
+     "summary": "Sweden's left-wing coalition holds a single-seat lead over the right and far-right parties following recent elections. Swedish electoral authorities will resume counting overseas votes on Wednesday to determine the final winner.",
+     "content_type": "reporting"
+    }
+   ]
+  },
+  {
+   "id": "s38b128a45726529",
+   "headline": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
+   "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
+   "why_it_matters": "Managing high influxes of migrants presents significant administrative and humanitarian challenges.",
+   "key_facts": [
+    "Government partners suspect blackmail due to opacity on Morocco.",
+    "Pedro Sánchez denied Pegasus spyware blackmail allegations.",
+    "Sánchez set a timeline to normalize Ceuta by the end of the year.",
+    "CNI reports point toward Morocco regarding Ceuta's migration crisis."
+   ],
+   "topics": [
+    "politics",
+    "diplomacy",
+    "migration",
+    "elections"
+   ],
+   "entities": [
+    "Pedro Sánchez",
+    "Morocco",
+    "Ceuta",
+    "Spain",
+    "Pegasus",
+    "Podemos",
+    "Irene Montero",
+    "Juan Jesús Vivas"
+   ],
+   "importance": 0.82,
+   "relevance": 0.8,
+   "score": 4.928,
+   "publishers": [
+    "20minutos",
+    "El País",
+    "Público",
+    "RTVE",
+    "eldiario.es"
+   ],
+   "publisher_count": 5,
+   "languages": [
+    "es"
+   ],
+   "article_count": 8,
+   "first_published": "2026-09-14T08:01:02+00:00",
+   "last_published": "2026-09-15T03:00:00+00:00",
+   "articles": [
+    {
+     "id": "d51f1890ee32db20",
+     "title": "La opacidad de Sánchez con Marruecos dispara entre sus socios las sospechas de \"chantaje\"",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/opacidad-sanchez-con-marruecos-dispara-entre-sus-socios-las-sospechas-chantaje_7036649_0.html",
+     "language": "es",
+     "published_at": "2026-09-15T03:00:00+00:00",
+     "author": "Alejandro Tobalina, Marta Moreno",
+     "summary": "Pedro Sánchez's opacity regarding Morocco has raised suspicions of blackmail among his political partners.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "213e79ae6857fcc6",
+     "title": "Sánchez rechaza las teorías sobre un chantaje de Marruecos: \"La realidad se tiene que construir en base a hechos y no a bulos\"",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/gobierno/sanchez-rechaza-teorias-sobre-chantaje-marruecos-realidad-construir-base-hechos-bulos.html",
+     "language": "es",
+     "published_at": "2026-09-14T22:26:22+00:00",
+     "author": "Miguel Muñoz",
+     "summary": "Spanish Prime Minister Pedro Sánchez dismissed claims that Morocco is blackmailing his government using Pegasus spyware, calling the rumors fake news. He set a target to restore normality in Ceuta by the end of the year.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "3f200a291e9086c6",
+     "title": "Sánchez, sobre los informes del CNI que apuntan a Marruecos en la crisis migratoria de Ceuta: \"No hay datos sólidos que lo prueben\"",
+     "source": "20minutos",
+     "publisher": "20minutos",
+     "url": "https://www.20minutos.es/nacional/sanchez-sobre-los-informes-cni-que-apuntan-marruecos-crisis-ceuta-no-hay-informacion-solida-que-pruebe_7036700_0.html",
+     "language": "es",
+     "published_at": "2026-09-14T21:46:17+00:00",
+     "author": "Alexandra Smith",
+     "summary": "Spanish Prime Minister Pedro Sánchez stated there is no solid data proving Morocco's involvement in Ceuta's migration crisis, but promised a firm response if evidence emerges.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "20e6056333c2ce20",
+     "title": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260914/sanchez-situa-hasta-finales-ano-mando-unico-ceuta-para-situacion-pueda-quedar-estabilizada/17224839.shtml",
+     "language": "es",
+     "published_at": "2026-09-14T20:30:52+00:00",
+     "author": "RTVE Noticias",
+     "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "6a5dce44bda0dc3d",
+     "title": "Pedro Sánchez: \"Nos hemos dado de aquí al final del año para arreglar la situación en Ceuta\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/pedro-sanchez-hemos-dado-final-ano-arreglar-situacion-ceuta_1_13509833.html",
+     "language": "es",
+     "published_at": "2026-09-14T20:18:54+00:00",
+     "author": "José Enrique Monrosi",
+     "summary": "Prime Minister Pedro Sánchez expects to resolve the diplomatic and migrant crisis in Ceuta by the end of the year, dismissing claims of Moroccan Pegasus spyware blackmail as persistent rumors.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "9389c2d7c4ac0b18",
+     "title": "Sumar evita responder a las primarias que ofrece Podemos: \"Hay que buscar pactos\" pero \"la fórmula no nos preocupa\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/sumar-evita-responder-primarias-ofrece-hay-buscar-pactos-formula-no-preocupa_1_13508417.html",
+     "language": "es",
+     "published_at": "2026-09-14T12:28:20+00:00",
+     "author": "Daniel Ríos",
+     "summary": "Movimiento Sumar leader Rosa Martínez welcomed Podemos' desire for a joint electoral list but avoided committing to Podemos' proposed open primary process.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "25583c6dc9253ed6",
+     "title": "Irene Montero: \"Con unas primarias a las que se pueda presentar todo el mundo tenemos más garantías de acertar\"",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/politica/irene-montero-primarias-pueda-presentar-mundo-tenemos-garantias-acertar.html",
+     "language": "es",
+     "published_at": "2026-09-14T10:01:50+00:00",
+     "author": "Inés García Rábade",
+     "summary": "Irene Montero, Podemos' candidate for the 2027 Spanish general election, has called for open primaries to build a unified left-wing ballot. She criticized the current government for failing to address housing speculation and price caps.",
+     "content_type": "reporting"
+    },
+    {
+     "id": "2ad4c45ff1e3f126",
+     "title": "Irene Montero defiende las primarias abiertas para “salir del bucle” de la izquierda y que la gente “tome la palabra”",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-14/irene-montero-defiende-las-primarias-abiertas-para-salir-del-bucle-de-la-izquierda-y-que-la-gente-tome-la-palabra.html",
+     "language": "es",
+     "published_at": "2026-09-14T08:01:02+00:00",
+     "author": "Paula Chouza Candeira",
+     "summary": "La eurodiputada, sobre un hipotético chantaje de Marruecos a Sánchez: “Parece bastante evidente que algo hay”",
+     "content_type": null
+    }
+   ]
+  }
+ ]
+}

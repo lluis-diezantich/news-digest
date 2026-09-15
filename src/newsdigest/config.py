@@ -416,6 +416,25 @@ def load_dotenv(path: Path | str = REPO_ROOT / ".env") -> None:
             os.environ[key] = value
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    """Read a boolean env var. Unset means the default, not False.
+
+    Accepts the spellings people actually type. Anything else warns rather than
+    silently reading as false -- a typo'd LLM_RESOLVE_CLUSTERS that quietly
+    disabled adjudication would be invisible in the output.
+    """
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    value = raw.strip().lower()
+    if value in ("1", "true", "yes", "on"):
+        return True
+    if value in ("0", "false", "no", "off"):
+        return False
+    log.warning("%s=%r is not a boolean; using %s", name, raw, default)
+    return default
+
+
 def _env_int(name: str, default: int) -> int:
     raw = os.environ.get(name)
     try:
@@ -469,6 +488,12 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
         model=os.environ.get("LLM_MODEL") or "gemini-3.6-flash",
         api_key=key,
         batch_size=max(1, _env_int("LLM_BATCH_SIZE", 8)),
+        # Both had no env wiring, which made them unreachable from CI. On a free
+        # tier the request COUNT is the scarce resource, not the token total, so
+        # these are the two cheapest levers: adjudication costs a whole request
+        # for a nicety, and briefs are the only LLM output a reader ever sees.
+        resolve_clusters=_env_bool("LLM_RESOLVE_CLUSTERS", True),
+        max_cluster_checks=max(0, _env_int("LLM_MAX_CLUSTER_CHECKS", 40)),
         articles_per_run=max(0, _env_int("LLM_ARTICLES_PER_RUN", 400)),
         max_rate_limit_retries=max(0, _env_int("LLM_RATE_LIMIT_RETRIES", 3)),
         max_rate_limit_wait=max(0.0, _env_float("LLM_RATE_LIMIT_WAIT", 600.0)),
