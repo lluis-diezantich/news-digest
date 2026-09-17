@@ -63,20 +63,36 @@ ranking:
   #   importance        0.12 -- offline it is 0.35 + 0.12 per hit on a 33-word
   #                     list (killed, guerra, terratremol...); 91% of articles
   #                     matched nothing, so it was a constant in signal's
-  #                     clothing. Put it back the day a real LLM fills it in.
+  #                     clothing. Restored the same day once a real LLM filled it
+  #                     in, then removed again on 2026-09-17 for a different
+  #                     reason -- see the note in `terms:` below.
   #   source_preference dwarfed by its own +0.5 favourites bonus -- an assertion
   #                     that four outlets are trustworthy, not evidence.
   terms:
-    # How consequential the story is, on the LLM's own 0-1 scale (0.9+ a major
-    # world event, 0.3 routine). Removed on 2026-09-14 when it was worthless --
-    # offline it is 0.35 + 0.12 per hit on a 33-word list, and 91% of articles
-    # matched nothing, so it was a constant. Restored the same day once a real
-    # model filled it in: the first working run scored a spread of 0.03 to 1.00.
-    # Equal to editorial_position by intent. Position says what a desk led with
-    # and always works; importance says whether it mattered but needs the model.
-    # Weighting them the same means the digest still ranks sensibly on position
-    # alone when the LLM is unavailable, which is how every degraded run behaves.
-    importance: 2.0
+    # importance REMOVED from the formula on 2026-09-17. Still computed and still
+    # shown on the page -- the same treatment interest and relevance already get.
+    #
+    # It was restored on 2026-09-14 on the strength of a 0.03-1.00 spread, but
+    # that spread belongs to the ARTICLE-level number. The story-level one is
+    # what ranks, and the brief overwrites it. Measured over the stored week:
+    # qwen3:8b returned 0.80-0.85 for every briefed story -- a spread of 0.05
+    # across six -- so at weight 2.0 it contributed a flat ~1.65 and could not
+    # reorder anything.
+    #
+    # Worse, it inverted. The four highest importance values in the database all
+    # belonged to stories that were never briefed (1.00, 1.00, 0.97, 0.88, from
+    # build_story's article maximum plus its publisher bonus), so being briefed
+    # cost a story up to 0.40, doubled by the weight. That is how a 3-publisher
+    # story ranked #5 above three rivals with 5 and 6 publishers.
+    #
+    # Put it back when a model actually spreads the scale. `news-digest explain`
+    # and the stored stories make that a measurement, not a hope.
+    #
+    # A velocity term was considered as the replacement and rejected the same
+    # day: every multi-outlet story in the window develops over 6-30 hours, so
+    # there is no burstiness left to measure, and publishers-per-hour inverts
+    # outright -- the three 2-article stories scored the highest rate of any.
+
     # The desk's own ordering. Feed and DOM order measured 80-100% concordant
     # with each site's front page, so position 0 is an editor saying "this leads
     # today" -- free, and in every language. Primary by intent: the digest should
@@ -84,7 +100,11 @@ ranking:
     editorial_position: 2.0
     # How many independent outlets covered it -- the honest measure of
     # newsworthiness, and 0.00 on every story until embeddings exist.
-    corroboration: 0.8
+    # Raised 0.8 -> 1.5 on 2026-09-17, taking the weight importance was wasting.
+    # This is what importance was meant to approximate, and it has real spread on
+    # this data -- 0.27 to 1.00 across 2 to 13 publishers -- where importance had
+    # none. Left below editorial_position, which stays primary by intent.
+    corroboration: 1.5
     # A tiebreak, not a driver: within one source, position already implies it.
     recency: 0.3
     story_size: 0.2

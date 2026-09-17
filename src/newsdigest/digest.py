@@ -72,7 +72,14 @@ def prerank_score(articles: list[Article], config: Config) -> float:
     newest = max((a.published_at or a.collected_at) for a in articles)
     age_hours = max(0.0, (utcnow() - newest).total_seconds() / 3600.0)
 
-    corroboration = 0.0 if len(publishers) <= 1 else min(1.0, math.log(len(publishers), 4))
+    # Saturation comes from config for the same reason it does in
+    # `scoring.corroboration`: hardcoded to 4 this tied every story with four or
+    # more publishers, and this is the function that decides which ~16 of ~198
+    # clusters are worth paying to enrich. A four-outlet report and a
+    # thirteen-outlet lead story competed for those slots as equals.
+    corroboration = 0.0 if len(publishers) <= 1 else min(
+        1.0, math.log(len(publishers), max(2.0, prefs.corroboration_saturation))
+    )
     size = min(1.0, math.log(len(articles) + 1, 8))
     weight = sum(a.source_weight for a in articles) / len(articles)
     recency = math.exp(-math.log(2) * age_hours / max(1.0, prefs.recency_half_life_hours))
@@ -205,8 +212,13 @@ def build_digest(
                 story.why_it_matters = brief.why_it_matters or story.why_it_matters
                 story.key_facts = brief.key_facts or story.key_facts
                 story.topics = brief.topics or story.topics
-                if brief.importance is not None:
-                    story.importance = brief.importance
+                # `brief.importance` is deliberately NOT copied over. Measured on
+                # 2026-09-17: qwen3:8b returns 0.80-0.85 for every story, so this
+                # replaced build_story's article-derived value -- which spreads
+                # 0.20-0.80 -- with a constant. The term is out of the ranking
+                # formula now, so this only decided which number the page showed,
+                # and it showed the worse one. The model is still asked for it;
+                # restore this line the day one earns it.
                 if brief.relevance is not None:
                     story.relevance = brief.relevance
                 story.written_by = llm.name

@@ -160,10 +160,13 @@ Everything still runs. Two things get worse, both visible:
 
 1. **Summaries are extractive and untranslated** — a Spanish article keeps a
    Spanish summary under `output_language: en`.
-2. **`importance` becomes near-useless.** Without a model it is `0.35 + 0.12` per hit on a
-   33-word list; 91% of articles match nothing, so it is a constant wearing a
-   signal's clothes. It sits in `ranking.terms` at weight 2.0 and only earns that
-   with a real model.
+2. **`importance` becomes near-useless** — but so it was *with* a model, which is
+   why it no longer ranks anything. Without one it is `0.35 + 0.12` per hit on a
+   33-word list and 91% of articles match nothing. With qwen3:8b it came back at
+   0.80–0.85 for every briefed story, measured over a stored week: a constant
+   wearing a signal's clothes either way. It left `ranking.terms` on 2026-09-17
+   and its weight went to `corroboration`. Nothing about a degraded run is worse
+   on this axis now, because the full run no longer uses the signal either.
 
 Without **embeddings** specifically, cross-language coverage stays split, and
 that is not a tuning problem: over 37,776 real within-language pairs, text

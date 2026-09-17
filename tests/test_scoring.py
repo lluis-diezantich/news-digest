@@ -1,7 +1,7 @@
 """Ranking: deterministic, and driven entirely by the config formula."""
 
 from newsdigest import clustering, scoring
-from newsdigest.config import Preferences
+from newsdigest.config import Preferences, load_preferences
 from newsdigest.models import utcnow
 
 from conftest import make_article
@@ -158,3 +158,47 @@ class TestConfigurableFormula:
         arts = [make_article("Cup final", topics=["sports"], importance=0.5, relevance=0.5)]
         story, _ = story_of(*arts)
         assert scoring.explain(story, arts, config.preferences)["excluded_penalty"] < 0
+
+
+class TestShippedFormula:
+    """The formula in config/preferences.yaml, as opposed to the defaults.
+
+    Every other test here builds `Preferences()` from code defaults, so until
+    2026-09-17 nothing asserted the file the digest actually runs on. These pin
+    the two decisions that are easy to undo by accident.
+    """
+
+    @staticmethod
+    def shipped():
+        return load_preferences()[1]
+
+    def test_importance_is_not_in_the_formula(self):
+        """Removed 2026-09-17: qwen3:8b returns 0.80-0.85 for every briefed story,
+        so at weight 2.0 it was a constant that could not reorder anything, and it
+        inverted -- unbriefed stories kept a higher article-derived value and beat
+        briefed ones on it. Restore it only with a measurement. See the note in
+        config/preferences.yaml."""
+        assert "importance" not in self.shipped().ranking
+
+    def test_the_score_ignores_importance(self):
+        """The property that matters, independent of how the term is spelled."""
+        prefs = self.shipped()
+        dull, arts_dull = story_of(make_article("A", importance=0.05))
+        vital, arts_vital = story_of(make_article("B", importance=1.0))
+        now = utcnow()
+        assert scoring.score_story(dull, arts_dull, prefs, now=now) == (
+            scoring.score_story(vital, arts_vital, prefs, now=now)
+        )
+
+    def test_more_publishers_outranks_fewer(self):
+        """What importance's weight was handed to. Coverage has to be the thing
+        that separates two otherwise identical stories."""
+        prefs = self.shipped()
+        few = [make_article("Event", source=f"S{i}", publisher=f"P{i}") for i in range(3)]
+        many = [make_article("Event", source=f"S{i}", publisher=f"P{i}") for i in range(11)]
+        story_few, _ = story_of(*few)
+        story_many, _ = story_of(*many)
+        now = utcnow()
+        assert scoring.score_story(story_few, few, prefs, now=now) < (
+            scoring.score_story(story_many, many, prefs, now=now)
+        )

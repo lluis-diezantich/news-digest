@@ -279,7 +279,15 @@ class TestBuildDigest:
         story = result.stories[0][0]
         assert story.headline == "Merged headline"
         assert story.key_facts == ["A fact"]
-        assert story.importance == 0.9
+        # relevance is still taken from the brief...
+        assert story.relevance == 0.8
+        # ...but importance deliberately is not, since 2026-09-17. It keeps
+        # build_story's article-derived value -- here the articles carry no
+        # importance at all, so it is 0.0 plus the 0.03 second-publisher bonus.
+        # Measured, qwen3:8b returns 0.80-0.85 for everything, so copying it over
+        # replaced a 0.20-0.80 spread with a constant. See config/preferences.yaml.
+        assert story.importance != 0.9
+        assert story.importance == pytest.approx(0.03)
         assert story.written_by == provider.name
 
     def test_single_publisher_story_costs_no_brief(self, store, config, context):

@@ -37,8 +37,9 @@ make serve
 ```
 
 End to end in a couple of minutes, but meaningfully worse: coverage of one event
-in different languages stays split into separate stories, and `importance` is
-close to a constant. [Providers](doc/providers.md) has the measurements.
+in different languages stays split into separate stories, and summaries are
+extractive and untranslated. Ranking holds up, because it runs on what collection
+already provides. [Providers](doc/providers.md) has the measurements.
 
 
 ### Version 2 - Full version with LLM and embeddings
@@ -86,8 +87,10 @@ your machine: no key, no quota, no rate limit, nothing that can be withdrawn fro
 under you. Weights download once (~220 MB for embeddings, ~5 GB for the model),
 so the first run is not five minutes; later ones are.
 
-With 16 GB or more, a 12–14B model is a clear upgrade for the `importance`
-judgements — set `LLM_MODEL` and pull it instead.
+With 16 GB or more, a 12–14B model is a clear upgrade for the briefs — set
+`LLM_MODEL` and pull it instead. It is also the way back to a usable `importance`
+signal, which qwen3:8b does not provide: it returns 0.80–0.85 for everything, so
+the term was taken out of the ranking formula on 2026-09-17.
 
 [Setup](doc/setup.md) explains why that command needs `--week`, and how to deploy
 to GitHub.

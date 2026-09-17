@@ -75,9 +75,8 @@ so `excluded_topics` remains the backstop for strays.
 ```yaml
 ranking:
   terms:
-    importance: 2.0          # how consequential, on the LLM's 0-1 scale
     editorial_position: 2.0  # where its source placed it
-    corroboration: 0.8       # distinct publishers covering it
+    corroboration: 1.5       # distinct publishers covering it
     recency: 0.3
     story_size: 0.2
   excluded_penalty: 1.5
@@ -89,18 +88,28 @@ a misspelled term is a startup error, not a silent no-op.
 `news-digest explain <story-id>` prints the per-term breakdown, and the numbers
 shown provably sum to the score used for ranking.
 
-`importance` and `editorial_position` are weighted equally on purpose. Position
-says what a desk led with and always works; importance says whether it mattered
-but needs a model. Equal weights mean the digest still ranks sensibly on position
-alone when the LLM is unavailable, which is how every degraded run behaves.
+`editorial_position` and `corroboration` carry the formula: what a desk led with,
+and how many desks led with it. Both come from collection, so a degraded run with
+no model available ranks exactly as well as a full one — which is the point.
 
-Four terms were removed after measuring what each contributed across a published
-top ten. The measurements are recorded in the config file itself:
+`importance` used to sit alongside them at weight 2.0 and was removed on
+2026-09-17. Measured over a stored week, qwen3:8b returned 0.80–0.85 for every
+briefed story, so the term was a constant that could not reorder anything; worse,
+stories that were never briefed kept a higher article-derived value and beat
+briefed ones on it, which put a 3-publisher story above three rivals with 5 and 6.
+It is still computed and still shown on the page, like `interest` and `relevance`.
+Restore it when a model spreads the scale — `news-digest explain` makes that a
+measurement rather than a hope.
+
+Four terms were removed after measuring what each contributed — the first three
+across a published top ten, `importance` across a stored week. The measurements
+are recorded in the config file itself:
 
 | Term | Spread | Why it went |
 |---|---|---|
 | `relevance` | 0.40 | "how well does this match THIS reader" — the personalization this digest is meant not to do, and the only term still moving the order |
 | `interest` | 0.08 | topic matching over tags too broad to mean much |
+| `importance` | 0.05 | removed 2026-09-17: qwen3:8b returns 0.80–0.85 for every briefed story, so it could not reorder anything — and it inverted, because unbriefed stories kept a higher article-derived value and beat briefed ones on it |
 | `source_preference` | — | an assertion that four outlets are trustworthy, not evidence; its +0.5 favourites bonus dwarfed the 0.8–1.2 weight spread, and dropping it took one digest from 4 distinct publishers to 6 |
 
 `editorial_position` is the counter-example worth knowing about: it was built,
