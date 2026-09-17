@@ -51,6 +51,16 @@ edge expensive: one wrong link welds two otherwise-clean clusters together. That
 is the argument for a *narrow* auto-merge tier and a *wide* adjudicated band
 rather than one finely-tuned threshold — see providers.md.
 
+Centroid linkage — requiring two clusters' *average* vectors to match before they
+merge, so an outlier has to resemble the whole group rather than its nearest
+member — was implemented, measured and removed. On the 2026-W38 window at 0.80 it
+rejected 4 of 175 merges, and one was plainly wrong: a 14th article about the
+Morelos murder kept out of the 13-article cluster covering that murder, on a
+centroid score of 0.755 — the same score as a rejection that was correct, so no
+threshold below it separated the two. It rejected 17 of 509 at 0.70 and 31 of 770
+at 0.65, so it would only earn its place if the auto-merge tier were loosened.
+Don't re-add it as a global gate without that change.
+
 **Pre-rank.** Clusters are ordered using only signals collection already provided
 — publisher count, coverage volume, source weights, recency — and only the top
 `2 × max_stories` are enriched. That is the difference between summarizing six
