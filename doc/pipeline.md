@@ -74,6 +74,64 @@ and on a free tier that spent the whole daily allowance on scaffolding.
 **Rank + publish.** `scoring.py` applies the formula from
 `config/preferences.yaml`, then writes the digest, the archive and RSS.
 
+## Evaluation
+
+`tests/fixtures/cluster_eval.json` is the ground truth: 27 articles from two
+stories dissected by hand, grouped into the 13 real events they actually cover.
+Both stories were welded out of unrelated events by the pre-fix clustering —
+`s9b661259ac146ae` mixed Ceuta/Morocco with the Podemos primaries and a Junts
+piece, `scf09754259aef38` mixed four separate court matters.
+
+Labels are stored as **events, not pairs**: two articles in one event are a
+positive, two in different events a negative. Twelve event pairs are listed as
+`unsure` and excluded from scoring rather than guessed at — they are all "same
+broader affair, but is it one event?" calls. That yields **307 labelled pairs:
+43 same, 264 different, 9 of the positives cross-language.**
+
+The fixture carries its own cached vectors, so `python -m newsdigest.eval` needs
+no embedder, no ollama and no digest run, and finishes in about a second.
+`tests/test_cluster_eval.py` turns the same numbers into regression guards.
+Both cover the **embedding tiers only** — with no provider the adjudicated band
+is left alone, so recall is a floor.
+
+Measured 2026-09-17:
+
+```
+label      languages          n     min     p50     max
+different  cross-language    87   0.259   0.491   0.736
+different  same-language    177   0.130   0.433   0.705
+same       cross-language     9   0.556   0.694   0.782
+same       same-language     34   0.536   0.722   0.859
+
+similarity   precision  recall     f1   clusters
+      0.80       1.000   0.163  0.280         22
+      0.78       1.000   0.372  0.542         20   <- current
+      0.76       0.660   0.721  0.689         14
+      0.75       0.684   0.907  0.780         12
+      0.72       0.457   0.977  0.622          6
+      0.70       0.297   1.000  0.457          2
+```
+
+Three things that follow, and they are the reason the tiers are shaped as they
+are:
+
+- **The bands overlap by 0.20.** Genuine pairs run down to 0.536, unrelated ones
+  up to 0.736. No threshold separates them, so the adjudicated band is
+  structural, not a stopgap — any threshold low enough to catch the positives
+  welds unrelated events. Both fixture stories are that failure.
+- **Cross-language coverage is effectively unreachable by the auto-merge tier.**
+  Eight of the nine genuine cross-language pairs score below 0.78; only the best
+  reaches it, at 0.782. So almost every merge that spans a language comes from
+  adjudication or from chaining, not from the embedding — and a threshold anywhere
+  near the same-language one cannot change that, because cross-language negatives
+  run up to 0.736 while its positives start at 0.556. Bridging languages needs
+  adjudication, not a number.
+- **0.80 → 0.78 was free, and was adopted on 2026-09-17.** It more than doubles
+  recall (0.163 → 0.372) with precision still 1.000 and no documented weld
+  returning. The recorded welds come back at 0.72, not before, so there is margin
+  left — but below 0.78 precision falls off a cliff (1.000 at 0.78, 0.660 at
+  0.76), which is where the adjudicated band has to take over.
+
 ## Multilingual
 
 Articles keep their original language, title and URL — nothing is translated on

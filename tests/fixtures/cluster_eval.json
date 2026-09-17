@@ -1,0 +1,536 @@
+{
+  "notes": "Build the clustering eval fixture from `data/news.db`.\n\nRun once to regenerate `tests/fixtures/cluster_eval.json`; the fixture is what\nthe tests and `python -m newsdigest.eval` read, so the database is not needed\nafterwards. That matters because `embedding_retention_days` prunes vectors and\narticles scroll out of the window -- a fixture that pointed at the live database\nwould rot, and the labels are too expensive to re-derive.\n\nThe ground truth comes from two stories the owner dissected by hand, both of\nwhich the pre-fix clustering welded out of several unrelated events:\n\n  s9b661259ac146ae  \"Sanchez targets end-of-year resolution for Ceuta crisis\"\n                    -- Ceuta/Morocco, the Podemos primaries and a Junts piece.\n                    doc: a 0.726 edge pulled the Junts article in and a 0.705\n                    edge pulled in the three Podemos articles.\n  scf09754259aef38  \"Electoral Board Divided on Supreme Court's Vote Suspension\"\n                    -- four unrelated court matters: the JEC's response to the\n                    'ley de nietos' order, the Alacant antifascists trial, the\n                    Ceuta government-delegate case and the Caso Lezo.\n\nLabels are stored as *events*, not as pairs: two articles in the same event are\na positive, two in different events are a negative. That is far harder to get\nsubtly wrong than enumerating ~100 pairs by hand, and it makes the judgement\ncalls explicit -- an event pair listed in UNSURE is excluded from scoring\nentirely rather than guessed at.",
+  "embedding_cache_key": "local:sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2:0",
+  "dimensions": 384,
+  "origin": {
+    "s9b661259ac146ae": [
+      "ceuta_timeline",
+      "morocco_blackmail",
+      "clavijo_reaction",
+      "podemos_primaries",
+      "junts_puigdemont"
+    ],
+    "scf09754259aef38": [
+      "jec_session",
+      "lopez_reaction",
+      "judge_froze_vote",
+      "govt_pushback",
+      "opinion_manel_perez",
+      "alacant_antifascists",
+      "ceuta_delegate_case",
+      "caso_lezo"
+    ]
+  },
+  "events": {
+    "ceuta_timeline": [
+      "6a5dce44bda0dc3d",
+      "20e6056333c2ce20"
+    ],
+    "morocco_blackmail": [
+      "d51f1890ee32db20",
+      "213e79ae6857fcc6"
+    ],
+    "clavijo_reaction": [
+      "ebe4d222998ecbdc"
+    ],
+    "podemos_primaries": [
+      "2ad4c45ff1e3f126",
+      "25583c6dc9253ed6",
+      "9389c2d7c4ac0b18"
+    ],
+    "junts_puigdemont": [
+      "f61a4935ab4bff18"
+    ],
+    "jec_session": [
+      "71ce56a31eccd331",
+      "057bf842e487c63b",
+      "beadff1688f5e024",
+      "1854147a2826c096",
+      "047a356925b04be1",
+      "db566b466bb4cf99",
+      "db1017caf7a9666f",
+      "df59aac3a1ad37c0",
+      "3ad98903e9b65f4c"
+    ],
+    "lopez_reaction": [
+      "ba5edb102c56de92",
+      "d2c18db0283f1c34"
+    ],
+    "judge_froze_vote": [
+      "471225301b6a025e"
+    ],
+    "govt_pushback": [
+      "5b4d16467d64c1b2"
+    ],
+    "opinion_manel_perez": [
+      "8ce7c4585ebb7f1c"
+    ],
+    "alacant_antifascists": [
+      "94c5e3b70a441446"
+    ],
+    "ceuta_delegate_case": [
+      "bc25f27437a86cf4",
+      "d971895459d58bea"
+    ],
+    "caso_lezo": [
+      "c10375c011730abc"
+    ]
+  },
+  "unsure_event_pairs": [
+    [
+      "ceuta_timeline",
+      "morocco_blackmail"
+    ],
+    [
+      "clavijo_reaction",
+      "ceuta_timeline"
+    ],
+    [
+      "clavijo_reaction",
+      "morocco_blackmail"
+    ],
+    [
+      "judge_froze_vote",
+      "jec_session"
+    ],
+    [
+      "judge_froze_vote",
+      "lopez_reaction"
+    ],
+    [
+      "judge_froze_vote",
+      "govt_pushback"
+    ],
+    [
+      "judge_froze_vote",
+      "opinion_manel_perez"
+    ],
+    [
+      "govt_pushback",
+      "jec_session"
+    ],
+    [
+      "govt_pushback",
+      "lopez_reaction"
+    ],
+    [
+      "govt_pushback",
+      "opinion_manel_perez"
+    ],
+    [
+      "opinion_manel_perez",
+      "jec_session"
+    ],
+    [
+      "opinion_manel_perez",
+      "lopez_reaction"
+    ]
+  ],
+  "articles": [
+    {
+      "id": "047a356925b04be1",
+      "title": "La Junta Electoral acata la orden del TS y revisará que los nacionalizados a través de la 'ley de nietos' tengan vínculo con el exilio",
+      "description": "El organismo electoral pedirá informes al Censo y a los registros consulares para comprobar qué beneficiarios cumplen los requisitos fijados por el alto tribunal para votar desde el extranjero.",
+      "summary": null,
+      "language": "es",
+      "publisher": "20minutos",
+      "source": "20minutos",
+      "url": "https://www.20minutos.es/nacional/jec-acata-orden-supremo-revisara-vinculo-con-exilio-los-nacionalizados-por-ley-nietos_7036534_0.html",
+      "published_at": "2026-09-14T13:08:30+00:00",
+      "collected_at": "2026-09-15T00:40:44+00:00",
+      "source_weight": 0.8,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "057bf842e487c63b",
+      "title": "La JEC ejecuta el requerimiento del Supremo sobre la ley de nietos sin compartir su criterio",
+      "description": "La Junta acata las medidas cautelares sobre el CERA pero evita pronunciarse sobre la validez de las nacionalizaciones",
+      "summary": "The Central Electoral Board agreed to carry out the Supreme Court's order on the Grandchildren's Law without endorsing the court's legal reasoning.",
+      "language": "es",
+      "publisher": "La Vanguardia",
+      "source": "La Vanguardia",
+      "url": "https://www.lavanguardia.com/politica/20260914/11634547/junta-electoral-jec-ejecuta-requerimiento-supremo-sobre-ley-nietos-compartir-criterio.html",
+      "published_at": "2026-09-14T13:35:37+00:00",
+      "collected_at": "2026-09-15T00:40:43+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "1854147a2826c096",
+      "title": "La Junta Electoral acata dividida el mandato del Supremo sobre la ‘ley de nietos’",
+      "description": "La mayoría de los vocales no comparten que se haya suspendido el derecho al voto de los nacionalizados sin permitir alegaciones",
+      "summary": null,
+      "language": "es",
+      "publisher": "El País",
+      "source": "El País España",
+      "url": "https://elpais.com/espana/2026-09-14/la-junta-electoral-acata-dividida-el-mandato-del-supremo-sobre-la-ley-de-nietos.html",
+      "published_at": "2026-09-14T13:17:00+00:00",
+      "collected_at": "2026-09-15T00:40:38+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "20e6056333c2ce20",
+      "title": "Sánchez sitúa hasta \"finales de año\" el mando único en Ceuta para que la situación pueda quedar \"estabilizada\"",
+      "description": "El presidente del Gobierno, Pedro Sánchez , ha situado hasta \" finales de año \" el mando único establecido por el Ejecutivo para estabilizar la situación en Ceuta , después de que en los días 30 y 31 de julio entraran más de 70.000 personas migrantes. El jefe del Ejecutivo ha dado este horizonte de tiempo para resolver la crisis allí abierta, cuando todavía permanecen miles de personas en la ciudad autónoma sin estar filiadas y a la espera de que se resuelva su expediente de expulsión o de protección internacional. Entrevistado este lunes en La Sexta , Pedro Sánchez también ha adelantado que e",
+      "summary": "Spanish Prime Minister Pedro Sánchez announced that single command in Ceuta will remain until year-end to resolve the ongoing migration crisis following the arrival of over 70,000 migrants in late July.",
+      "language": "es",
+      "publisher": "RTVE",
+      "source": "RTVE Noticias",
+      "url": "https://www.rtve.es/noticias/20260914/sanchez-situa-hasta-finales-ano-mando-unico-ceuta-para-situacion-pueda-quedar-estabilizada/17224839.shtml",
+      "published_at": "2026-09-14T20:30:52+00:00",
+      "collected_at": "2026-09-15T00:40:56+00:00",
+      "source_weight": 1.1,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "213e79ae6857fcc6",
+      "title": "Sánchez rechaza las teorías sobre un chantaje de Marruecos: \"La realidad se tiene que construir en base a hechos y no a bulos\"",
+      "description": "El presidente del Gobierno apunta a un \"cambio\" en la colaboración del presidente ceutí, Juan Jesús Vivas: \"En 2021 trabajamos codo con codo y en 2026 no ocurre lo mismo\". \"En absoluto\", ha respondido Sánchez sobre si el espionaje con Pegasus condiciona la postura del Gobierno con Marruecos. El plazo establecido para que Ceuta vuelva a la normalidad es \"hasta finales de año\", ha asegurado. Madrid - 14/09/2026 22:26 - Actualizado a 14/09/2026 23:01 El presidente del Gobierno, Pedro Sánchez , ha rechazado de plano este lunes las teorías por las que supuestamente Marruecos chantajea a España por ",
+      "summary": "Spanish Prime Minister Pedro Sánchez dismissed claims that Morocco is blackmailing his government using Pegasus spyware, calling the rumors fake news. He set a target to restore normality in Ceuta by the end of the year.",
+      "language": "es",
+      "publisher": "Público",
+      "source": "Público",
+      "url": "https://www.publico.es/politica/gobierno/sanchez-rechaza-teorias-sobre-chantaje-marruecos-realidad-construir-base-hechos-bulos.html",
+      "published_at": "2026-09-14T22:26:22+00:00",
+      "collected_at": "2026-09-15T00:41:59+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "25583c6dc9253ed6",
+      "title": "Irene Montero: \"Con unas primarias a las que se pueda presentar todo el mundo tenemos más garantías de acertar\"",
+      "description": "La candidata de Podemos a las generales ha instado este lunes, en una entrevista en Hoy por hoy , a \"salir del bucle\" de las negociaciones entre partidos y abrir un proceso de primarias en el que la gente pueda participar \"masivamente\". Madrid - 14/09/2026 10:01 - Actualizado a 14/09/2026 10:39 Una papeleta que represente a toda la izquierda. Es la propuesta que ha seguido dibujando este lunes, en una entrevista en Hoy por hoy , la eurodiputada y candidata de Podemos a las generales de 2027 , Irene Montero . \"Yo quiero una candidatura que dé voz a toda la gente que cree que el sistema no funci",
+      "summary": "Irene Montero, Podemos' candidate for the 2027 Spanish general election, has called for open primaries to build a unified left-wing ballot. She criticized the current government for failing to address housing speculation and price caps.",
+      "language": "es",
+      "publisher": "Público",
+      "source": "Público",
+      "url": "https://www.publico.es/politica/irene-montero-primarias-pueda-presentar-mundo-tenemos-garantias-acertar.html",
+      "published_at": "2026-09-14T10:01:50+00:00",
+      "collected_at": "2026-09-14T08:44:11+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "2ad4c45ff1e3f126",
+      "title": "Irene Montero defiende las primarias abiertas para “salir del bucle” de la izquierda y que la gente “tome la palabra”",
+      "description": "La eurodiputada, sobre un hipotético chantaje de Marruecos a Sánchez: “Parece bastante evidente que algo hay”",
+      "summary": "La eurodiputada, sobre un hipotético chantaje de Marruecos a Sánchez: “Parece bastante evidente que algo hay”",
+      "language": "es",
+      "publisher": "El País",
+      "source": "El País España",
+      "url": "https://elpais.com/espana/2026-09-14/irene-montero-defiende-las-primarias-abiertas-para-salir-del-bucle-de-la-izquierda-y-que-la-gente-tome-la-palabra.html",
+      "published_at": "2026-09-14T08:01:02+00:00",
+      "collected_at": "2026-09-14T08:42:54+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "3ad98903e9b65f4c",
+      "title": "La Junta Electoral evita el xoc amb el Suprem i acata el mandat sobre la llei de nets",
+      "description": "El govern espanyol veu intencionalitat política en la decisió del Suprem de suspendre el vot dels nacionalitzats amb la llei de nets i creu que alimenta el discurs de la dreta i l'extrema dreta",
+      "summary": "The Spanish government criticized the Supreme Court's decision to suspend voting rights under the Grandchildren's Law, claiming political intent behind the ruling.",
+      "language": "ca",
+      "publisher": "3Cat (324)",
+      "source": "3Cat (324)",
+      "url": "https://www.3cat.cat/3catinfo/la-junta-electoral-evita-el-xoc-amb-el-suprem-i-acata-el-mandat-sobre-la-llei-de-nets/noticia/3428558/",
+      "published_at": "2026-09-14T18:41:17+00:00",
+      "collected_at": "2026-09-15T00:40:46+00:00",
+      "source_weight": 1.1,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "471225301b6a025e",
+      "title": "El jutge que va titllar el Procés de \"cop d'estat encobert\" frena ara el dret de vot de la ‘llei de nets’",
+      "description": "El jutge del Tribunal Suprem que ha redactat la interlocutòria que bloqueja el dret a vot de milers d'espanyols que van aconseguir la nacionalitat acollint-se a la llei de memòria democràtica –fa seva la tesi al PP que la llei de nets és un “perill fundat, real i seriós” que pot “afectar greument l'objectivitat i transparència” de les eleccions– és un vell conegut de l'independentisme. És Antonio Narváez, que va ser magistrat del Tribunal Constitucional del 2014 al 2023 i, per tant, va tenir un paper destacat en els anys del Procés. El seu nom ressona a Catalunya perquè el febrer del 2021 es v",
+      "summary": "Supreme Court judge Antonio Narváez has issued an order blocking voting rights for descendants granted citizenship under Spain's Democratic Memory Law. Narváez previously recused himself from Catalan independence trials in 2021 due to past controversial remarks.",
+      "language": "ca",
+      "publisher": "Ara",
+      "source": "Ara",
+      "url": "https://www.ara.cat/politica/jutge-titllar-proces-cop-d-encobert-frena-ara-dret-vot-llei-nets_1_5849718.html",
+      "published_at": "2026-09-15T05:00:27+00:00",
+      "collected_at": "2026-09-15T06:39:49+00:00",
+      "source_weight": 1.1,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "5b4d16467d64c1b2",
+      "title": "El Gobierno se planta tras el discurso de la presidenta del Supremo y la suspensión judicial de la 'ley de nietos': \"No nos vamos a callar\"",
+      "description": "El ministro de Justicia critica el \"corporativismo\" judicial mientras Óscar López denuncia que existen jueces \"salvapatrias\" y califica de \"salvajada\" la suspensión del voto de españoles que residen fuera. Las palabras de Isabel Perelló criticando las \"descalificaciones\" hacia jueces y magistrados, especialmente cuando proceden de \"quienes ejercen responsabilidades institucionales\", provocaron un fuerte malestar en el Gobierno. El pasado jueves la presidenta del Consejo General del Poder Judicial (CGPJ) y del Tribunal Supremo , Isabel Perelló , pronunció un discurso en el que cargó contra las ",
+      "summary": "Tensions have escalated between the Spanish government and top judicial officials following the court suspension of voting rights under the 'grandchild law'. Government ministers criticized judicial corporatism after Supreme Court President Isabel Perelló denounced political attacks against magistrates.",
+      "language": "es",
+      "publisher": "Público",
+      "source": "Público",
+      "url": "https://www.publico.es/politica/gobierno/gobierno-planta-discurso-presidenta-supremo-suspension-judicial-ley-nietos-callar.html",
+      "published_at": "2026-09-14T21:30:00+00:00",
+      "collected_at": "2026-09-15T00:41:14+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "6a5dce44bda0dc3d",
+      "title": "Pedro Sánchez: \"Nos hemos dado de aquí al final del año para arreglar la situación en Ceuta\"",
+      "description": "El presidente del Gobierno tacha de \"bulo\" que tema a Marruecos por el espionaje de Pegasus: \"Está bien para una serie de Neftlix, otra cosa es la realidad; lo inteligente es tener buena relación con un país vecino si queremos el retorno de los migrantes\" 24 horas con el mando único en Ceuta: “Vamos a aliviar El Trampolín, El Príncipe y Loma Colmenar en cuestión de días” El Gobierno fija por primera vez un horizonte temporal para la resolución de la crisis de Ceuta. En una extrevista este lunes por la noche en laSexta, Pedro Sánchez ha asegurado que espera el procedimiento administrativo y el ",
+      "summary": "Prime Minister Pedro Sánchez expects to resolve the diplomatic and migrant crisis in Ceuta by the end of the year, dismissing claims of Moroccan Pegasus spyware blackmail as persistent rumors.",
+      "language": "es",
+      "publisher": "eldiario.es",
+      "source": "eldiario.es",
+      "url": "https://www.eldiario.es/politica/pedro-sanchez-hemos-dado-final-ano-arreglar-situacion-ceuta_1_13509833.html",
+      "published_at": "2026-09-14T20:18:54+00:00",
+      "collected_at": "2026-09-15T00:40:41+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "s1IMvbxQmDsrehS77+ErvZJrPD0ToZm9W+YzPXcksD3bARs9rvMCPZGzqj2UiIW7mxTGvFCjUz19/9K8jX49vbddlrzmqgG96V3IPPTpybzr1Hs9RX9pvCctVb1d1mQ9FF/nvKbQ5LqSri299wcGPQvIT72IST+9eNh7vN+xQr2A7fo8E3tIPYzUCDwwm1Y9TbyVPcycnTsfGdo78HeKPAm6eT0vvI29o55oPT42hTx6qRw9mFMYvfFeqrzE/os9oPRGvQ7+UrwzulM7f/+hPL2fab3eF/a9QDT9u2wjOD1gxM08LA9vPYkBnDsnLme7+jr+PN9jrT2JRZ69+DmlPNuTcL2O/eO9XmD/PPO8jLzdXia9afjVPQRcXjxMG9072IkSvONKfTwfc3y9JyVqvbWo6zxF3p09y8ZgvGMbYb1ryuc9hzzFPE+uhL3nuZc620b4PHq0j7wzohc9SQGHPXBCnD0bYcO9NKFqPXBOgz0EaRM+N/zDPSNs5DzEeWM8rlxvPdiVAT3hNPm8mRwkPU8i7Tz+vXU9PsAhPVLmg70o6+27cDqzPRK3OD15r5S9dcpMvaYetjzK2i29bS9Ova9NSL1vchW9xK6DvWJwPz1s5tK822ErO0njmr1qlT49wHwYvKJlAb1hq8U8W0KPvOQwpD3h1j+9ZOujPQz1RLw+Urg6l6w8PF/YQ72QnKm73NWqvceGZj1dVLO8SbZLPSYJ/jsUfLs8CUI7vOn9rrx4S6g9OXkPPXUxgbx6Rnw8oKElPegFCb3bMus9TyZmvVSb8zu7RIG8yKUJPAXEsTvUwwQ+AdUGPbEXO72GWBm9abgOPY8MaD1n4948CseHvCDo27wB8C48Q+CDvZZRKL3DfeQ8rQXNvP3OXb1n6hE9VVJRvWgwKj3pK2M7arzROFDd4jz/HJU7CxGdPWl8b7yBad88wQy5PDSVabzxx2e9zongvB4/ub098pm9ilLUu3ZLu71DZ8Y9Cb8MvNqFdDwU4o89rRSxvW7Kzrxfuda8BDapPQ7zFD0iAsE7x7rAPJR1NL15pIU8GsQSvDF9P7yNQhi+vFlsO2njxLwzzNc7p/j0uvsyIb0b8dg8dFu7OpLWcr2/YZM89YHVPUXrr7vSMp28JOH3vPXXEj3cotU9e5E+vPY6sz3meJ694L6QPSybiz37OBC9LMSCPZ25rb2/LFm9CMU8PXYAy7yhs4c9heh7PG8rhD3DRY28HAXavMaAijt9Kr+89uzfvYbutr2jPbE9eqAQvugDHr0R4de8ewB0vZdrR73ebxy9zIuJPUJd7LySZIO9cPszvanBIz0bvd+8sQCkPcANBD2K0A2+6s2jvV5mJT2k3w29kng2vY04L703dYc9+IAWPV8eOz1R0v29WXb2Ol+7jbykgwM+ZrhTvHrPtrybkZa8mTZivSRVHbko3EW9rYbAvMShqDo4aEs9rOGyvLqesj24GUQ8Je58vbi0vbyJhCI9oRnwPCpyjzvhS0u8XKYFPLIfTb3Yhze9tqvKPLOhjb0141i9sOB0PB5wRz2xxLS8U3wxPY692D1CJTy8FY5mPSIFr7wexLe99reAvG384bxakx89t29kvINTg7yXNG28r5NevYNO47rb7Ye74qZxvOnPxzxaGnE9rjKMPVyL7rxLjsy9GLWuPeFDKD2xGnk85b1xPBHymroZELo855DjPLynxb1JZcI9kjUjPJ0ZOb1QFwe8SegPPUk/xDu657m8enZ6vYx6LL3n6mI9avrsvPjNLb2JCka9094rvVbmK73fPPA95wojPZDmjrzkf9O8wBB+vQkRPL2LYGe7gXY4vK8yib19Qm+81HUUPQoIDr33JTM95d7QPI4E9ryi9fO8qfeUvOyqvb3TtZe9zYSqvMr0QjynB1273vVxPAAysTx+OnC9yWqoPfD83T2jAjg8BCQtPRCVTLxzswA9lzOYO94GQL1Q3I29LwMavCFDJb30NL25FVMVPUT/jT2zou095DjwvKD+B72pZFA8pduEO94nPLyBQVE97GalPKQZhz0ccBo9"
+    },
+    {
+      "id": "71ce56a31eccd331",
+      "title": "Fractura en la Junta Electoral: del \"despropósito\" del fallo de la ley de nietos a evitar el pulso con el Supremo",
+      "description": "El debate entre consejeros destapa las dudas sobre una suspensión del derecho al voto de 400.000 nacionalizados a los que no se ha permitido alegar La fórmula para dar la nacionalidad que cuestiona el Supremo en la ley de nietos se aplicó sin polémica en 2008 La Junta Electoral Central acordó dividida este lunes no ir al choque con el Tribunal Supremo tras su decisión de limitar de forma cautelar el derecho al voto de los descendientes de españoles represaliados del franquismo. El órgano se limitó a acatar la decisión del Supremo sobre la Ley de nietos, sin tratar de enmendar el embrollo juríd",
+      "summary": "Spain's Central Electoral Board decided in a divided 7-6 vote to comply with a Supreme Court ruling that suspends voting rights for around 400,000 citizens naturalized under the Grandchildren's Law.",
+      "language": "es",
+      "publisher": "eldiario.es",
+      "source": "eldiario.es",
+      "url": "https://www.eldiario.es/politica/fractura-junta-electoral-desproposito-sentencia-ley-nietos-evitar-pulso-supremo_1_13509752.html",
+      "published_at": "2026-09-14T20:09:50+00:00",
+      "collected_at": "2026-09-15T06:39:44+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "8ce7c4585ebb7f1c",
+      "title": "Manel Pérez: “El Supremo ha abierto un conflicto al retirar el derecho de voto a españoles reconocidos por la ley de nietos”",
+      "description": "El adjunto al director de La Vanguardia sostiene que la decisión cautelar del alto tribunal afecta ya a unos 400.000 nuevos ciudadanos españoles y advierte de que el debate enfrenta la interpretación judicial de la norma con una decisión previamente avalada por el Parlamento",
+      "summary": "La Vanguardia's deputy director Manel Pérez criticized the Supreme Court's injunction stripping voting rights from 400,000 citizens naturalized under the Grandchildren's Law.",
+      "language": "es",
+      "publisher": "La Vanguardia",
+      "source": "La Vanguardia",
+      "url": "https://www.lavanguardia.com/videos/claves-del-dia/20260914/11634677/manel-perez-supremo-abierto-conflicto-retirar-derecho-voto-espanoles-reconocidos-ley-nietos.html",
+      "published_at": "2026-09-14T15:59:46+00:00",
+      "collected_at": "2026-09-15T00:40:43+00:00",
+      "source_weight": 1.0,
+      "content_type": "opinion",
+      "vector": "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"
+    },
+    {
+      "id": "9389c2d7c4ac0b18",
+      "title": "Sumar evita responder a las primarias que ofrece Podemos: \"Hay que buscar pactos\" pero \"la fórmula no nos preocupa\"",
+      "description": "La colíder de Movimiento Sumar, Rosa Martínez, valora \"positivamente\" en representación de todo el espacio que los morados \"consideren una necesidad avanzar en una candidatura unitaria\", pero no se posiciona sobre el método de elección de candidatos Podemos toma la delantera a Sumar y propone unas primarias abiertas para elegir un candidato de toda la izquierda Los cuatro partidos que están negociando el relanzamiento de la alianza Sumar (IU, Movimiento Sumar, Más Madrid y los Comuns) se ponen de perfil ante la oferta de primarias abiertas que lanzó el sábado pasado Podemos para escoger un can",
+      "summary": "Movimiento Sumar leader Rosa Martínez welcomed Podemos' desire for a joint electoral list but avoided committing to Podemos' proposed open primary process.",
+      "language": "es",
+      "publisher": "eldiario.es",
+      "source": "eldiario.es",
+      "url": "https://www.eldiario.es/politica/sumar-evita-responder-primarias-ofrece-hay-buscar-pactos-formula-no-preocupa_1_13508417.html",
+      "published_at": "2026-09-14T12:28:20+00:00",
+      "collected_at": "2026-09-14T13:16:53+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "94c5e3b70a441446",
+      "title": "El judici als quatre antifeixistes d’Alacant “busca fer callar la contestació” als actes de VOX, segons Alerta Solidària",
+      "description": "El judici als quatre antifeixistes de la Universitat d’Alacant que el 2021 van ser acusats d’amenaces se celebra aquest dimarts 15 de setembre. Els fets es van produir presumptament després d’una concentració a favor del valencià i en contra d’un acte “en defensa de l’espanyol” a la Universitat d’Alacant (UA) on participaven diversos membres de … Continuar The post El judici als quatre antifeixistes d’Alacant “busca fer callar la contestació” als actes de VOX, segons Alerta Solidària appeared first on directa.cat .",
+      "summary": null,
+      "language": "ca",
+      "publisher": "La Directa",
+      "source": "La Directa",
+      "url": "https://directa.cat/el-judici-als-quatre-antifeixistes-dalacant-busca-fer-callar-la-contestacio-als-actes-de-vox-segons-alerta-solidaria/",
+      "published_at": "2026-09-14T11:42:21+00:00",
+      "collected_at": "2026-09-14T13:16:58+00:00",
+      "source_weight": 1.0,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "ba5edb102c56de92",
+      "title": "López califica de \"salvajada\" la suspensión de la 'ley de nietos' por el Supremo: \"Hay jueces que son salvapatrias\"",
+      "description": "El ministro para la Transformación Digital y de la Función Pública, Óscar López, ha calificado de \"salvajada\" y \"atropello democrático\" la decisión del Tribunal Supremo de suspender cautelarmente la 'ley de nietos', que preveía dar la nacionalidad a los descendientes de los exiliados de los españoles. En una entrevista en La Hora de La 1, López ha asegurado que, aunque en España hay jueces que se esfuerzan porque la justicia sea \"justa\" e \"independiente\", también hay otros \"que son salvapatrias\" y están en \"derrocar al Gobierno\". Y ha culpado de ello al PP, por estar alimentado la teoría de la",
+      "summary": "El ministro para la Transformación Digital y de la Función Pública, Óscar López, ha calificado de \"salvajada\" y \"atropello democrático\" la decisión del Tribunal Supremo de suspender cautelarmente la 'ley de nietos', que preveía dar la nacionalidad a los descendientes de los…",
+      "language": "es",
+      "publisher": "RTVE",
+      "source": "RTVE Noticias",
+      "url": "https://www.rtve.es/noticias/20260914/lopez-califica-salvajada-suspension-ley-nietos-por-supremo-hay-jueces-son-salvapatrias/17223556.shtml",
+      "published_at": "2026-09-14T08:02:05+00:00",
+      "collected_at": "2026-09-14T08:43:04+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "bc25f27437a86cf4",
+      "title": "La jueza Tardón reclama la causa contra el delegado del Gobierno en Ceuta",
+      "description": "La magistrada pide a un juzgado de Ceuta que le envíe la causa contra Miguel Ángel Pérez Triano para investar un delito contra la integridad territorial de España",
+      "summary": null,
+      "language": "es",
+      "publisher": "La Vanguardia",
+      "source": "La Vanguardia",
+      "url": "https://www.lavanguardia.com/politica/20260914/11634316/jueza-tardon-reclama-causa-delegado-gobierno-ceuta.html",
+      "published_at": "2026-09-14T11:10:45+00:00",
+      "collected_at": "2026-09-14T13:16:54+00:00",
+      "source_weight": 1.0,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "beadff1688f5e024",
+      "title": "La Junta Electoral Central estudia la decisión del Supremo de suspender el voto de los nacionalizados con la ley de nietos",
+      "description": "La Junta Electoral Central (JEC) se reúne este lunes para estudiar la decisión del Tribunal Supremo de dejar en suspenso las altas incorporadas al Censo Electoral de Residentes Ausentes (CERA) tras la aplicación de la conocida como ley de nietos , por la que han obtenido la nacionalidad más de 400.000 españoles. A partir de las 12:30, los miembros de la JEC se reunirán en el Congreso de los Diputados y, entre otros pasos a tomar, se espera que pidan información a los consulados para verificar el nexo con el exilio de nacionalizados por la disposición adicional de la Ley de Memoria Democrática ",
+      "summary": "La Junta Electoral Central (JEC) se reúne este lunes para estudiar la decisión del Tribunal Supremo de dejar en suspenso las altas incorporadas al Censo Electoral de Residentes Ausentes (CERA) tras la aplicación de la conocida como ley de nietos , por la que han obtenido la…",
+      "language": "es",
+      "publisher": "RTVE",
+      "source": "RTVE Noticias",
+      "url": "https://www.rtve.es/noticias/20260914/junta-electoral-central-supremo-ley-nietos/17223400.shtml",
+      "published_at": "2026-09-14T05:55:37+00:00",
+      "collected_at": "2026-09-14T08:43:05+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "c10375c011730abc",
+      "title": "El exministro y expresidente madrileño Ruiz-Gallardón declara este martes como testigo en el primer juicio del caso Lezo",
+      "description": "El exministro de Justicia y expresidente de la Comunidad de Madrid, Alberto Ruiz-Gallardón , prestará declaración este martes como testigo en el primer juicio del caso Lezo, sobre las presuntas irregularidades en la compra de la sociedad colombiana Inassa por parte del Canal de Isabel II en el año 2001. Dos exconsejeros madrileños Pedro Calvo y Juan Bravo, antiguos colaboradores de Ruiz-Gallardón, se encuentran entre las 22 personas a las que el magistrado Manuel García Castellón ha enviado a juicio. En el momento de los hechos ambos formaban parte del Consejo de Administración de Canal de Isa",
+      "summary": "Former Justice Minister Alberto Ruiz-Gallardón is testifying as a witness in the Lezo case trial regarding alleged irregularities in Canal de Isabel II's 2001 acquisition of Inassa. Magistrate Manuel García Castellón sent 22 people to trial, including former Madrid officials.",
+      "language": "es",
+      "publisher": "RTVE",
+      "source": "RTVE Noticias",
+      "url": "https://www.rtve.es/noticias/20260915/gallardon-testigo-juicio-caso-lezo/17224960.shtml",
+      "published_at": "2026-09-15T06:03:58+00:00",
+      "collected_at": "2026-09-15T06:40:09+00:00",
+      "source_weight": 1.1,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "d2c18db0283f1c34",
+      "title": "Óscar López critica a los jueces \"salvapatrias\" y califica de \"salvajada\" la decisión de suspender el derecho al voto de miles de españoles",
+      "description": "El ministro de Función Pública considera que han atendido la llamada de Aznar de que \"el que pueda hacer que haga\" y hay \"lobos solitarios\" que están en \"derrocar\" al Gobierno. 14/09/2026 15:13 - Actualizado a 14/09/2026 15:27 El ministro para la Transformación Digital y de la Función Pública, Óscar López , ha calificado de \"salvajada\" y \"atropello democrático\" la decisión del Tribunal Supremo de suspender cautelarmente la el derecho a voto de más 400.000 descendientes de exiliados españoles residentes en el extranjero, y que iban a obtener la nacionalidad gracias al mecanismo que contempla la",
+      "summary": "Public Function Minister Óscar López strongly denounced the Supreme Court's ruling to suspend voting rights for over 400,000 descendants of Spanish exiles.",
+      "language": "es",
+      "publisher": "Público",
+      "source": "Público",
+      "url": "https://www.publico.es/politica/oscar-lopez-critica-jueces-salvapatrias-califica-salvajada-decision-suspender-derecho-voto-miles-espanoles.html",
+      "published_at": "2026-09-14T15:13:07+00:00",
+      "collected_at": "2026-09-15T00:42:09+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "d51f1890ee32db20",
+      "title": "La opacidad de Sánchez con Marruecos dispara entre sus socios las sospechas de \"chantaje\"",
+      "description": "d",
+      "summary": "Pedro Sánchez's opacity regarding Morocco has raised suspicions of blackmail among his political partners.",
+      "language": "es",
+      "publisher": "20minutos",
+      "source": "20minutos",
+      "url": "https://www.20minutos.es/nacional/opacidad-sanchez-con-marruecos-dispara-entre-sus-socios-las-sospechas-chantaje_7036649_0.html",
+      "published_at": "2026-09-15T03:00:00+00:00",
+      "collected_at": "2026-09-15T06:39:48+00:00",
+      "source_weight": 0.8,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "d971895459d58bea",
+      "title": "La jutgessa de l’Audiència espanyola reclama la causa contra el delegat del govern espanyol a Ceuta",
+      "description": "María Tardón vol determinar si la querella contra Miguel Ángel Pérez s’ha d’incorporar a la investigació per l’arribada de milers de persones al juliol",
+      "summary": null,
+      "language": "ca",
+      "publisher": "VilaWeb",
+      "source": "VilaWeb",
+      "url": "https://www.vilaweb.cat/noticies/jutgessa-audiencia-espanyola-causa-delegat-govern-ceuta-entrada-migrants/",
+      "published_at": "2026-09-14T10:47:11+00:00",
+      "collected_at": "2026-09-14T10:59:07+00:00",
+      "source_weight": 1.0,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "db1017caf7a9666f",
+      "title": "La Junta Electoral ejecuta dividida la orden del Supremo sobre la 'ley de nietos'",
+      "description": "La JEC encarga informes a la Oficina del Censo Electoral y a los registros consulares para verificar la vinculación con el exilio de las personas que hayan obtenido la nacionalidad española por esta vía. Madrid - 14/09/2026 15:37 - Actualizado a 14/09/2026 17:53 La Junta Electoral Central (JEC) ha acordado este lunes asumir la orden dictada por el Tribunal Supremo en sus medidas cautelares sobre la disposición de la Ley de Memoria Democrática conocida como ley de nietos . Sin embargo, la decisión de no impugnar el auto se ha adoptado de manera dividida, por siete votos a seis, y se han vertido",
+      "summary": "Spain's Central Electoral Board voted 7-6 to comply with the Supreme Court's injunction regarding the Grandchildren's Law while requesting reports to verify exiled status.",
+      "language": "es",
+      "publisher": "Público",
+      "source": "Público",
+      "url": "https://www.publico.es/politica/tribunales/junta-electoral-atiende-orden-supremo-sobre-suspension-voto-ley-nietos.html",
+      "published_at": "2026-09-14T15:37:40+00:00",
+      "collected_at": "2026-09-15T00:42:04+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "db566b466bb4cf99",
+      "title": "La Junta Electoral debate cómo dar cumplimiento a la orden del Supremo sobre la ‘ley de nietos’",
+      "description": "El tribunal ordenó “el desglose” de los nacionalizados que han acreditado la condición de descendientes de exiliados políticos y de los que no",
+      "summary": "El tribunal ordenó “el desglose” de los nacionalizados que han acreditado la condición de descendientes de exiliados políticos y de los que no",
+      "language": "es",
+      "publisher": "El País",
+      "source": "El País España",
+      "url": "https://elpais.com/espana/2026-09-14/la-mayoria-de-la-junta-electoral-pretende-evitar-el-debate-sobre-la-decision-del-supremo-por-la-ley-de-nietos.html",
+      "published_at": "2026-09-14T03:30:01+00:00",
+      "collected_at": "2026-09-14T08:42:54+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "df59aac3a1ad37c0",
+      "title": "La Junta Electoral evita el choque con el Supremo y acuerda dividida trasladar a los consulados el freno al censo de la ley de nietos",
+      "description": "El pleno del órgano electoral rechaza recurrir la decisión de los jueces por una ajustada mayoría y respalda cumplir su mandato La fórmula para dar la nacionalidad que cuestiona el Supremo en la ley de nietos se aplicó sin polémica en 2008 La Junta Electoral Central (JEC) ha acordado en su reunión extraordinaria de este lunes evitar el choque con el Tribunal Supremo y dar cumplimiento a su mandato sobre la ley de nietos, según informan a elDiario.es fuentes conocedoras del contenido de la reunión. Tras dos horas de reunión, el órgano ha acordado no impugnar la decisión del Alto Tribunal de lim",
+      "summary": "The Central Electoral Board approved by a narrow majority to enforce the Supreme Court's order requiring consulates to break down census data for Grandchildren's Law applicants.",
+      "language": "es",
+      "publisher": "eldiario.es",
+      "source": "eldiario.es",
+      "url": "https://www.eldiario.es/politica/junta-electoral-evita-choque-supremo-acuerda-dividida-trasladar-consulados-freno-censo-ley-nietos_1_13508679.html",
+      "published_at": "2026-09-14T13:23:06+00:00",
+      "collected_at": "2026-09-14T13:39:37+00:00",
+      "source_weight": 1.0,
+      "content_type": "reporting",
+      "vector": "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"
+    },
+    {
+      "id": "ebe4d222998ecbdc",
+      "title": "Clavijo cree que Sánchez debe \"liderar\" la respuesta a Ceuta y afea que ni Gobierno ni oposicion han estado \"a la altura\"",
+      "description": "El presidente de las islas Canarias, Fernando Clavijo , ha defendido que el jefe del Ejecutivo central, Pedro Sánchez, debe \"liderar\" la respuesta a la crisis migratoria de Ceuta , al tiempo que ha afeado que ni el Gobierno nacional ni la oposición han estado \"a la altura\" de las circunstancias, pues, a su juicio, han estado a \"sus peleas\". En una entrevista en Las Mañanas de RNE , Clavijo ha asegurado que lo que tenía que haber hecho Sánchez es convocar una Conferencia de Presidentes para ver como \"resolver\" el problema y dar una \"respuesta de país\", porque, ha recordado, \"los inmigrantes no ",
+      "summary": null,
+      "language": "es",
+      "publisher": "RTVE",
+      "source": "RTVE Noticias",
+      "url": "https://www.rtve.es/noticias/20260915/clavijo-ceuta-crisis-migratoria-gobierno-oposicion/17225109.shtml",
+      "published_at": "2026-09-15T08:10:24+00:00",
+      "collected_at": "2026-09-15T10:00:30+00:00",
+      "source_weight": 1.1,
+      "content_type": null,
+      "vector": "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"
+    },
+    {
+      "id": "f61a4935ab4bff18",
+      "title": "Junts esquiva la concreció del rol de Puigdemont quan torni: «Respectarem la seva decisió»",
+      "description": "El secretari general del partit, Jordi Turull, insisteix en la renúncia de Pedro Sánchez i sosté que no negociaran els pressupostos a Madrid en base a una \"enganyifa\"",
+      "summary": null,
+      "language": "ca",
+      "publisher": "Nació Digital",
+      "source": "Nació Digital",
+      "url": "https://naciodigital.cat/politica/junts-esquiva-la-concrecio-del-rol-de-puigdemont-quan-torni-respectarem-la-seva-decisio.html",
+      "published_at": "2026-09-15T07:04:39+00:00",
+      "collected_at": "2026-09-15T10:00:21+00:00",
+      "source_weight": 0.9,
+      "content_type": null,
+      "vector": "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"
+    }
+  ]
+}
