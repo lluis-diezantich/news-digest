@@ -54,9 +54,16 @@ TOPIC_KEYWORDS: dict[str, tuple[str, ...]] = {
     "world": ("war", "border", "ceasefire", "sanctions", "nato", "refugee", "strike",
               "guerra", "frontera", "alto el fuego", "sanciones", "refugiado",
               "frontera", "sancions", "refugiat", "otan"),
+    # `partido`/`partit` (political PARTY) and `madrid` (the city, the government,
+    # the Comunidad) were removed 2026-09-18. They are whole words, so the
+    # word-boundary matcher below does not save them: on a Spanish and Catalan
+    # politics corpus they tagged 31 articles of one week as sport, and with
+    # `excluded_topics: [sports]` that docked six of the week's top contenders 1.5
+    # each -- enough to reorder the entire digest. Every victim was political: the
+    # Supremo on the procés, the Audiencia Nacional on Ceuta, Feijóo on migration.
+    # A football keyword has to be a word only football uses.
     "sports": ("match", "league", "cup", "tournament", "coach", "olympic", "goal",
-               "partido", "liga", "copa", "entrenador", "gol", "partit", "lliga",
-               "barça", "madrid"),
+               "liga", "copa", "entrenador", "gol", "lliga", "barça"),
     "culture": ("film", "album", "novel", "museum", "festival", "artist",
                 "película", "novela", "museo", "artista", "pel·lícula", "novel·la"),
     # Narrow on purpose. Broad words like "actor" or "singer" would pull in the

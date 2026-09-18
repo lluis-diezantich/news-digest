@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
+from .text import normalize
+
 _TRACKING_PREFIXES = ("utm_", "at_", "mc_", "pk_", "hsa_", "_hs")
 _TRACKING_PARAMS = frozenset(
     """
@@ -71,6 +73,36 @@ def exclude_by_url(articles: list, patterns: list[str]) -> list:
     compiled = [re.compile(p) for p in patterns]
     return [a for a in articles
             if not any(c.search(a.url or "") for c in compiled)]
+
+
+def exclude_by_title(articles: list, patterns: list[str]) -> list:
+    """Drop articles whose HEADLINE matches any pattern.
+
+    The companion to `exclude_by_url`, for junk that has no path of its own.
+    Two kinds needed it:
+
+    * Service content an outlet files under its main news path. RAC1 publishes
+      "la previsio del temps d'avui" every single day under /politica/ and
+      elsewhere, six times in the 2026-W38 window; VilaWeb files football under
+      /noticies/ and 3Cat under /3catinfo/, which is why `/esports?/` never sees
+      it.
+    * One recurring subject. A name is not a section, so no URL pattern reaches
+      it.
+
+    TITLE ONLY, deliberately. Matching the excerpt as well would drop any article
+    whose background paragraph happens to mention football, and the excerpt is
+    not what the article is about.
+
+    Matched against `normalize`d text -- lowercased, accents stripped -- and the
+    patterns are normalized too, so a pattern may be written "previsió" and still
+    match the "prevision" it becomes. Validated at config load, so they compile
+    here.
+    """
+    if not patterns:
+        return list(articles)
+    compiled = [re.compile(normalize(p)) for p in patterns]
+    return [a for a in articles
+            if not any(c.search(normalize(a.title or "")) for c in compiled)]
 
 
 def domain(url: str) -> str:

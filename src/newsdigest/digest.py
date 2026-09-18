@@ -20,7 +20,7 @@ from . import clustering, enrich, scoring
 from .config import Config
 from .embeddings.base import EmbeddingProvider
 from .embed import embed_articles
-from .llm.base import Context, LLMProvider, LLMQuotaError
+from .llm.base import Brief, Context, LLMProvider, LLMQuotaError
 from .models import Article, Digest, RunStats, Story, utcnow
 from .store import Store
 from .text import normalize
@@ -121,6 +121,42 @@ class DigestResult:
     stories: list[tuple[Story, list[Article]]]
 
 
+def _interleave(groups: list[list[Article]]) -> list[Article]:
+    """Flatten clusters round-robin, so the per-run enrichment cap is shared.
+
+    Flat concatenation gave the whole budget to the first cluster: on the
+    2026-W38 run all 40 enriched articles landed in one 52-article cluster and
+    seven of the eight published stories had none at all -- which is also how
+    `importance` came to mean "10 outlets" rather than "important". Round-robin
+    guarantees every candidate cluster its share; worst case, one article each.
+    """
+    out: list[Article] = []
+    for index in range(max((len(g) for g in groups), default=0)):
+        for group in groups:
+            if index < len(group):
+                out.append(group[index])
+    return out
+
+
+def _apply_brief(story: Story, brief: Brief, written_by: str) -> None:
+    """Copy a brief's wording and scores onto the story it was written for.
+
+    Called twice: when the brief arrives, and again after per-article enrichment
+    has rebuilt the story from better articles. The brief is the only LLM output
+    a reader sees, so it goes back on top of the rebuild.
+    """
+    story.headline = brief.headline
+    story.summary = brief.summary
+    story.why_it_matters = brief.why_it_matters or story.why_it_matters
+    story.key_facts = brief.key_facts or story.key_facts
+    story.topics = brief.topics or story.topics
+    if brief.importance is not None:
+        story.importance = brief.importance
+    if brief.relevance is not None:
+        story.relevance = brief.relevance
+    story.written_by = written_by
+
+
 def build_digest(
     config: Config,
     store: Store,
@@ -196,6 +232,7 @@ def build_digest(
     # gets the remainder. Observed 2026-09-15: 13 enrichment requests plus
     # retries exhausted the day, and all six briefs fell back to raw article text.
     ranked: list[tuple[Story, list[Article]]] = []
+    briefs: dict[str, Brief] = {}
     quota_hit = False
     for group in candidates:
         story = clustering.build_story(group)
@@ -207,26 +244,29 @@ def build_digest(
                 quota_hit = True
                 brief = None
             if brief:
-                story.headline = brief.headline
-                story.summary = brief.summary
-                story.why_it_matters = brief.why_it_matters or story.why_it_matters
-                story.key_facts = brief.key_facts or story.key_facts
-                story.topics = brief.topics or story.topics
-                # `brief.importance` is deliberately NOT copied over. Measured on
-                # 2026-09-17: qwen3:8b returns 0.80-0.85 for every story, so this
-                # replaced build_story's article-derived value -- which spreads
-                # 0.20-0.80 -- with a constant. The term is out of the ranking
-                # formula now, so this only decided which number the page showed,
-                # and it showed the worse one. The model is still asked for it;
-                # restore this line the day one earns it.
-                if brief.relevance is not None:
-                    story.relevance = brief.relevance
-                story.written_by = llm.name
+                briefs[story.id] = brief
+                # `brief.importance` IS copied over again as of 2026-09-18, the
+                # day a model earned it. The 2026-09-17 removal was correct for
+                # qwen3:8b, which returned 0.80-0.85 for every story. Its
+                # replacement -- build_story's `max(article importance) + 0.03 *
+                # (publishers - 1)` -- turned out to be worse than a constant on
+                # the run that followed: only 40 articles are enriched per run, so
+                # 7 of 8 published stories had NO enriched article at all and
+                # scored the publisher bonus alone. 0.27 meant "10 outlets", not
+                # "moderately important". A story-level number costs one request
+                # per candidate cluster instead of enriching 700 articles, which
+                # is the only way significance is affordable at all.
+                #
+                # Safe to try because `importance` is not in `ranking.terms`: if
+                # gemini also returns a flat 0.8 for everything, this changes the
+                # number on the page and nothing about the order. Check the spread
+                # after one run before putting the term back in the formula.
+                _apply_brief(story, brief, llm.name)
 
         ranked.append((story, group))
 
     # 5. Per-article enrichment with whatever budget survived the briefs.
-    candidate_articles = [a for group in candidates for a in group]
+    candidate_articles = _interleave(candidates)
     enrich_report = enrich.enrich_articles(
         store, llm, config.llm, context, candidate_articles, persist=persist
     )
@@ -234,12 +274,21 @@ def build_digest(
     stats.enrich_cached = enrich_report.cached
     stats.enrich_failed = enrich_report.failed
 
-    # A story whose brief failed took its fields from articles that were not yet
-    # enriched. Now that they are, rebuild it -- build_story derives the id from
-    # the cluster's URLs, so this refreshes in place rather than duplicating.
-    for index, (story, group) in enumerate(ranked):
-        if story.written_by is None and enrich_report.enriched:
-            ranked[index] = (clustering.build_story(group), group)
+    # EVERY story is rebuilt, not just one whose brief failed. Enrichment is what
+    # fills `entities`, `key_facts` and the article-level topics, and build_story
+    # reads those off the articles -- so gating the rebuild on a FAILED brief meant
+    # a successful brief threw all of it away. Every story in the 2026-W38
+    # database has an empty entity list for that reason, and the enrichment
+    # requests that run paid for bought nothing but a warm cache. build_story
+    # derives the id from the cluster's URLs, so this refreshes in place rather
+    # than duplicating, and the brief goes back on top of it.
+    if enrich_report.enriched or enrich_report.cached:
+        for index, (story, group) in enumerate(ranked):
+            rebuilt = clustering.build_story(group)
+            brief = briefs.get(rebuilt.id)
+            if brief is not None:
+                _apply_brief(rebuilt, brief, story.written_by or llm.name)
+            ranked[index] = (rebuilt, group)
 
     # 6. Score once, after every source of story fields has had its turn.
     for story, group in ranked:

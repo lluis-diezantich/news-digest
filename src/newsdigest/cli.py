@@ -11,6 +11,8 @@ The two pipelines are separate commands because they run on different schedules:
     news-digest sources --check         # verify every configured source responds
     news-digest stats                   # what is in the database
     news-digest explain <story-id>      # why a story ranked where it did
+    news-digest themes                  # what the week was ABOUT, no model needed
+    news-digest themes iran             # every article on one theme
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
-from . import pipeline, render, scoring
+from . import pipeline, render, scoring, themes as themes_module
 from .config import (
     DEFAULT_DB,
     DEFAULT_OUT,
@@ -114,6 +116,24 @@ def build_parser() -> argparse.ArgumentParser:
                                     help="show a story's ranking breakdown")
     explain.add_argument("story_id", help="story id, as shown in the digest JSON")
 
+    themes_cmd = subparsers.add_parser(
+        "themes", parents=[common],
+        help="what the week was about, keyed on the names in the headlines",
+    )
+    themes_cmd.add_argument(
+        "theme", nargs="?",
+        help="show every article on one theme instead of the list (any of its keys)",
+    )
+    themes_window = themes_cmd.add_mutually_exclusive_group()
+    themes_window.add_argument("--week", help="an ISO week like 2026-W36")
+    themes_window.add_argument("--days", type=int, metavar="N",
+                               help="rolling window of N days ending now")
+    themes_cmd.add_argument("--top", type=int, default=None,
+                            help="themes to list (default: themes.top)")
+    themes_cmd.add_argument("--min-outlets", type=int, default=None, dest="min_outlets",
+                            help="outlets a theme needs (default: themes.min_publishers)")
+    themes_cmd.add_argument("--json", action="store_true", help="machine-readable output")
+
     prune = subparsers.add_parser("prune", parents=[common],
                                   help="drop articles past the retention window")
     prune.add_argument("--days", type=int, default=None, help="override retention_days")
@@ -197,6 +217,175 @@ def main(argv: list[str] | None = None) -> int:
         return 130
 
 
+def _cached_vectors(store, config, articles) -> dict:
+    """Vectors already in the cache, and never a model call.
+
+    `themes` is a reading command, so it reads the embedding_cache table the way it
+    reads the articles table. Building the provider is free -- the local model
+    loads lazily on its first `embed`, which never happens here -- and only its
+    `cache_key` is wanted, since vectors from different models are not comparable.
+    """
+    from .embeddings import get_provider
+
+    try:
+        key = get_provider(config.embeddings).cache_key()
+    except Exception:  # a provider we cannot even name has no cache to read
+        return {}
+    hashes = {a.id: a.content_hash() for a in articles}
+    cached = store.cached_vectors(list(set(hashes.values())), key)
+    return {aid: cached[h] for aid, h in hashes.items() if h in cached}
+
+
+#: Vector coverage below which dispersion is not attempted. Under this, clustering
+#: would fall back to comparing 1000+ articles by text similarity -- slow, and a
+#: reading command should not do that for a column.
+_MIN_VECTOR_COVERAGE = 0.5
+
+
+def _theme_spread(found, articles, vectors, config) -> dict:
+    """{theme key: (sub_clusters, mean similarity)} for every theme."""
+    if not articles or len(vectors) / len(articles) < _MIN_VECTOR_COVERAGE:
+        return {}
+    from . import clustering
+
+    events = clustering.cluster(
+        articles, vectors,
+        similarity_threshold=config.embeddings.similarity_threshold,
+        ambiguous_threshold=config.embeddings.ambiguous_threshold,
+        provider=None,
+    )
+    return {t.key: themes_module.dispersion(t, events, vectors) for t in found}
+
+
+def _spread_json(value, vectors) -> dict:
+    subs, mean = value
+    if not vectors:
+        return {"sub_clusters": None, "spread": None, "dispersed": None}
+    return {
+        "sub_clusters": subs,
+        "spread": round(mean, 4) if mean is not None else None,
+        "dispersed": themes_module.is_dispersed(subs, mean),
+    }
+
+
+def _themes_command(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    """List what the window was about, or expand one theme.
+
+    Read-only by construction: it opens the store, reads articles, and prints. No
+    story, digest or cache row is written, and no provider is built -- which is why
+    it still works with no API key and an exhausted quota.
+    """
+    from .digest import select_candidates, weekly_window
+
+    if args.days:
+        window = rolling_window(args.days)
+    elif args.week:
+        window = parse_week(args.week)
+    else:
+        window = weekly_window(week_ends_on=config.digest.week_ends_on)
+
+    with Store(args.db) as store:
+        articles = select_candidates(
+            store.articles_in_window(
+                *window, languages=config.settings.supported_languages
+            )
+        )
+        vectors = _cached_vectors(store, config, articles)
+    if not articles:
+        log.warning("no articles between %s and %s", window[0].date(), window[1].date())
+        return 1
+
+    found = themes_module.group(
+        articles,
+        containers=config.themes.containers,
+        min_publishers=args.min_outlets or config.themes.min_publishers,
+    )
+    spread = _theme_spread(found, articles, vectors, config)
+
+    if args.theme:
+        theme = themes_module.find(found, args.theme)
+        if theme is None:
+            log.error("no theme matching %r; run without an argument to list them",
+                      args.theme)
+            return 1
+        if args.json:
+            payload = theme.to_json()
+            payload.update(_spread_json(spread.get(theme.key, (0, None)), vectors))
+            print(json.dumps(payload, indent=2, ensure_ascii=False))
+            return 0
+        subs, mean = spread.get(theme.key, (0, None))
+        print(f"{theme.key} · {len(theme.publishers)} outlets · "
+              f"{len(theme.articles)} articles · {theme.days}d · "
+              f"{'+'.join(theme.languages)}")
+        if vectors and subs:
+            note = " -- no single summary represents it" if themes_module.is_dispersed(
+                subs, mean) else ""
+            story = "story" if subs == 1 else "stories"
+            print(f"{subs} separate multi-outlet {story} inside it"
+                  + (f", spread {mean:.2f}{note}" if mean is not None else note))
+        if len(theme.keys) > 1:
+            shown = ", ".join(theme.keys[:8])
+            extra = len(theme.keys) - 8
+            print(f"merged keys: {shown}" + (f", and {extra} more" if extra > 0 else ""))
+        print()
+        for article in theme.newest_first():
+            stamp = (article.published_at or article.collected_at).strftime("%d %b %H:%M")
+            print(f"{stamp}  {article.language or '??'}  {article.publisher:<14} "
+                  f"{article.title}")
+            print(f"{'':<32}{article.url}")
+        print()
+        print("outlets: " + ", ".join(f"{p} ({n})" for p, n in theme.by_publisher()))
+        return 0
+
+    top = args.top or config.themes.top
+    if args.json:
+        print(json.dumps(
+            {
+                "window": [window[0].isoformat(), window[1].isoformat()],
+                "articles": len(articles),
+                "themes": [
+                    {**t.to_json(),
+                     **_spread_json(spread.get(t.key, (0, None)), vectors)}
+                    for t in found[:top]
+                ],
+            },
+            indent=2, ensure_ascii=False,
+        ))
+        return 0
+
+    print(f"{window[0].date()} .. {window[1].date()} · {len(articles)} articles · "
+          f"{len({a.publisher for a in articles})} outlets · {len(found)} themes")
+    print()
+    print(f"{'#':>3}  {'outlets':>7}  {'arts':>4}  {'days':>4}  {'sub':>4}  "
+          f"{'spread':>7}  theme")
+    dispersed_seen = False
+    for index, theme in enumerate(found[:top], 1):
+        label = theme.key
+        if len(theme.keys) > 1:
+            label += f"  ({', '.join(k for k in theme.keys[1:4] if k != theme.key)})"
+        subs, mean = spread.get(theme.key, (0, None))
+        flag = themes_module.is_dispersed(subs, mean)
+        dispersed_seen = dispersed_seen or flag
+        subs_col = "-" if not vectors else str(subs)
+        mean_col = "-" if mean is None else f"{mean:.2f}"
+        print(f"{index:>3}  {len(theme.publishers):>7}  {len(theme.articles):>4}  "
+              f"{theme.days:>4}  {subs_col:>4}  {mean_col:>7}  "
+              f"{'! ' if flag else '  '}{label}")
+    print()
+    if not vectors:
+        print("sub/spread need the embedding cache, which holds nothing for this "
+              "window; run `digest` for it, or ignore the columns")
+    else:
+        print("sub = separate multi-outlet stories inside the theme; spread = how "
+              "alike they are")
+        if dispersed_seen:
+            print("!   = holds several unlike stories, so no single summary "
+                  "represents it")
+    print(f"`{args.db.name if hasattr(args.db, 'name') else 'news.db'}` unchanged — "
+          f"run `news-digest themes <key>` for one theme's articles")
+    return 0
+
+
 def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
     options = pipeline.Options(
         db=args.db,
@@ -268,6 +457,9 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
                 for failure in last["sources_failed"]:
                     print(f"  ! {failure['name']}: {failure['error']}")
         return 0
+
+    if args.command == "themes":
+        return _themes_command(args, config, log)
 
     if args.command == "explain":
         with Store(args.db) as store:

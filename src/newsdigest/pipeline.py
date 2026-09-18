@@ -28,7 +28,7 @@ from .embeddings import get_provider as get_embedder
 from .llm import build_context, get_provider as get_llm
 from .models import RunStats, SourceReport, utcnow
 from .sources import Fetcher, adapter_for
-from .urls import exclude_by_url
+from .urls import exclude_by_title, exclude_by_url
 from .store import Store
 
 log = logging.getLogger(__name__)
@@ -67,11 +67,14 @@ def collect(config: Config, store: Store, stats: RunStats) -> None:
                 report.fetched = len(articles)
 
                 kept = exclude_by_url(articles, source.exclude_url_patterns)
+                by_url = len(articles) - len(kept)
+                kept = exclude_by_title(kept, source.exclude_title_patterns)
                 report.excluded = len(articles) - len(kept)
                 if report.excluded:
                     log.info(
-                        "%-24s excluded %d of %d by url pattern",
+                        "%-24s excluded %d of %d (%d by url, %d by headline)",
                         source.name, report.excluded, report.fetched,
+                        by_url, report.excluded - by_url,
                     )
                 articles = kept
 

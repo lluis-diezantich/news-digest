@@ -76,6 +76,12 @@ class Source:
     #: because advertorial is written to match whatever topics rank well.
     #: The global list in sources.yaml applies to every source; these are extra.
     exclude_url_patterns: list[str] = field(default_factory=list)
+    #: Regexes matched against an article's HEADLINE, dropping it at collection
+    #: exactly as the URL list does. For junk with no section path of its own:
+    #: a daily weather forecast filed under the main news path, or football at an
+    #: outlet that does not have an /esports/ prefix. Title only, and matched
+    #: against accent-stripped lowercase text.
+    exclude_title_patterns: list[str] = field(default_factory=list)
     # scrape only
     link_selector: str = "a"
     link_pattern: str | None = None
@@ -147,6 +153,27 @@ class DigestSettings:
     #: Keep past digests browsable on the site.
     archive: bool = True
     archive_limit: int = 52
+
+
+@dataclass
+class ThemeSettings:
+    """`news-digest themes`: what the week was about, keyed on headline names.
+
+    Read-only and separate from the digest, which still ranks event clusters.
+    """
+
+    #: Names that locate a story rather than being one. Hand-maintained on
+    #: purpose: measured over 2026-W38, coherence cannot tell a container from a
+    #: subject (`catalunya` 0.588 against `trump` 0.566), so there is no metric to
+    #: replace this list with. Add a name when it starts showing up as a theme
+    #: that means nothing -- an ambient PERSON does the same thing a place does.
+    containers: list[str] = field(
+        default_factory=lambda: ["catalunya", "barcelona", "madrid", "espanya", "europa"]
+    )
+    #: Outlets below which a key is noise rather than a subject.
+    min_publishers: int = 3
+    #: Themes listed by default.
+    top: int = 10
 
 
 @dataclass
@@ -222,6 +249,7 @@ class Config:
     settings: Settings = field(default_factory=Settings)
     preferences: Preferences = field(default_factory=Preferences)
     digest: DigestSettings = field(default_factory=DigestSettings)
+    themes: ThemeSettings = field(default_factory=ThemeSettings)
     storage: StorageSettings = field(default_factory=StorageSettings)
     llm: LLMSettings = field(default_factory=LLMSettings)
     embeddings: EmbeddingSettings = field(default_factory=EmbeddingSettings)
@@ -260,6 +288,7 @@ def load_sources(path: Path | str = DEFAULT_SOURCES) -> list[Source]:
     data = _load_yaml(Path(path))
     defaults = data.get("defaults") or {}
     global_excludes = _as_list(data.get("exclude_url_patterns"))
+    global_title_excludes = _as_list(data.get("exclude_title_patterns"))
     raw_sources = data.get("sources")
     if not isinstance(raw_sources, list) or not raw_sources:
         raise ConfigError(f"{path}: 'sources' must be a non-empty list")
@@ -301,21 +330,29 @@ def load_sources(path: Path | str = DEFAULT_SOURCES) -> list[Source]:
                 link_selector=str(entry.get("link_selector", "a")),
                 link_pattern=entry.get("link_pattern"),
                 max_links=int(entry.get("max_links", 8)),
-                exclude_url_patterns=_url_patterns(
+                exclude_url_patterns=_regex_patterns(
                     global_excludes + _as_list(entry.get("exclude_url_patterns")),
-                    path, name,
+                    path, name, "exclude_url_patterns",
+                ),
+                exclude_title_patterns=_regex_patterns(
+                    global_title_excludes
+                    + _as_list(entry.get("exclude_title_patterns")),
+                    path, name, "exclude_title_patterns",
                 ),
             )
         )
     return sources
 
 
-def _url_patterns(raw: list[str], path: Path | str, name: str) -> list[str]:
-    """Validate the exclusion regexes at load time.
+def _regex_patterns(
+    raw: list[str], path: Path | str, name: str, field_name: str
+) -> list[str]:
+    """Validate a list of exclusion regexes at load time.
 
     A broken pattern here would silently stop excluding -- or, worse, throw once
     per article mid-run -- so it is a startup error, as a misspelled ranking term
-    is.
+    is. Shared by `exclude_url_patterns` and `exclude_title_patterns`;
+    `field_name` is only there so the error names the list the reader has to fix.
     """
     out: list[str] = []
     for pattern in raw:
@@ -323,7 +360,7 @@ def _url_patterns(raw: list[str], path: Path | str, name: str) -> list[str]:
             re.compile(pattern)
         except re.error as exc:
             raise ConfigError(
-                f"{path}: {name}: exclude_url_patterns entry {pattern!r} "
+                f"{path}: {name}: {field_name} entry {pattern!r} "
                 f"is not a valid regex: {exc}"
             ) from exc
         if pattern not in out:
@@ -332,12 +369,13 @@ def _url_patterns(raw: list[str], path: Path | str, name: str) -> list[str]:
 
 
 def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
-    Settings, Preferences, DigestSettings, StorageSettings
+    Settings, Preferences, DigestSettings, StorageSettings, ThemeSettings
 ]:
     p = Path(path)
     if not p.exists():
         log.warning("no preferences file at %s; using defaults", p)
-        return Settings(), Preferences(), DigestSettings(), StorageSettings()
+        return (Settings(), Preferences(), DigestSettings(), StorageSettings(),
+                ThemeSettings())
 
     data = _load_yaml(p)
     raw_settings = data.get("settings") or {}
@@ -345,6 +383,7 @@ def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
     raw_ranking = data.get("ranking") or {}
     raw_digest = data.get("digest") or {}
     raw_storage = data.get("storage") or {}
+    raw_themes = data.get("themes") or {}
 
     supported = [l.lower() for l in _as_list(raw_settings.get("supported_languages"))]
     settings = Settings(
@@ -406,7 +445,17 @@ def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
         retention_days=int(raw_storage.get("retention_days", 45)),
         embedding_retention_days=int(raw_storage.get("embedding_retention_days", 21)),
     )
-    return settings, preferences, digest, storage
+    default_themes = ThemeSettings()
+    themes = ThemeSettings(
+        containers=(
+            [str(c) for c in _as_list(raw_themes.get("containers"))]
+            if raw_themes.get("containers") is not None
+            else default_themes.containers
+        ),
+        min_publishers=int(raw_themes.get("min_publishers", default_themes.min_publishers)),
+        top=int(raw_themes.get("top", default_themes.top)),
+    )
+    return settings, preferences, digest, storage, themes
 
 
 #: Weight given to a topic listed without one, as the spec's example does.
@@ -573,12 +622,13 @@ def load_config(
     preferences_path: Path | str = DEFAULT_PREFERENCES,
 ) -> Config:
     load_dotenv()
-    settings, preferences, digest, storage = load_preferences(preferences_path)
+    settings, preferences, digest, storage, themes = load_preferences(preferences_path)
     return Config(
         sources=load_sources(sources_path),
         settings=settings,
         preferences=preferences,
         digest=digest,
+        themes=themes,
         storage=storage,
         llm=load_llm_settings(settings.output_language),
         embeddings=load_embedding_settings(),

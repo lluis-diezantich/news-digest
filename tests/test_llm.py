@@ -407,6 +407,45 @@ class TestTopicVocabulary:
         assert ", ".join(TOPICS) in prompt
 
 
+class TestSportsFalseFriends:
+    """The keyword list must not contain words politics also uses.
+
+    Fixed 2026-09-18: `partido`/`partit` mean political PARTY and `madrid` names
+    the city, the government and the Comunidad. Word boundaries do not help --
+    these are whole words -- so on a Spanish and Catalan politics corpus they
+    tagged 31 articles of one week as sport, and `excluded_topics: [sports]` then
+    docked six of that week's top contenders 1.5 each.
+    """
+
+    @pytest.mark.parametrize("headline", [
+        "El PP contradice al Gobierno sobre la tutela de los menores migrantes",
+        "El partido de Feijóo se reúne con el comisario de Migración",
+        "Un informe de la Comunidad de Madrid señala que no se justificó el gasto",
+        "El Supremo arrastra los pies en la causa del procés",
+        "El partit de Junts trenca amb el Govern espanyol",
+    ])
+    def test_political_headlines_are_not_sport(self, heuristic, headline):
+        enrichment = heuristic.enrich(
+            [EnrichInput(id="a1", title=headline, source="S", language="es",
+                         published=None, excerpt=headline)],
+            Context(),
+        )[0]
+        assert "sports" not in enrichment.topics, enrichment.topics
+
+    @pytest.mark.parametrize("headline", [
+        "El Barça guanya la lliga amb un gol al minut 90",
+        "Real Madrid wins the cup final after extra time",
+        "El entrenador deja el equipo tras el torneo olímpico",
+    ])
+    def test_actual_sport_is_still_caught(self, heuristic, headline):
+        enrichment = heuristic.enrich(
+            [EnrichInput(id="a1", title=headline, source="S", language="es",
+                         published=None, excerpt=headline)],
+            Context(),
+        )[0]
+        assert "sports" in enrichment.topics, enrichment.topics
+
+
 class TestRegistryAndContext:
     def test_missing_key_falls_back_to_offline(self):
         assert get_provider(LLMSettings(provider="gemini", api_key=None)).name == "none"

@@ -5,7 +5,13 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from newsdigest import digest as digest_module
-from newsdigest.digest import build_digest, prerank_score, select_candidates, weekly_window
+from newsdigest.digest import (
+    _interleave,
+    build_digest,
+    prerank_score,
+    select_candidates,
+    weekly_window,
+)
 from newsdigest.embeddings.none import NullEmbeddingProvider
 from newsdigest.llm.heuristic import HeuristicProvider
 from newsdigest.models import RunStats
@@ -13,6 +19,40 @@ from newsdigest.models import RunStats
 from conftest import StubEmbedder, make_article
 
 MONDAY = datetime(2026, 9, 7, tzinfo=timezone.utc)
+
+
+class TestEnrichmentBudgetSharing:
+    """`_interleave`: the per-run enrichment cap belongs to every candidate.
+
+    Added 2026-09-18. Flat concatenation gave it all to the first cluster -- on
+    the 2026-W38 run all 40 enriched articles landed in one 52-article cluster
+    and seven of the eight published stories had none, which is also how
+    `importance` came to mean "ten outlets" rather than "important".
+    """
+
+    def test_every_cluster_is_reached_before_any_is_finished(self):
+        big = [make_article(f"Big {n}", source="A") for n in range(50)]
+        small = [make_article("Small one", source="B")]
+        other = [make_article("Other one", source="C")]
+        order = _interleave([big, small, other])
+        assert [a.title for a in order[:3]] == ["Big 0", "Small one", "Other one"]
+        assert len(order) == 52
+
+    def test_a_budget_smaller_than_the_biggest_cluster_still_spans_them(self):
+        clusters = [[make_article(f"C{c} #{n}", source=f"S{c}") for n in range(20)]
+                    for c in range(4)]
+        first_ten = _interleave(clusters)[:10]
+        assert len({a.source for a in first_ten}) == 4
+
+    def test_no_article_is_lost_or_duplicated(self):
+        clusters = [[make_article(f"C{c} #{n}", source=f"S{c}") for n in range(c + 1)]
+                    for c in range(5)]
+        flat = _interleave(clusters)
+        assert len(flat) == 15
+        assert len({a.id for a in flat}) == 15
+
+    def test_no_clusters_is_not_an_error(self):
+        assert _interleave([]) == []
 
 
 class TestWeeklyWindow:
@@ -279,15 +319,20 @@ class TestBuildDigest:
         story = result.stories[0][0]
         assert story.headline == "Merged headline"
         assert story.key_facts == ["A fact"]
-        # relevance is still taken from the brief...
+        # relevance and, since 2026-09-18, importance both come from the brief.
         assert story.relevance == 0.8
-        # ...but importance deliberately is not, since 2026-09-17. It keeps
-        # build_story's article-derived value -- here the articles carry no
-        # importance at all, so it is 0.0 plus the 0.03 second-publisher bonus.
-        # Measured, qwen3:8b returns 0.80-0.85 for everything, so copying it over
-        # replaced a 0.20-0.80 spread with a constant. See config/preferences.yaml.
-        assert story.importance != 0.9
-        assert story.importance == pytest.approx(0.03)
+        # Copying importance over was removed on 2026-09-17 and restored the next
+        # day. What this test used to assert -- build_story's article-derived value,
+        # 0.0 plus the 0.03 second-publisher bonus -- is exactly the failure that
+        # brought it back: with only 40 articles enriched per run, most published
+        # stories have no enriched article, so that number IS the publisher bonus
+        # wearing importance's name. Note what this line would have been:
+        #     assert story.importance == pytest.approx(0.03)
+        # A story-level number from a model that spreads is the point. If a model
+        # returns a constant instead (qwen3:8b gave 0.80-0.85 for everything), the
+        # page shows a worse number but the order does not move, because
+        # `importance` is not in ranking.terms. Check the spread before it is.
+        assert story.importance == 0.9
         assert story.written_by == provider.name
 
     def test_single_publisher_story_costs_no_brief(self, store, config, context):

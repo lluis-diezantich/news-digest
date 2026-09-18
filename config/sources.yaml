@@ -65,6 +65,49 @@ exclude_url_patterns:
   # 20minutos syndicates -- the three articles it caught were a CNMC report on
   # petrol stations, butane pricing and savings taxation. Real reporting.
 
+# Dropped at collection by HEADLINE, for junk that has no section path to match.
+# Same rules as above: regexes, applied before anything reaches the database, and
+# a broken one is a startup error. Matched against the title only, lowercased and
+# accent-stripped -- so write "previsió" or "prevision", either matches -- because
+# matching the excerpt too would drop any article whose background paragraph
+# happens to mention football.
+exclude_title_patterns:
+  # --- weather SERVICE content, not weather news -------------------------------
+  # RAC1 files a forecast every single day ("la previsió del temps d'avui, 14 de
+  # setembre"), six of them in the 2026-W38 window alone, and one of them topped
+  # the `prominence` signal outright. RTVE files the Spanish equivalent. None of
+  # it sits under a weather path, so `/el-tiempo/` never sees it.
+  #
+  # DELIBERATELY NARROW: this catches forecasts, not weather. The same week's
+  # "Un muerto en Barcelona y grave caos de transporte por las lluvias
+  # torrenciales" is a story about a death and a shut-down metro, and the flood
+  # coverage, the ES-Alert and the school closures are real news. Matching
+  # `lluvia`/`pluja`/`tormenta` would take all of it. Widen only if you decide
+  # you want no weather at all.
+  - previsi[oó] del temps            # ca, RAC1's daily
+  - previsi[oó] d'avui               # ca, the same feature without "del temps"
+  - previsi[oó]n del tiempo          # es
+  - el tiempo hoy                    # es, RTVE's daily
+  - pron[oó]stico del tiempo         # es
+  - the weather (today|forecast)     # en
+  # --- football ---------------------------------------------------------------
+  # `/deportes/`, `/esports/` and `/sports/` already catch the outlets that have
+  # a sports section. These are for the ones that do not: VilaWeb files football
+  # under /noticies/, 3Cat under /3catinfo/, and 20minutos put a Lamine Yamal
+  # family piece under /gente/.
+  - lamine yamal
+  - \byamal\b                       # "Yamal scores twice"; also the Russian gas
+                                     # field, which these sources rarely cover
+  - \bbar[çc]a\b
+  - camp nou
+  - pilota d'or
+  - bal[oó]n de oro
+  - ballon d'or
+  - lliga de campions
+  - \bchampions\b
+  - \bfutbol\b                       # normalization strips the accent, so this
+  - \bmbapp[eé]\b                    # also matches "fútbol"
+
 sources:
   # ---------------------------------------------------------------- English --
 #  - name: BBC World

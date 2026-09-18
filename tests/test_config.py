@@ -16,7 +16,7 @@ class TestShippedConfig:
     def test_the_repo_config_is_valid(self):
         """What a first run actually loads."""
         sources = load_sources()
-        settings, prefs, digest, storage = load_preferences()
+        settings, prefs, digest, storage, *_ = load_preferences()
         assert len(sources) >= 10
         assert any(s.enabled for s in sources)
         assert all(s.rss for s in sources if s.method == "rss")
@@ -86,13 +86,13 @@ class TestPreferences:
         """The shape the spec's example uses."""
         path = write(tmp_path, "p.yaml",
                      "preferences:\n  topics:\n    - technology\n    - Economics\n")
-        _, prefs, _, _ = load_preferences(path)
+        _, prefs, *_ = load_preferences(path)
         assert prefs.topics == {"technology": 1.5, "economics": 1.5}
 
     def test_topics_as_a_weights_mapping(self, tmp_path):
         path = write(tmp_path, "p.yaml",
                      "preferences:\n  topics:\n    technology: 1.8\n    sports: 0.2\n")
-        _, prefs, _, _ = load_preferences(path)
+        _, prefs, *_ = load_preferences(path)
         assert prefs.topics == {"technology": 1.8, "sports": 0.2}
 
     def test_topics_of_a_wrong_type_is_rejected(self, tmp_path):
@@ -103,7 +103,7 @@ class TestPreferences:
     def test_ranking_terms_replace_the_defaults(self, tmp_path):
         path = write(tmp_path, "p.yaml",
                      "ranking:\n  terms:\n    importance: 2.0\n    recency: 0.1\n")
-        _, prefs, _, _ = load_preferences(path)
+        _, prefs, *_ = load_preferences(path)
         assert prefs.ranking == {"importance": 2.0, "recency": 0.1}
 
     def test_unknown_ranking_term_is_an_error_not_a_no_op(self, tmp_path):
@@ -124,7 +124,7 @@ class TestPreferences:
             load_preferences(path)
 
     def test_missing_file_uses_defaults(self, tmp_path):
-        settings, prefs, digest, storage = load_preferences(tmp_path / "absent.yaml")
+        settings, prefs, digest, storage, *_ = load_preferences(tmp_path / "absent.yaml")
         assert settings.supported_languages == ["en", "es", "ca"]
         assert prefs.topics == {}
         assert digest.archive is True
@@ -133,7 +133,7 @@ class TestPreferences:
         """You may read Spanish sources and want an English digest."""
         path = write(tmp_path, "p.yaml",
                      "settings:\n  supported_languages: [es, ca]\n  output_language: en\n")
-        settings, _, _, _ = load_preferences(path)
+        settings, *_ = load_preferences(path)
         assert settings.output_language == "en"
 
 

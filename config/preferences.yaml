@@ -145,6 +145,30 @@ digest:
   archive: true
   archive_limit: 52
 
+# `news-digest themes`: what the week was ABOUT, keyed on the names in headlines.
+# A reading tool, read-only, and separate from the digest -- it needs no model and
+# no embeddings, so it works with no API key and an exhausted quota.
+themes:
+  # Names that locate a story rather than being one. Without this list `catalunya`
+  # and `barcelona` are the two biggest "themes" of any week and mean nothing.
+  # Hand-maintained because there is no metric for it: measured over 2026-W38,
+  # article coherence scores `catalunya` 0.588 and `trump` 0.566, so any automatic
+  # floor that drops the places drops the subjects with them.
+  #
+  # An ambient PERSON is the same failure mode as a place. `trump` behaves exactly
+  # like `madrid` on this data -- it collects US trade, the Fed, China and Canada
+  # into one meaningless pile -- but adding it here would also hide the weeks when
+  # he IS the story, so it is left out. Add names as you see them misbehave.
+  containers:
+    - catalunya
+    - barcelona
+    - madrid
+    - espanya
+    - europa
+  # One outlet writing alone is not yet a subject.
+  min_publishers: 3
+  top: 10
+
 storage:
   # Articles older than this are pruned so the committed database stays small.
   retention_days: 45

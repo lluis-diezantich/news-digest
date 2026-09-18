@@ -67,6 +67,43 @@ match actively promotes it. Broken patterns are a startup error.
 A per-source `exclude_url_patterns:` is merged with the global list. The Guardian
 entry used one for `/australia-news/`, which its world feed carries.
 
+### By headline
+
+Some junk has no section path to match. `exclude_title_patterns` catches it:
+
+```yaml
+exclude_title_patterns:
+  - previsi[oó] del temps    # RAC1's daily forecast, filed under its news path
+  - el tiempo hoy            # RTVE's equivalent
+  - lamine yamal
+  - \bbar[çc]a\b
+  - \bfutbol\b
+```
+
+Two things needed it. RAC1 publishes a weather forecast every single day — six in
+the 2026-W38 window, and one of them topped the `prominence` signal outright —
+under its ordinary news path, where `/el-tiempo/` never sees it. And VilaWeb files
+football under `/noticies/`, 3Cat under `/3catinfo/`, and 20minutos put a Lamine
+Yamal family piece under `/gente/`, so `/esports?/` misses all three.
+
+Matched against the **title only**, lowercased and accent-stripped on both sides —
+write `previsió` or `prevision`, either matches. The excerpt is deliberately not
+matched: an article whose background paragraph mentions football is not a football
+article.
+
+The weather patterns target **forecasts, not weather**. The same week's "Un muerto
+en Barcelona y grave caos de transporte por las lluvias torrenciales" is a story
+about a death and a shut-down metro; the floods, the ES-Alert and the school
+closures are news. Matching `lluvia`/`pluja`/`tormenta` would take all of it. Note
+the trap the tests pin: "Alerta per la previsió de pluges: el Govern demana
+limitar els desplaçaments" contains *previsió* but is a government instruction.
+
+Measured over the 1,938 stored articles, these 17 patterns drop 33. Three are
+known false positives, accepted on the grounds that less football is the point:
+an El Salto election analysis titled "entre el fútbol y la abstención", a VilaWeb
+interview on Barça and the Catalan language, and — if these sources ever cover it
+— Russia's Yamal gas field.
+
 Not exhaustive, by design: La Vanguardia filed one cycling piece under `/clic/`,
 so `excluded_topics` remains the backstop for strays.
 
