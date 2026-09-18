@@ -3,27 +3,71 @@
  "label": "7–14 September 2026",
  "period_start": "2026-09-07T00:00:00+00:00",
  "period_end": "2026-09-14T00:00:00+00:00",
- "generated_at": "2026-09-15T11:03:02+00:00",
- "story_count": 6,
- "article_count": 9,
+ "generated_at": "2026-09-18T08:40:50+00:00",
+ "story_count": 8,
+ "article_count": 80,
  "title": "Weekly Digest",
  "subtitle": "The week's main stories from your sources",
  "output_language": "en",
  "publishers": [
   {
-   "name": "BBC World",
-   "articles": 2
+   "name": "El País",
+   "articles": 19
   },
   {
-   "name": "The Guardian World",
-   "articles": 1
+   "name": "eldiario.es",
+   "articles": 9
+  },
+  {
+   "name": "BBC World",
+   "articles": 6
   },
   {
    "name": "VilaWeb",
-   "articles": 1
+   "articles": 6
+  },
+  {
+   "name": "3Cat (324)",
+   "articles": 6
+  },
+  {
+   "name": "La Vanguardia",
+   "articles": 5
+  },
+  {
+   "name": "The Guardian World",
+   "articles": 5
+  },
+  {
+   "name": "RTVE",
+   "articles": 4
+  },
+  {
+   "name": "Al Jazeera",
+   "articles": 3
+  },
+  {
+   "name": "Público",
+   "articles": 3
   },
   {
    "name": "Nació Digital",
+   "articles": 3
+  },
+  {
+   "name": "Ara",
+   "articles": 3
+  },
+  {
+   "name": "RAC1",
+   "articles": 2
+  },
+  {
+   "name": "TechCrunch",
+   "articles": 2
+  },
+  {
+   "name": "Hacker News",
    "articles": 1
   },
   {
@@ -31,65 +75,829 @@
    "articles": 1
   },
   {
-   "name": "TechCrunch",
+   "name": "Ars Technica",
    "articles": 1
   },
   {
-   "name": "RTVE",
-   "articles": 1
-  },
-  {
-   "name": "El País",
+   "name": "NPR News",
    "articles": 1
   }
  ],
  "languages": [
   {
+   "code": "es",
+   "articles": 39
+  },
+  {
    "code": "en",
-   "articles": 5
+   "articles": 21
   },
   {
    "code": "ca",
-   "articles": 2
-  },
-  {
-   "code": "es",
-   "articles": 2
+   "articles": 20
   }
  ],
  "stories": [
   {
-   "id": "se7170b51b787c2c",
-   "headline": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
-   "summary": "Ships and helicopters are searching for those missing from the Virgo Transport 8 ship, which had encountered bad weather.",
-   "why_it_matters": "",
-   "key_facts": [],
-   "topics": [],
-   "entities": [
-    "Indonesian",
-    "Java Sea",
-    "Virgo Transport",
-    "Search",
-    "Java Sea Rescue",
-    "Indonesia",
-    "Java",
-    "Borneo"
+   "id": "s6bf1966444a7a7b",
+   "headline": "Tech leaders warn of AI risks as Trump downplays concerns",
+   "summary": "Leading AI companies and experts are raising alarms about potential dangers, while Trump emphasizes U.S. technological leadership. Some companies have taken steps to prevent misuse, but concerns about control and transparency remain.",
+   "why_it_matters": "Public and governmental attention to AI safety could shape future regulations and industry practices.",
+   "key_facts": [
+    "AI companies warn that their technology could pose existential risks to humanity.",
+    "Anthropic has blocked attempts to use its AI for biological weapon development.",
+    "Dario Amodei claims the industry has downplayed AI risks and calls for government and public intervention.",
+    "OpenAI has delayed its IPO due to fears of losing control over its AI systems."
    ],
-   "importance": 0.5,
-   "relevance": 0.3,
-   "score": 2.699,
+   "topics": [
+    "politics",
+    "science",
+    "technology"
+   ],
+   "entities": [],
+   "importance": 0.42,
+   "relevance": 0.9,
+   "score": 2.809,
    "publishers": [
+    "3Cat (324)",
+    "Al Jazeera",
+    "Ars Technica",
     "BBC World",
-    "The Guardian World"
+    "El País",
+    "Hacker News",
+    "La Vanguardia",
+    "Nació Digital",
+    "Público",
+    "RAC1",
+    "RTVE",
+    "TechCrunch",
+    "The Verge",
+    "VilaWeb",
+    "eldiario.es"
    ],
-   "publisher_count": 2,
+   "publisher_count": 15,
    "languages": [
+    "ca",
+    "en",
+    "es"
+   ],
+   "article_count": 37,
+   "first_published": "2026-09-09T08:44:52+00:00",
+   "last_published": "2026-09-13T23:31:56+00:00",
+   "articles": [
+    {
+     "id": "251e935cf239f4b8",
+     "title": "Trump dismisses calls for AI slowdown from leading tech CEOs",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/news/2026/9/13/trump-dismisses-calls-for-ai-slowdown-from-leading-tech-ceos?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-13T23:31:56+00:00",
+     "author": null,
+     "summary": "Trump downplays AI risks, saying he wants to maintain the US's lead over China in the emerging technology.",
+     "content_type": null
+    },
+    {
+     "id": "f41c003c85af7fcc",
+     "title": "Could AI really kill us within a decade?",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/ai-apocalypse-warnings-benefit-ai-companies?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-13T22:17:15+00:00",
+     "author": null,
+     "summary": "AI companies are warning that their technology could wipe out humanity.",
+     "content_type": null
+    },
+    {
+     "id": "74be22579d790046",
+     "title": "La doble cara de la industria de la IA: vende el apocalipsis mientras hace negocio con su omnipotencia",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/ciencias/tecnologia/doble-cara-industria-ia-vende-apocalipsis-negocio-gran-poder.html",
+     "language": "es",
+     "published_at": "2026-09-13T21:35:00+00:00",
+     "author": "Adhik Arrilucea",
+     "summary": "Después de que un exempleado de Anthropic declarara esta semana que la IA podría \"matarnos a todos\", la compañía afirmó haber identificado y bloqueado intentos de usar Claude para fabricar armas biológicas. \"Las empresas tienen interés en presentar sus sistemas como tecnologías casi todopoderosas. Eso puede servir tanto para atraer inversión como para reivindicar que solo ellas tienen capacidad para controlarlas\", sostiene la experta Itxaso Domínguez. Madrid - 13/09/2026 21:35 - Actualizado a 14/09/2026 07:47 Los seres humanos son capaces de emplear las herramientas tecnológicas para lo mejor y lo peor. Desde la creación del teléfono hasta el desarrollo del espionaje o las ciberestafas. Esta ambivalencia se amplifica con la irrupción de la inteligencia artificial . La pasada semana un equipo científico ha empleado la IA para crear un atlas del genoma humano que permite predecir cómo afectan las mutaciones genéticas a la biología molecular. Pero también esta última semana un exempleado de Anthropic advertía de que estas infraestructuras podrían \"matarnos a todos\" para finales de la década. En este contexto, cabe preguntarse por cómo las sociedades nos hacemos cargo de estos…",
+     "content_type": null
+    },
+    {
+     "id": "578f2d8c42cd327c",
+     "title": "El director de Anthropic afirma que \"la industria mintió\" sobre el peligro de la IA y dice que el Gobierno y los ciudadanos deben intervenir",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/sociedad/director-anthropic-afirma-industria-mintio-sobre-peligro-ia-dice-gobierno-ciudadanos-deben-intervenir.html",
+     "language": "es",
+     "published_at": "2026-09-13T19:22:31+00:00",
+     "author": "EFE",
+     "summary": "Dario Amodei hizo estas declaraciones tras publicar un ensayo para urgir \"un ritmo más lento\" a la industria ante los crecientes riesgos de seguridad, algo a lo que se sumaron sus rivales Sam Altman y Elon Musk. 13/09/2026 19:22 - Actualizado a 13/09/2026 20:31 El fundador de Anthropic , Dario Amodei, afirmó que \"la industria mintió\" sobre el peligro de la inteligencia artificial (IA) por lo que el Gobierno y los ciudadanos deben intervenir, en una entrevista este domingo tras la polémica que él mismo desató el sábado por los riesgos de la tecnología. \" No les voy a mentir: existen peligros reales . Y creo que durante demasiado tiempo la industria mintió a la gente sobre el hecho de que esta tecnología tenía riesgos. Nosotros nunca lo hicimos (en Anthropic), pero mucha de la industria lo hizo\", declaró Amodei en una entrevista al programa Sunday Morning de CBS. El también director ejecutivo de Anthropic hizo estas declaraciones tras publicar el sábado un ensayo para urgir \"un ritmo más lento\" a la industria ante los crecientes riesgos de seguridad de la IA, algo a lo que se sumaron sus rivales Sam Altman , de OpenAI, y Elon Musk, de xAI, un hecho inédito en el sector de la IA…",
+     "content_type": null
+    },
+    {
+     "id": "a11ccbe58e92964e",
+     "title": "¿Puede una IA \"fuera de control\" ser más peligrosa que la IA controlada por humanos?",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/opinion/zona-critica/ia-fuera-control-peligrosa-ia-controlada-humanos_129_13506745.html",
+     "language": "es",
+     "published_at": "2026-09-13T19:20:39+00:00",
+     "author": "Isaac Rosa",
+     "summary": "No se me ocurre qué horrores podría causar una IA autónoma que no estén haciendo ya las IAs que obedecen órdenes: las órdenes de sus desarrolladores, las órdenes de los gobiernos y empresas que las emplean, las órdenes de los usuarios que jugamos con ella, y por supuesto las órdenes de cualquier desalmado OpenAI aplaza su salida a bolsa ante el miedo al descontrol de la IA y se suma al plan de frenar desarrollos Venga, hablemos de la IA otro ratito. Sigo pensando, como escribí hace tres días , que alrededor de la IA hay mucha burbuja informativa en beneficio de sus fabricantes, y ahora voy a contribuir yo a ella un poquito más. La otra opción era escribir sobre la Fórmula 1 en Madrid; pero para burbuja informativa, el Madrid de Ayuso. El miedo esta semana es que la IA se “descontrole” , acabe emancipándose del control humano, desarrolle conciencia propia y tome sus propias decisiones, deje de obedecer nuestras órdenes y se convierta en una amenaza para la humanidad. ¿Sí? ¿Y qué cosas peligrosas podría hacer una IA autónoma y rebelde? ¿Asesinar en masa, al margen de la ley y sin ningún reparo moral? ¿Controlarnos, vigilarnos, reducir nuestra libertad? ¿Sustituir a trabajadores…",
+     "content_type": null
+    },
+    {
+     "id": "8d552fdd40f3b306",
+     "title": "Trump downplays warnings of AI risks, citing rivalry with China",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/c7v48vp31mdo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T18:49:37+00:00",
+     "author": null,
+     "summary": "The US President said \"negative forces\" were airing concerns about \"things that won't happen\".",
+     "content_type": null
+    },
+    {
+     "id": "815dc2a1bef42cfc",
+     "title": "Questions mount over what an AI 'slowdown' would look like",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cwyzp47py48o?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T18:20:22+00:00",
+     "author": null,
+     "summary": "While pacing AI development might sound like a quick fix, it is far from an easy solution.",
+     "content_type": null
+    },
+    {
+     "id": "12a27b68da7f61e5",
+     "title": "Código rojo en la IA: el vértigo paraliza a las tecnológicas y OpenAI suspende la salida a Bolsa",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-13/codigo-rojo-en-la-ia-el-vertigo-paraliza-a-las-tecnologicas-y-openai-suspende-la-salida-a-bolsa.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:52:09+00:00",
+     "author": "Javier Salas",
+     "summary": "Tras varios incidentes preocupantes, Altman y Amodei abogan por reducir el ritmo de desarrollo de los modelos. Trump responde minimizando los riesgos y advierte de que el verdadero peligro es China",
+     "content_type": null
+    },
+    {
+     "id": "60bcd7af55eab816",
+     "title": "Trump rechaza las advertencias sobre los riesgos de la IA",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/trump-rechaza-las-advertencias-sobre-los-riesgos-de-la-ia.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:31:37+00:00",
+     "author": "Macarena Vidal Liy",
+     "summary": "El presidente sostiene que Estados Unidos necesita mantener su ventaja frente a China en la carrera por el desarrollo de esta tecnología",
+     "content_type": null
+    },
+    {
+     "id": "f1b568855b3d596c",
+     "title": "Los cuatro gigantes de la IA piden frenar desarrollos y Trump desprecia el riesgo",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/economia/cuatro-gigantes-ia-piden-frenar-desarrollos-trump-desprecia-riesgo_1_13506750.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:22:13+00:00",
+     "author": "Serafí del Arco",
+     "summary": "“Estamos a la cabeza de China en inteligencia artificial. Somos el país más avanzado del mundo y, francamente, quiero que siga siendo así, porque quien gane en IA, gana”, afirma el presiente estadounidense OpenAI aplaza su salida a bolsa ante el miedo al descontrol de la IA y se suma al plan de frenar desarrollos Las alarmantes advertencias de Anthropic sobre las consecuencias para la humanidad del rápido desarrollo de la inteligencia artificial (IA) han suscitado una rara muestra de unidad entre los desarrolladores rivales. Los otros tres gigantes del sector (OpenAI, SpaceX y Google) no han tardado ni un día en respaldar el llamamiento del fundador y director ejecutivo de Anthropic, Dario Amodei, para retrasar el desarrollo de la IA , petición que se produjo tras una serie de advertencias de investigadores de IA la semana pasada. Pero el presidente Donald Trump resta importancia a la creciente alarma sobre los riesgos de la inteligencia artificial. “Estamos a la cabeza de China en inteligencia artificial. Somos el país más avanzado del mundo y, francamente, quiero que siga siendo así, porque quien gane en IA, gana”, declaró Trump el domingo a los periodistas en el Irish Open de…",
+     "content_type": null
+    },
+    {
+     "id": "b25a04feb1786ba0",
+     "title": "El director de Anthropic afirma que \"la industria mintió\" sobre la IA: \"Existen peligros reales\"",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260913/director-anthropic-afirma-industria-mintio-sobre-ia-existen-peligros-reales/17223222.shtml",
+     "language": "es",
+     "published_at": "2026-09-13T16:39:22+00:00",
+     "author": "RTVE Noticias",
+     "summary": "El fundador de Anthropic, Dario Amodei, ha asegurado que \"la industria mintió\" sobre el peligro de la inteligencia artificial (IA) por lo que el Gobierno y los ciudadanos deben intervenir, en una entrevista este domingo tras la polémica que él mismo desató el sábado por los riesgos de la tecnología. \"No les voy a mentir: existen peligros reales. Y creo que durante demasiado tiempo la industria mintió a la gente sobre el hecho de que esta tecnología tenía riesgos. Nosotros nunca lo hicimos (en Anthropic), pero mucha de la industria lo hizo\", declaró Amodei en una entrevista al programa 'Sunday Morning' de CBS. El también director ejecutivo de Anthropic ha hecho estas declaraciones tras publicar el sábado un ensayo para urgir \"un ritmo más lento\" a la industria ante los crecientes riesgos de seguridad de la IA, algo a lo que se sumaron sus rivales Sam Altman, de OpenAI, y Elon Musk, de xAI, un hecho inédito en el sector de la IA. Aunque Amodei advirtió en su ensayo de riesgos como el mal uso de la inteligencia artificial para posibles ciberataques y bioterrorismo , la pérdida del control de los sistemas de IA y la disrupción económica, en su entrevista de este domingo rechazó una…",
+     "content_type": null
+    },
+    {
+     "id": "746a65339bba053e",
+     "title": "OpenAI posposa la sortida a borsa pels perills en la seguretat de la IA",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/economia/openai-posposa-la-sortida-a-borsa-pels-perills-en-la-seguretat-de-la-ia.html",
+     "language": "ca",
+     "published_at": "2026-09-13T15:00:58+00:00",
+     "author": "Neus Climent",
+     "summary": "Després de la polèmica que va generar la dimissió de l'investigador Jacob Coxon, l'empresa decideix no sortir al mercat borsari per \"salvaguardar\" el control humà sobre la tecnologia",
+     "content_type": null
+    },
+    {
+     "id": "a1a95647b66fc6bf",
+     "title": "Trump critica las “fuerzas negativas” que señalan preocupaciones sobre el avance de la IA",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/internacional/20260913/11633760/trump-critica-fuerzas-negativas-senalan-preocupaciones-sobre-avance-ia.html",
+     "language": "es",
+     "published_at": "2026-09-13T14:39:05+00:00",
+     "author": "Reuters Reuters",
+     "summary": "El presidente de Estados Unidos dice que “quien gane la carrera de la inteligencia artificial, gana”",
+     "content_type": null
+    },
+    {
+     "id": "7ff0e10caa131c36",
+     "title": "Els riscs de seguretat de la intel·ligència artificial frenen la sortida a borsa d’OpenAI",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/riscs-seguretat-intelligencia-artificial-frenen-sortida-borsa-openai/",
+     "language": "ca",
+     "published_at": "2026-09-13T13:18:25+00:00",
+     "author": null,
+     "summary": "Sam Altman diu que és poc prudent de fer-ho ara i defensa que la seguretat ha de prevaldre sobre els beneficis immediats",
+     "content_type": null
+    },
+    {
+     "id": "1ff7a1bf6304fca8",
+     "title": "OpenAI no saldrá a bolsa este año ante los riesgos de seguridad de los modelos avanzados de inteligencia artificial",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260913/openai-no-saldra-bolsa-este-ano/17223118.shtml",
+     "language": "es",
+     "published_at": "2026-09-13T13:12:48+00:00",
+     "author": "RTVE Noticias",
+     "summary": "El consejero delegado (CEO) de OpenAI , Sam Altman, ha anunciado que la creadora de ChatGPT no saldrá a bolsa este año ante los riesgos de seguridad que presentan los modelos avanzados de inteligencia artificial (IA). \"Teniendo en cuenta todo lo que está ocurriendo en materia de seguridad , ahora mismo sería un momento poco prudente para salir a bolsa. No sentimos presión para hacerlo\", ha explicado Altman en una entrevista con la revista Fortune . Ha dicho que la matriz tecnológica todavía tiene \"muchas cosas que hacer respecto a lo que se requerirá para la seguridad y la alineación\", al tiempo que ha insistido en que la compañía está dispuesta a tomar decisiones \"contrarias al beneficio financiero inmediato \" de sus inversores para \"salvaguardar\" el control humano sobre la tecnología. El CEO de OpenAI también ha reconocido que la compañía ha estado ralentizando algunos procesos de entrenamiento y ha calificado de \"inaceptable\" cualquier escenario en el que exista una posibilidad del 10% de una catástrofe derivada de la falta de control sobre softwares de inteligencia artificial. \"Todos tenemos una enorme responsabilidad y no podemos permitir que los egos, los incentivos…",
+     "content_type": null
+    },
+    {
+     "id": "692290124fe25213",
+     "title": "OpenAI aplaza su salida a bolsa ante el miedo al descontrol de la IA y se suma al plan de frenar desarrollos",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/economia/openai-anuncia-no-saldra-bolsa-ano-riesgos-ia-seria-aconsejable_1_13506626.html",
+     "language": "es",
+     "published_at": "2026-09-13T12:56:28+00:00",
+     "author": "Europa Press",
+     "summary": "Su CEO, Sam Altman, ha reconocido que la compañía ha estado ralentizado algunos procesos de entrenamiento, algo que han apoyado hacer su homólogo en Anthropic, Dario Amodei, y el magnate Elon Musk El CEO de Anthropic pide frenar el desarrollo de la IA: “Me preocupa que pueda tomar el control de todo Internet” El CEO de OpenAI, Sam Altman, ha anunciado que la tecnológica creadora de ChatGPT no saldrá a bolsa este año ante los riesgos de seguridad que presentan los modelos avanzados de inteligencia artificial. “Sería un momento poco aconsejable para salir al mercado bursátil”, ha afirmado. “Teniendo en cuenta todo lo que está ocurriendo en materia de seguridad, ahora mismo sería un momento poco prudente para salir a bolsa. No sentimos presión para hacerlo”, ha explicado el director ejecutivo de OpenAI en una entrevista con la revista 'Fortune' . Altman ha enfatizado que la matriz tecnológica todavía tiene “muchas cosas que hacer respecto a lo que se requerirá para la seguridad y la alineación”, al tiempo que ha insistido en que la compañía está dispuesta a tomar decisiones “contrarias al beneficio financiero inmediato” de sus inversores para “salvaguardar” el control humano sobre la…",
+     "content_type": null
+    },
+    {
+     "id": "8440193c3ef38944",
+     "title": "OpenAI pospone su salida a Bolsa por la inquietud sobre los riesgos de la IA",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/2026-09-13/openai-pospone-su-salida-a-bolsa-por-la-inquietud-sobre-los-riesgos-de-la-ia.html",
+     "language": "es",
+     "published_at": "2026-09-13T12:35:52+00:00",
+     "author": "Miguel Moreno Mendieta",
+     "summary": "La empresa fundada por Sam Altman no cotizará en los mercados al menos hasta 2027. El directivo asegura que no tienen problemas de financiación ni presión por empezar a cotizar",
+     "content_type": null
+    },
+    {
+     "id": "fd30564df3b2a5cd",
+     "title": "Sam Altman paraliza la salida a bolsa de OpenAI ante los riesgos de la IA",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/economia/20260913/11633741/altman-afirma-seria-poco-aconsejable-sacar-openai-bolsa-riesgos-ia.html",
+     "language": "es",
+     "published_at": "2026-09-13T12:22:38+00:00",
+     "author": "EFE EFE",
+     "summary": "El director ejecutivo de OpenAI descarta que la compañía creadora de ChatGPT debute en el parqué bursátil a corto plazo, después de que su competidor Dario Amodei (Anthropic) urgiera a ralentizar esta herramienta o se perderá el control en unos meses",
+     "content_type": null
+    },
+    {
+     "id": "6a9f4ddfa5bf8ae7",
+     "title": "Pep Martorell, expert en IA, davant el crit d'alerta dels gegants tecnològics: \"Hem de tenir un nivell de preocupació moderat-alt\"",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/tecnologia/20260913/371446/pep-martorell-expert-ia-crit-alerta-dels-gegants-tecnologics-hem-nivell-preocupacio-moderat-alt-vialliure.html",
+     "language": "ca",
+     "published_at": "2026-09-13T11:30:37+00:00",
+     "author": null,
+     "summary": "Els grans magnats mundials de la intel·ligència artificial han generat un daltabaix en les últimes hores pel seu crit d'alerta: cal frenar el desenvolupament de la IA per evitar que es descontroli. L'últim a fer-ho ha estat el màxim responsable d'Anthropic (Claude), Dario Amodei , que ha escrit un assaig d'urgència reclamant desaccelerar la indústria mundial per por que els bots puguin controlar tot internet en qüestió de mesos. Una revolució que afectaria les principals potències mundials, els Estats Units i la Xina , malgrat que el país asiàtic encara no n'ha dit res. En tot cas, els experts creuen que aquesta advertència conjunta dels referents de la IA marca un punt d'inflexió. \"Hem de tenir un nivell de preocupació moderat-alt\", ha assegurat el doctor en informàtica i expert en IA Pep Martorell en una entrevista al Via lliure de RAC1. Defensa que l'anunci públic és la prova que les empreses estan preocupades pel creixement de la IA i creu que els responsables d'aquesta tecnologia ja no entenen del tot com funciona. Per això demanen fer un pas enrere: \"Crec que el resum del document és: necessitem guanyar temps per entendre millor com funciona aquesta tecnologia i com la podem…",
+     "content_type": null
+    },
+    {
+     "id": "8ba0d4b8f630d2b0",
+     "title": "Demis Hassabis, líder de la IA en Google, se suma a la propuesta de ralentizar su desarrollo: “Es el camino correcto”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-13/demis-hassabis-lider-de-la-ia-en-google-se-suma-a-la-propuesta-de-ralentizar-su-desarrollo-es-el-camino-correcto.html",
+     "language": "es",
+     "published_at": "2026-09-13T09:05:44+00:00",
+     "author": "Javier Salas",
+     "summary": "El premio Nobel aplaude la petición de Dario Amodei, que también respaldaron Sam Altman y Elon Musk, de introducir auditores externos en las grandes compañías de inteligencia artificial",
+     "content_type": null
+    },
+    {
+     "id": "77b59a859f3801e6",
+     "title": "Estas son las tareas de alto riesgo de la IA que pueden acarrear multas multimillonarias",
+     "source": "El País Economía",
+     "publisher": "El País",
+     "url": "https://elpais.com/economia/negocios/2026-09-13/estas-son-las-tareas-de-alto-riesgo-de-la-ia-que-pueden-acarrear-multas-multimillonarias.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:00+00:00",
+     "author": "Carlos Capa",
+     "summary": "Las nuevas reglas de inteligencia artificial ponen patas arriba el trabajo de control en las compañías para evitar sanciones",
+     "content_type": null
+    },
+    {
+     "id": "ae1c0b143270a4ac",
+     "title": "Why are AI agents lying, cheating and coordinating?",
+     "source": "Hacker News",
+     "publisher": "Hacker News",
+     "url": "https://yoshuabengio.org/en/publication/why-are-ai-agents-lying-cheating-and-coordinating",
+     "language": "en",
+     "published_at": "2026-09-13T01:22:31+00:00",
+     "author": null,
+     "summary": "Comments",
+     "content_type": null
+    },
+    {
+     "id": "8da0acbcb931d7d6",
+     "title": "Los líderes de la IA alertan de que esta tecnología crece demasiado rápido",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-12/el-director-general-de-anthropic-pide-ralentizar-el-progreso-de-la-ia-y-que-todas-las-empresas-admitan-verificadores-externos.html",
+     "language": "es",
+     "published_at": "2026-09-13T00:05:23+00:00",
+     "author": "Macarena Vidal Liy",
+     "summary": "OpenIA se muestra favorable a permitir el acceso a los evaluadores mientras Dario Amodei advierte de que en 6 o 12 meses un enjambre de agentes descontrolados de un sistema de IA podría “controlar todo internet” y causar “cientos de miles de millones de dólares en daños”",
+     "content_type": null
+    },
+    {
+     "id": "8aaadb08e36c69c4",
+     "title": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
+     "source": "The Verge",
+     "publisher": "The Verge",
+     "url": "https://www.theverge.com/ai-artificial-intelligence/994384/sam-altman-no-openai-ipo-ill-advised",
+     "language": "en",
+     "published_at": "2026-09-12T21:16:28+00:00",
+     "author": "Terrence O’Brien",
+     "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of building an AI that was beyond human control. On the latter, he […]",
+     "content_type": null
+    },
+    {
+     "id": "22407f1a50da6d6a",
+     "title": "OpenAI’s Sam Altman says it would be ‘ill-advised’ to go public in 2026",
+     "source": "TechCrunch",
+     "publisher": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
+     "language": "en",
+     "published_at": "2026-09-12T20:19:16+00:00",
+     "author": "Anthony Ha",
+     "summary": "While OpenAI has filed confidentially for an IPO, the company will not be going public this year, according to CEO Sam Altman.",
+     "content_type": null
+    },
+    {
+     "id": "6aa32850b80b3b10",
+     "title": "La carrera no acaba en la IA: la inversión en cuántica se dispara un 500% en otra pugna clave entre EEUU, Europa y China",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/tecnologia/carrera-no-acaba-ia-inversion-cuantica-dispara-500-pugna-clave-eeuu-europa-china_1_13492155.html",
+     "language": "es",
+     "published_at": "2026-09-12T19:43:10+00:00",
+     "author": "Carlos del Castillo",
+     "summary": "En medio del debate sobre el desarrollo de la inteligencia artificial, gobiernos y empresas aceleran sus apuestas por la computación cuántica, otra tecnología que podría revolucionar la ciencia y romper la seguridad informática global ¿Puede la IA perder el control y amenazar a la humanidad? Esto es lo que dicen algunos de los mayores expertos del mundo Primero llegará la ventaja cuántica. Así llaman los especialistas al momento en que un procesador cuántico resuelva un problema del mundo real de forma más eficiente que un procesador tradicional. No todos, basta con que solucione solo uno para que “todo se precipite”, explica Mario de Miguel, director de la empresa Nu Quantum en España. Porque, a partir de entonces, el objetivo de tener un computador cuántico estable aparecerá definitivamente en el horizonte cercano. Ese ordenador será una puerta al futuro de la ciencia pero también un momento temido por gobiernos, agencias de inteligencia, bancos y grandes tecnológicas. El motivo es que uno de los primeros usos de ese computador será ofensivo. Los procesadores cuánticos no aspiran a sustituir a los tradicionales, pero sí a ser mucho más eficientes en determinadas tareas…",
+     "content_type": null
+    },
+    {
+     "id": "725588a31c85fd87",
+     "title": "Anthropic CEO outlines plan to slow AI development",
+     "source": "TechCrunch",
+     "publisher": "TechCrunch",
+     "url": "https://techcrunch.com/2026/09/12/anthropic-ceo-outlines-plan-to-pace-the-frontier/",
+     "language": "en",
+     "published_at": "2026-09-12T19:34:44+00:00",
+     "author": "Anthony Ha",
+     "summary": "Anthropic's Dario Amodei and OpenAI's Sam Altman seem to agree that it's time to \"pace the frontier.\" What would that actually look like?",
+     "content_type": null
+    },
+    {
+     "id": "010dc974fc766d3d",
+     "title": "Anthropic i OpenAI demanen «baixar el ritme» de desenvolupament de la IA",
+     "source": "Nació Digital",
+     "publisher": "Nació Digital",
+     "url": "https://naciodigital.cat/societat/anthropic-i-openai-demanen-baixar-el-ritme-de-desenvolupament-de-la-ia.html",
+     "language": "ca",
+     "published_at": "2026-09-12T18:54:59+00:00",
+     "author": "Pau Espí Solé",
+     "summary": "El conseller delegat d’ Anthropic , Dario Amodei , ha defensat reduir el ritme de desenvolupament de la intel·ligència artificial per evitar perdre’n el control. L’empresari alerta que un progrés imprudent podria provocar atacs informàtics, \"bioterrorisme\" o greus problemes econòmics. Amodei també adverteix que la IA podria arribar a prendre el control d’internet en un termini d’entre sis i dotze mesos. Per això, proposa avaluacions independents, coordinació amb les institucions públiques i cooperació internacional per garantir un desenvolupament més segur. El màxim responsable d’ OpenAI , Sam Altman , ha expressat el seu suport a la proposta i ha assegurat que cal \"posar límits a la frontera\" . Altman també ha defensat instaurar avaluacions independents i ha avançat que OpenAI treballarà en aquesta línia. Societat Quan la «superintel·ligència» artificial amenaça el futur de la humanitat: les ombres del cas Anthropic Gerard Mira",
+     "content_type": null
+    },
+    {
+     "id": "5f460195b4503cd0",
+     "title": "El CEO d'Anthropic demana desaccelerar el desenvolupament de la IA: \"L'hi devem a la humanitat\"",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/el-ceo-danthropic-demana-desaccelerar-el-desenvolupament-de-la-ia-lhi-devem-a-la-humanitat/noticia/3428327/",
+     "language": "ca",
+     "published_at": "2026-09-12T17:45:21+00:00",
+     "author": null,
+     "summary": "Fa una crida a \"alentir el ritme\" i guanyar temps per evitar els \"greus riscos\" que comporta un creixement descontrolat dels nous models d'intel·ligència artificial",
+     "content_type": null
+    },
+    {
+     "id": "f743fa8cfdbc08e9",
+     "title": "Los riesgos de la IA según los que la han visto desde dentro: “El mundo no está preparado y nosotros no estamos preparados”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-12/los-riesgos-de-la-ia-segun-los-que-la-han-visto-desde-dentro-el-mundo-no-esta-preparado-y-nosotros-no-estamos-preparados.html",
+     "language": "es",
+     "published_at": "2026-09-12T03:30:01+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "Una decena de investigadores, directivos y expertos que abandonaron OpenAI, Google o Anthropic han alertado en los últimos años de fallos de seguridad, usos militares y sistemas cada vez más difíciles de controlar por estas compañías. Estos son sus temores",
+     "content_type": null
+    },
+    {
+     "id": "c27b8a46e84b36f5",
+     "title": "Claude users found ways around safeguards for bioweapons research",
+     "source": "Ars Technica",
+     "publisher": "Ars Technica",
+     "url": "https://arstechnica.com/ai/2026/09/claude-users-found-ways-around-safeguards-for-bioweapons-research/",
+     "language": "en",
+     "published_at": "2026-09-11T13:02:35+00:00",
+     "author": "Zehra Munir, Financial Times",
+     "summary": "Some dangerous biology looks much like legitimate research, complicating AI safeguards.",
+     "content_type": null
+    },
+    {
+     "id": "a3c31719aea340ef",
+     "title": "Anthropic alerta de que ha frenado posibles intentos de crear armas biológicas con su IA",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-10/anthropic-alerta-de-que-ha-frenado-posibles-intentos-de-crear-armas-biologicas-con-su-ia.html",
+     "language": "es",
+     "published_at": "2026-09-10T18:41:55+00:00",
+     "author": "jordi perez",
+     "summary": "La compañía desconoce si la motivación detrás de estos accesos era la investigación científica o los usos maliciosos. El anuncio se produce un día después de que uno de sus ingenieros alertara del peligro existencial de estas herramientas",
+     "content_type": null
+    },
+    {
+     "id": "07c2c1164a75d290",
+     "title": "A year of work by two Spanish mathematicians versus 88 hours and €15 million by OpenAI: ‘Without our idea, AI wouldn’t have solved it’",
+     "source": "El País (English)",
+     "publisher": "El País",
+     "url": "https://english.elpais.com/science-tech/2026-09-10/a-year-of-work-by-two-spanish-mathematicians-versus-88-hours-and-15-million-by-openai-without-our-idea-ai-wouldnt-have-solved-it.html",
+     "language": "en",
+     "published_at": "2026-09-10T17:08:43+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "Diego Córdoba and Luis Martínez‑Zoroa’s research is the foundation of the announcement that artificial intelligence has solved one of the greatest enigmas in history. Both believe the achievement will radically change the discipline",
+     "content_type": null
+    },
+    {
+     "id": "22a35448024ab257",
+     "title": "OpenAI corrige de tapadillo su prueba ‘del milenio’ para citar a los matemáticos clave que ninguneó al anunciar el descubrimiento",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-10/openai-corrige-de-tapadillo-su-prueba-del-milenio-para-citar-a-los-matematicos-clave-que-ninguneo-al-anunciar-el-descubrimiento.html",
+     "language": "es",
+     "published_at": "2026-09-10T10:08:56+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "La compañía tecnológica reconoce así que se apoyó en el trabajo de los investigadores españoles. Charles Fefferman, el experto de Princeton que formuló el problema, confirma que el resultado presentado de la IA es la solución al reto",
+     "content_type": null
+    },
+    {
+     "id": "5049f1457691291b",
+     "title": "Un año de trabajo de dos matemáticos españoles frente a 88 horas y 15 millones de OpenAI: “Sin nuestra idea, la IA no lo habría resuelto”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/ciencia/2026-09-10/un-ano-de-trabajo-de-dos-matematicos-espanoles-frente-a-88-horas-y-15-millones-de-openai-sin-nuestra-idea-la-ia-no-lo-habria-resuelto.html",
+     "language": "es",
+     "published_at": "2026-09-10T03:30:01+00:00",
+     "author": "Patricia Fernández de Lis",
+     "summary": "Las investigaciones de Diego Córdoba y Luis Martínez-Zoroa son la base del anuncio de que la inteligencia artificial ha resuelto uno de los mayores enigmas de la historia. Ambos creen que el logro cambiará radicalmente la disciplina",
+     "content_type": null
+    },
+    {
+     "id": "654f04ffae963fb8",
+     "title": "Un investigador de Anthropic dimite y alerta del peligro de la IA: “Puede matarnos antes de 2030”",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/tecnologia/2026-09-09/un-investigador-de-anthropic-dimite-porque-asegura-que-la-ia-puede-matarnos-antes-de-2030.html",
+     "language": "es",
+     "published_at": "2026-09-09T11:01:45+00:00",
+     "author": "jordi perez",
+     "summary": "El jefe de Jacob Coxon, joven investigador de la compañía, le apoya y dice que la probabilidad de extinción en los próximos años supera el 10%",
+     "content_type": null
+    },
+    {
+     "id": "7fd16dc60511a226",
+     "title": "El anuncio de OpenAI de que ha resuelto uno de los mayores enigmas matemáticos de la historia desata acusaciones de plagio",
+     "source": "El País Tecnología",
+     "publisher": "El País",
+     "url": "https://elpais.com/ciencia/2026-09-09/el-anuncio-de-openai-de-que-ha-resuelto-uno-de-los-mayores-enigmas-matematicos-de-la-historia-desata-acusaciones-de-plagio.html",
+     "language": "es",
+     "published_at": "2026-09-09T08:44:52+00:00",
+     "author": "Patricia Fernández de Lis ,jordi perez",
+     "summary": "Un matemático dice que la tecnológica ha usado investigaciones previas y “presionado” para excluir a otro investigador de Anthropic",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sb627788ec885f9c",
+   "headline": "Catalan leaders commit to school climate upgrades by 2026",
+   "summary": "Catalan officials announced plans to climate-proof all public schools and institutes by 2026, requiring up to 2.5 billion euros in investment. However, current efforts are seen as insufficient by educators, who face extreme heat in classrooms. Climate warnings highlight the urgency of the issue as schools reopen.",
+   "why_it_matters": "The initiative reflects growing recognition of climate risks in education infrastructure, with significant financial and operational implications.",
+   "key_facts": [
+    "Catalan leaders pledged to climate-proof all public schools and institutes by 2026.",
+    "The project requires an estimated 2.5 billion euros in investment over several years.",
+    "Educators report classrooms reaching 34-35°C due to inadequate cooling.",
+    "Climate authorities warn of unusually high temperatures affecting the school year."
+   ],
+   "topics": [
+    "climate",
+    "politics",
+    "world"
+   ],
+   "entities": [],
+   "importance": 0.06,
+   "relevance": 0.8,
+   "score": 2.656,
+   "publishers": [
+    "3Cat (324)",
+    "Ara",
+    "El País"
+   ],
+   "publisher_count": 3,
+   "languages": [
+    "ca",
+    "es"
+   ],
+   "article_count": 3,
+   "first_published": "2026-09-07T03:30:01+00:00",
+   "last_published": "2026-09-13T16:36:04+00:00",
+   "articles": [
+    {
+     "id": "9fe396fabb525533",
+     "title": "Illa promet climatitzar totes les escoles i instituts públics en cinc anys",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/societat/educacio/educacio-climatitzara-100-centres-cursos-calcula-adaptar-totes-aules-costara-2-500-milions_1_5848840.html",
+     "language": "ca",
+     "published_at": "2026-09-13T16:36:04+00:00",
+     "author": "Diana Silva",
+     "summary": "Que totes les escoles i instituts públics estiguin preparats per a la calor i el fred d'aquí cinc anys. Aquesta ha estat la promesa que ha fet aquest dilluns el president de la Generalitat, Salvador Illa, en la seva conferència de mig mandat. La mesura suposarà una inversió de fins a 2.500 milions d'euros —aproximadament un milió per cada centre— que es preveu mobilitzar entre aquest curs escolar i el curs 2030-2031 (quan ja farà, com a mínim, tres anys que haurà acabat la legislatura actual). D'aquesta manera, el Govern preveu que en cinc anys tots els centres educatius públics estiguin climatitzats. En canvi, els centres concertats i privats no entren dins de l'anomenat Pla Actualitza Clima. Tampoc s'inclouen les escoles i instituts de Barcelona, que ja s'estan climatitzant amb el pla del Consorci d'Educació de Barcelona.",
+     "content_type": null
+    },
+    {
+     "id": "c065ef93572fbe0e",
+     "title": "Les escoles no estan preparades per a la calor extrema: adaptar-les totes costaria 2.500 milions",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/les-escoles-no-estan-preparades-per-a-la-calor-extrema-adaptar-les-totes-costaria-2500-milions/noticia/3427414/",
+     "language": "ca",
+     "published_at": "2026-09-13T05:25:42+00:00",
+     "author": null,
+     "summary": "Educació anuncia la climatització de 100 centres en dos cursos, un ritme insuficient per als docents davant d'aules a 34 i 35 graus",
+     "content_type": null
+    },
+    {
+     "id": "86aff09d53f59563",
+     "title": "El calor fuera de lo normal de septiembre marca la vuelta al cole en unas aulas que no están preparadas",
+     "source": "El País Clima",
+     "publisher": "El País",
+     "url": "https://elpais.com/educacion/2026-09-07/el-calor-fuera-de-lo-normal-de-septiembre-marca-la-vuelta-al-cole-en-unas-aulas-que-no-estan-preparadas.html",
+     "language": "es",
+     "published_at": "2026-09-07T03:30:01+00:00",
+     "author": "Manuel Planelles ,Ignacio Zafra",
+     "summary": "La Aemet advierte de un mes extremadamente cálido mientras varias comunidades inician el curso con protestas del profesorado por la falta de climatización de los centros",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s4c4bddabe9569e5",
+   "headline": "Sweden's center-left wins tight election with narrow margin",
+   "summary": "Sweden's center-left opposition narrowly won the legislative elections, with initial results showing a slight lead over the right-wing bloc. The far-right Sweden Democrats suffered a significant loss, though final counts remain pending.",
+   "why_it_matters": "The election outcome could reshape Sweden's political landscape and influence its approach to immigration and social policies.",
+   "key_facts": [
+    "Center-left opposition secured around 51.3% of the vote, surpassing the right-wing bloc.",
+    "The governing right-wing bloc, led by Ulf Kristersson, received approximately 49.1% of the vote.",
+    "The far-right Sweden Democrats saw a notable decline in support, losing over 4 percentage points.",
+    "Final results are pending due to ongoing vote counting, including overseas ballots."
+   ],
+   "topics": [
+    "politics",
+    "world"
+   ],
+   "entities": [],
+   "importance": 0.24,
+   "relevance": 0.9,
+   "score": 2.591,
+   "publishers": [
+    "3Cat (324)",
+    "Ara",
+    "El País",
+    "La Vanguardia",
+    "Público",
+    "RTVE",
+    "The Guardian World",
+    "VilaWeb",
+    "eldiario.es"
+   ],
+   "publisher_count": 9,
+   "languages": [
+    "ca",
+    "en",
+    "es"
+   ],
+   "article_count": 11,
+   "first_published": "2026-09-13T06:42:14+00:00",
+   "last_published": "2026-09-13T20:16:01+00:00",
+   "articles": [
+    {
+     "id": "1679e21a5ecb04bf",
+     "title": "Los socialdemócratas ganan las elecciones en Suecia con un ajustadísimo resultado",
+     "source": "Público",
+     "publisher": "Público",
+     "url": "https://www.publico.es/internacional/europa/izquierda-gana-elecciones-suecia-extrema-derecha-pierde-terreno-sondeos.html",
+     "language": "es",
+     "published_at": "2026-09-13T20:16:01+00:00",
+     "author": "Anxo Lamela (EFE)",
+     "summary": "Escrutado más del 98%, la oposición obtendría el 49,5% frente al 49,1% del bloque gubernamental del primer ministro conservador, Ulf Kristersson, con una ventaja de sólo tres escaños (176 frente a 173). Estocolmo - 13/09/2026 20:16 - Actualizado a 14/09/2026 07:45 La oposición de centroizquierda atisba un triunfo apretado en las elecciones legislativas suecas del domingo, con un margen mínimo y un resultado incierto a falta de contar las últimas papeletas y el voto exterior, en unos comicios en los que la ultraderecha perdió su condición de segunda fuerza parlamentaria. Escrutado más del 98% de los distritos electorales, la oposición obtendría el 49,5% frente al 49,1% del bloque gubernamental del primer ministro conservador, Ulf Kristersson, con una ventaja de sólo tres escaños (176 frente a 173). El Partido Socialdemócrata, la fuerza más votada en los últimos 100 años, ganaría los comicios con el 28,1%, dos puntos menos, pero con las peores cifras desde 1928, aunque se vería beneficiado por la subida de sus tres aliados: el socialista Partido de Izquierda -cuarta fuerza electoral con el 8,2%-; el Partido de Centro y el Partido del Medio Ambiente. El Partido Conservador subiría…",
+     "content_type": null
+    },
+    {
+     "id": "6ff8d70bb4bfc037",
+     "title": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/los-socialdemocratas-ganan-las-elecciones-en-suecia-segun-los-sondeos-a-pie-de-urna.html",
+     "language": "es",
+     "published_at": "2026-09-13T19:17:05+00:00",
+     "author": "Carlos Torralba",
+     "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
+     "content_type": null
+    },
+    {
+     "id": "264d1c3c15f28c13",
+     "title": "Sweden election: exit polls project centre-left government and bad night for the far-right – live",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/live/2026/sep/13/sweden-general-election-social-democrats-magdalena-sweden-democrats-ulf-kristersson-andersson-far-right-europe-latest-news-updates",
+     "language": "en",
+     "published_at": "2026-09-13T19:13:13+00:00",
+     "author": "Jakub Krupa in Stockholm",
+     "summary": "Initial projections put centre-left opposition bloc at 51.3%, with 46.8% for rightwing parties; result worse than expected for far right Sweden Democrats Swedish election – full report If you’re looking just for a single story to quickly catch up on the story of tonight, let’s cross to our Nordic correspondent, Miranda Bryant , for her preview. The prospect of far-right anti-immigration Sweden Democrats entering the government has understandably attracted a lot of international attention, particularly coming just days after the Alternative für Deutschland won the regional elections in Saxony Anhalt in Germany.",
+     "content_type": null
+    },
+    {
+     "id": "125f711eb559fa61",
+     "title": "Els socialdemòcrates guanyen les eleccions i l’extrema dreta perd força a Suècia, segons un sondatge a peu d’urna",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/socialdemocrates-guanyarien-eleccions-suecia-extrema-dreta-perdria-forca/",
+     "language": "ca",
+     "published_at": "2026-09-13T18:29:48+00:00",
+     "author": null,
+     "summary": "L’oposició obté un 51,3% dels vots, 4,5 punts més que els partits que sostenen el govern d’Ulf Kristersson",
+     "content_type": null
+    },
+    {
+     "id": "9cbb8d48e19dfa26",
+     "title": "El bloc d'esquerres guanyaria a Suècia i podria impedir un govern amb l'extrema dreta, segons els sondejos",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/el-bloc-desquerres-guanyaria-a-suecia-i-podria-impedir-un-govern-amb-lextrema-dreta-segons-els-sondejos/noticia/3428400/",
+     "language": "ca",
+     "published_at": "2026-09-13T18:28:12+00:00",
+     "author": null,
+     "summary": "Els socialdemòcrates ja van guanyar fa quatre anys però no van poder formar govern",
+     "content_type": null
+    },
+    {
+     "id": "dd13ad1e480133df",
+     "title": "Swedish election: centre-left bloc looks set to take power, exit polls show",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/voting-under-way-in-sweden-with-far-right-eyeing-first-role-in-government",
+     "language": "en",
+     "published_at": "2026-09-13T18:26:27+00:00",
+     "author": "Miranda Bryant Nordic correspondent",
+     "summary": "Result would deliver a new left-leaning government and be a strong rejection of current centre-right coalition Sweden general election – live updates Sweden’s centre-left bloc looks set to take power after a high-stakes election, according to exit polls. If the results hold, it is likely to lead to a brand new left-leaning Swedish government led by the Social Democrats, supported by the Left party (Vänsterpartiet), the Centre party and the Green party.",
+     "content_type": null
+    },
+    {
+     "id": "8faf86b25a92efb3",
+     "title": "La oposición de centroizquierda gana las elecciones en Suecia, según los sondeos",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/internacional/20260913/11633822/oposicion-centroizquierda-gana-elecciones-suecia-sondeos.html",
+     "language": "es",
+     "published_at": "2026-09-13T18:22:31+00:00",
+     "author": "María-Paz López Rodríguez",
+     "summary": "La exprimera ministra socialdemócrata, Magdalena Andersson, ha logrado batir al bloque del actual gobernante conservador, Ulf Kristersson",
+     "content_type": null
+    },
+    {
+     "id": "3d1bf3a02e92c164",
+     "title": "Los sondeos dan la victoria a la oposición socialdemócrata en Suecia",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/internacional/sondeos-pie-urna-dan-victoria-socialdemocracia-suecia_1_13506863.html",
+     "language": "es",
+     "published_at": "2026-09-13T18:15:30+00:00",
+     "author": "Òscar Gelis Pons",
+     "summary": "Los partidos de centroizquierda salen reforzados de unos comicios con una gran participación, lo que podría facilitar la vuelta del Partido Socialdemócrata al gobierno del país nórdico. La extrema derecha quedaría en tercera posición por debajo de los Moderados Análisis - Cómo Suecia perdió su esencia… y dejó de ser Suecia Al cierre de los colegios electorales, las encuestas a pie de urna sitúan al Partido Socialdemócrata (S) como ganador de las elecciones generales en Suecia, con el 28,4% de los votos. Según la encuesta de la cadena pública SVT en segunda posición quedarían los Moderados (conservadores), del primer ministro, Ulf Kristersson, con el 18,1% de los votos, mientras que la formación ultraderechista Demócratas de Suecia (SD), con el 17,2%, quedaría en tercera posición. Si se confirma el resultado de esta encuesta, los partidos del bloque progresista sumarían una mayoría de escaños suficiente para formar Gobierno con el 51,3% de los votos, en unas elecciones marcadas por el estado de los servicios públicos, la inmigración, la economía y, sobre todo, por la posibilidad de que la ultraderecha entrara por primera vez en el Ejecutivo. Los socialdemócratas de Magdalena…",
+     "content_type": null
+    },
+    {
+     "id": "f5bcbc3456e00d44",
+     "title": "Els sondejos a peu d'urna donen la victòria a la socialdemocràcia a Suècia",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/internacional/europa/sondejos-peu-d-urna-donen-victoria-socialdemocracia-suecia_1_5848967.html",
+     "language": "ca",
+     "published_at": "2026-09-13T18:10:58+00:00",
+     "author": "Òscar Gelis",
+     "summary": "Amb els col·legis electorals ja tancats, els sondejos a peu d’urna donen la victòria al Partit Socialdemòcrata (SAP) a les eleccions generals sueques, amb el 28,4 dels vots. Els Moderats, la formació del primer ministre, Ulf Kristersson, quedarien en segona posició amb el 18,1% dels vots, mentre que la formació d’extrema dreta Demòcrates de Suècia se situarien com la tercera força en el parlament amb el 17,2% dels vots, segons l'enquesta de la cadena pública SVT. El Canal TV4 dona als socialdemòcrates un 28,4%, i inverteix el segon i el tercer lloc, amb Demòcrates de Suècia (18,5%) per davant de Moderats (17,5%).",
+     "content_type": null
+    },
+    {
+     "id": "6f4a38073c2cd5b2",
+     "title": "El bloque opositor de centroizquierda gana con una mínima ventaja sobre el bloque gubernamental",
+     "source": "RTVE Noticias",
+     "publisher": "RTVE",
+     "url": "https://www.rtve.es/noticias/20260913/elecciones-legislativas-suecia-resultados/17222978.shtml",
+     "language": "es",
+     "published_at": "2026-09-13T10:25:31+00:00",
+     "author": "RTVE Noticias",
+     "summary": "La oposición de centroizquierda encabeza el escrutinio en las elecciones generales de Suecia celebradas este domingo con una ventaja mínima del 49,5% frente al 49,1% del bloque de derecha del primer ministro conservador, Ulf Kristersson , escrutado el 98% de los 6.626 distritos electorales. El próximo miércoles terminarán de contabilizar los votos procedentes del exterior. Con ese resultado provisional, el centroizquierda obtendría 176 diputados frente a 173 del bloque gubernamental . Los líderes de los principales partidos se han mostrado cautos con el resultado y han llamado a esperar a que finalice el recuento. El Partido Socialdemócrata , que ha sido la fuerza más votada en los últimos cien años, repetiría triunfo con el 28,1%, aunque caería dos puntos, por delante del Partido Conservador, con el 19,9%, un resultado que le valdría para superar al ultraderechista Demócratas de Suecia (SD), que caería casi tres puntos hasta el 17,6%. El SD había crecido hasta ahora en todas las elecciones generales desde que se presentó por primera vez en 1988. Los tres aliados de la líder socialdemócrata, Magdalena Andersson , mejorarían su resultado de hace cuatro años: el socialista Partido…",
+     "content_type": null
+    },
+    {
+     "id": "1d0ff447d62ac78b",
+     "title": "Suècia vota en unes eleccions legislatives marcades per la crisi del govern i l’auge de l’extrema dreta",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/migracio-seguretat-campanya-electoral-suecia-oposicio-sense-aliances-clares/",
+     "language": "ca",
+     "published_at": "2026-09-13T06:42:14+00:00",
+     "author": null,
+     "summary": "Els suecs votaran avui en un context de fragmentació parlamentària i incertesa sobre la governabilitat",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "s0bc78831f64e987",
+   "headline": "At least six dead, 130 missing after Indonesian ferry capsizes",
+   "summary": "A ferry capsized in the Java Sea, killing at least six people and leaving 130 missing. Rescue efforts are ongoing with over 100 survivors rescued so far. The incident occurred during severe weather conditions.",
+   "why_it_matters": "The disaster highlights ongoing safety concerns for maritime travel in Indonesia.",
+   "key_facts": [
+    "A ferry capsized in the Java Sea off Indonesia.",
+    "At least six people are confirmed dead, with 130 missing.",
+    "Over 100 survivors were rescued by emergency teams.",
+    "The ferry was en route between Java and Borneo when it sank."
+   ],
+   "topics": [
+    "economics",
+    "world"
+   ],
+   "entities": [],
+   "importance": 0.18,
+   "relevance": 0.9,
+   "score": 2.444,
+   "publishers": [
+    "3Cat (324)",
+    "Al Jazeera",
+    "BBC World",
+    "NPR News",
+    "RAC1",
+    "The Guardian World",
+    "VilaWeb"
+   ],
+   "publisher_count": 7,
+   "languages": [
+    "ca",
     "en"
    ],
-   "article_count": 2,
-   "first_published": "2026-09-13T12:18:49+00:00",
-   "last_published": "2026-09-13T13:30:38+00:00",
+   "article_count": 7,
+   "first_published": "2026-09-13T07:02:06+00:00",
+   "last_published": "2026-09-13T20:15:29+00:00",
    "articles": [
+    {
+     "id": "e18f4342741a2cc6",
+     "title": "Almenys sis morts i 130 desapareguts en el naufragi d'un ferri a Indonèsia: les imatges del vaixell engolit per la mala mar",
+     "source": "RAC1",
+     "publisher": "RAC1",
+     "url": "https://www.rac1.cat/internacional/20260913/371488/almenys-sis-morts-100-desapareguts-naufragi-ferri-indonesia-imatges-vaixell-engolit-mala-mar.html",
+     "language": "ca",
+     "published_at": "2026-09-13T20:15:29+00:00",
+     "author": null,
+     "summary": "Sis persones han mort i 130 continuen desaparegudes després del naufragi d’un vaixell mentre navegava aquesta matinada pel mar de Java a Indonèsia , segons han confirmat les autoritats del país. Els equips d'emergència han pogut rescatar 107 passatgers. Han desplegat més d’una dotzena d’embarcacions per intentar trobar les persones que continuen desaparegudes, segons l’última actualització de l’Agència Nacional de Cerca i Rescat (Basarnas). El ferri Virgo Transport 8 , que feia la ruta entre les ciutats de Surabaya —a l’illa de Java— i Banjarmasin —al sud de Borneo—, va deixar de transmetre la seva posició cap a les 2.00 h, hora local (18.00 h GMT de dissabte), abans d’enfonsar-se en un punt que encara no s’ha pogut localitzar , segons l’informe preliminar. Les últimes coordenades situen el vaixell a unes 80 milles nàutiques al sud-oest de la població de Basirih Banjarmasin, al sud de Borneo. En el moment de l’alerta, el vaixell ja estava escorat i afrontava condicions meteorològiques adverses , amb onades d’entre 2 i 2,5 metres d’altura. Segons el registre d’embarcament citat pels equips de rescat, al vaixell hi viatjaven 243 persones : 213 passatgers i 30 tripulants. Els…",
+     "content_type": null
+    },
+    {
+     "id": "c29e7a22e6ceace7",
+     "title": "Six killed, 130 missing after Indonesian passenger ship capsizes",
+     "source": "Al Jazeera",
+     "publisher": "Al Jazeera",
+     "url": "https://www.aljazeera.com/video/newsfeed/2026/9/13/six-killed-130-missing-after-indonesian-passenger-ship-capsizes?traffic_source=rss",
+     "language": "en",
+     "published_at": "2026-09-13T15:50:46+00:00",
+     "author": null,
+     "summary": "Six people have been killed and 130 remain missing after a passenger ship capsized in the Java Sea off Indonesia.",
+     "content_type": null
+    },
     {
      "id": "021e83f3e97f6e47",
      "title": "Six dead, 130 missing after Indonesian ferry capsizes in Java Sea",
@@ -111,43 +919,120 @@
      "language": "en",
      "published_at": "2026-09-13T12:18:49+00:00",
      "author": "Jon Henley and agencies",
-     "summary": "Search and rescue agency says 107 people brought to safety from vessel hit by bad weather in Java Sea Rescue workers in Indonesia said at least six people had died and 130 others were missing on Sunday after a ferry sailing between the islands of Java and Borneo capsized in bad…",
+     "summary": "Search and rescue agency says 107 people brought to safety from vessel hit by bad weather in Java Sea Rescue workers in Indonesia said at least six people had died and 130 others were missing on Sunday after a ferry sailing between the islands of Java and Borneo capsized in bad weather. Basarnas, Indonesia’s national search and rescue agency, said 107 people had been rescued from the Virgo ⁠Transport 8 vessel, which set sail on Saturday with 243 ​people onboard, including 30 crew members, ​from ‌the East Java ‌city of Surabaya.",
+     "content_type": null
+    },
+    {
+     "id": "ed4896231a4c5efe",
+     "title": "Indonesian passenger ship overturns, sparking search for at least 129 missing",
+     "source": "NPR News",
+     "publisher": "NPR News",
+     "url": "https://www.npr.org/2026/09/13/g-s1-143114/about-130-missing-after-indonesian-passenger-ship-overturns",
+     "language": "en",
+     "published_at": "2026-09-13T10:31:10+00:00",
+     "author": "The Associated Press",
+     "summary": "Indonesian rescuers said about 130 passengers and crew are missing after a ferry carrying more than 240 people sank in bad weather in the Java Sea on Sunday.",
+     "content_type": null
+    },
+    {
+     "id": "73e11f2a54a2cd19",
+     "title": "Cerquen 140 persones després de l’enfonsament d’un vaixell a la mar de Java, a Indonèsia",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/cerquen-140-persones-enfonsament-vaixell-mar-java-indonesia/",
+     "language": "ca",
+     "published_at": "2026-09-13T08:51:43+00:00",
+     "author": null,
+     "summary": "El vaixell va sortir ahir de Surabaya · Hi ha sis morts · Les condicions meteorològiques eren adverses",
+     "content_type": null
+    },
+    {
+     "id": "05e2b6257bb8641c",
+     "title": "Almenys 6 morts i un centenar de desapareguts en el naufragi d'un ferri a Indonèsia",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/busquen-140-persones-desaparegudes-en-el-naufragi-dun-ferri-a-indonesia-on-hi-ha-almenys-un-mort/noticia/3428356/",
+     "language": "ca",
+     "published_at": "2026-09-13T07:02:06+00:00",
+     "author": null,
+     "summary": "El vaixell navegava amb condicions meteorològiques adverses al mar de Java amb 243 persones a bord quan se li ha perdut la pista",
      "content_type": null
     }
    ]
   },
   {
-   "id": "s4de554cff0038da",
-   "headline": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
-   "summary": "Un dels aparells ha impactat a un quilòmetre de la frontera polonesa · Un tren de passatgers que feia el trajecte entre Kíiv i Varsòvia ha sofert danys materials",
-   "why_it_matters": "",
-   "key_facts": [],
+   "id": "sfb89645e3e7978f",
+   "headline": "Russian drone strike hits Ukrainian train near Polish border",
+   "summary": "A Russian drone strike damaged a Ukrainian passenger train near the Polish border, with no casualties reported. The attack occurred shortly after UK PM Boris Johnson and ex-CIA chief David Petraeus left the station. Ukrainian officials described the strike as a direct threat to the EU and NATO.",
+   "why_it_matters": "The attack raises concerns about escalating tensions and potential threats to European security.",
+   "key_facts": [
+    "A Russian drone strike damaged a Ukrainian passenger train near the Polish border.",
+    "The attack occurred shortly after Boris Johnson and David Petraeus left the station.",
+    "Ukrainian Railways confirmed the train was carrying Johnson and Petraeus.",
+    "Polish defense officials reported the use of Geran-5 drones in the attack."
+   ],
    "topics": [
+    "politics",
     "world"
    ],
-   "entities": [
-    "Rússia",
-    "Ucraïna",
-    "Polònia",
-    "Kíiv",
-    "Varsòvia",
-    "Defensa"
-   ],
-   "importance": 0.38,
-   "relevance": 0.5,
-   "score": 2.46,
+   "entities": [],
+   "importance": 0.15,
+   "relevance": 0.9,
+   "score": 2.34,
    "publishers": [
+    "BBC World",
+    "El País",
+    "La Vanguardia",
     "Nació Digital",
+    "The Guardian World",
     "VilaWeb"
    ],
-   "publisher_count": 2,
+   "publisher_count": 6,
    "languages": [
-    "ca"
+    "ca",
+    "en",
+    "es"
    ],
-   "article_count": 2,
-   "first_published": "2026-09-13T13:47:48+00:00",
-   "last_published": "2026-09-13T13:51:25+00:00",
+   "article_count": 6,
+   "first_published": "2026-09-13T12:05:11+00:00",
+   "last_published": "2026-09-13T19:14:21+00:00",
    "articles": [
+    {
+     "id": "2db488239574dc25",
+     "title": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cy5zg41dkqwo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-13T19:14:21+00:00",
+     "author": null,
+     "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+     "content_type": null
+    },
+    {
+     "id": "aa62dbe918005690",
+     "title": "Train carrying Boris Johnson and ex-CIA chief may have been targeted in Russian strike, officials say",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/world/2026/sep/13/russian-drone-hits-kyiv-warsaw-passenger-train-polish-border",
+     "language": "en",
+     "published_at": "2026-09-13T17:43:03+00:00",
+     "author": "Amy Hawkins and Charlotte Higgins in Kyiv",
+     "summary": "Ukrainian Railways says former British PM and David Petraeus crossed into Poland shortly before drone attack near border A train carrying Boris Johnson and the former CIA chief David Petraeus may have been the target of a Russian drone strike that hit a train engine near the Poland-Ukraine border, according to Ukrainian Railways. Ukraine’s foreign minister, Andrii Sybiha, described the attack as “Putin’s terror knocking directly on the doors of the EU and Nato”.",
+     "content_type": null
+    },
+    {
+     "id": "8d8168492043b2e0",
+     "title": "Rusia ataca la zona fronteriza entre Polonia y Ucrania, a dos kilómetros de territorio OTAN",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-13/rusia-ataca-la-zona-fronteriza-entre-polonia-y-ucrania-a-pocos-kilometros-de-territorio-otan.html",
+     "language": "es",
+     "published_at": "2026-09-13T17:21:04+00:00",
+     "author": "Gloria Rodríguez-Pina",
+     "summary": "Lituania suspende las operaciones en el aeropuerto de Vilnius por la posible presencia de un dron",
+     "content_type": null
+    },
     {
      "id": "f577587187b1be57",
      "title": "Rússia ataca amb drons la frontera d’Ucraïna amb Polònia",
@@ -169,199 +1054,317 @@
      "language": "ca",
      "published_at": "2026-09-13T13:47:48+00:00",
      "author": "Pau Espí Solé",
-     "summary": "Rússia ha atacat amb drons l’oest d’ Ucraïna , a prop de la frontera amb Polònia , segons han denunciat les autoritats dels dos països. Un tren de passatgers que cobria el trajecte entre Kíiv i Varsòvia ha patit danys, tot i que no s’han registrat víctimes mortals .",
-     "content_type": null
-    }
-   ]
-  },
-  {
-   "id": "s7de77a58af1cd20",
-   "headline": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
-   "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
-   "why_it_matters": "",
-   "key_facts": [],
-   "topics": [
-    "ai"
-   ],
-   "entities": [
-    "Sam Altman",
-    "OpenAI",
-    "OpenAI CEO Sam Altman",
-    "OpenAI IPO",
-    "Fortune",
-    "Altman",
-    "While OpenAI",
-    "IPO"
-   ],
-   "importance": 0.38,
-   "relevance": 0.3,
-   "score": 2.431,
-   "publishers": [
-    "TechCrunch",
-    "The Verge"
-   ],
-   "publisher_count": 2,
-   "languages": [
-    "en"
-   ],
-   "article_count": 2,
-   "first_published": "2026-09-12T20:19:16+00:00",
-   "last_published": "2026-09-12T21:16:28+00:00",
-   "articles": [
-    {
-     "id": "8aaadb08e36c69c4",
-     "title": "Sam Altman says OpenAI going public in 2026 would be ‘ill-advised’",
-     "source": "The Verge",
-     "publisher": "The Verge",
-     "url": "https://www.theverge.com/ai-artificial-intelligence/994384/sam-altman-no-openai-ipo-ill-advised",
-     "language": "en",
-     "published_at": "2026-09-12T21:16:28+00:00",
-     "author": "Terrence O’Brien",
-     "summary": "OpenAI CEO Sam Altman confirmed that there would be no OpenAI IPO in 2026 during an interview with Fortune. Over the course of 45 minutes, Altman discussed a variety of subjects including the Hugging Face hacking incident, recursive self-improvement, and the possibility of…",
+     "summary": "Rússia ha atacat amb drons l’oest d’ Ucraïna , a prop de la frontera amb Polònia , segons han denunciat les autoritats dels dos països. Un tren de passatgers que cobria el trajecte entre Kíiv i Varsòvia ha patit danys, tot i que no s’han registrat víctimes mortals . El ministre de Defensa polonès, Wladyslaw Kosiniak-Kamysz , ha informat que una quinzena de drons Geran-5 han participat en l’atac. Un dels aparells ha impactat a un quilòmetre de la frontera polonesa i un altre, a cinc quilòmetres, sense que l’espai aeri de Polònia hagi estat violat. El ministre d’Afers Exteriors ucraïnès, Andrii Sybiha , ha qualificat els atacs de \"terror de Putin picant directament a les portes de la UE i l’OTAN\". Sybiha ha reclamat sancions contundents contra Moscou , com ara un embargament comercial total, prohibicions d’entrada i mesures contra el complex militar-industrial rus. Internacional Estem més a prop d'una guerra amb Rússia? Pep Martí i Vallverdú",
      "content_type": null
     },
     {
-     "id": "22407f1a50da6d6a",
-     "title": "OpenAI’s Sam Altman says it would be ‘ill-advised’ to go public in 2026",
-     "source": "TechCrunch",
-     "publisher": "TechCrunch",
-     "url": "https://techcrunch.com/2026/09/12/openais-sam-altman-says-it-would-be-ill-advised-to-go-public-in-2026/",
-     "language": "en",
-     "published_at": "2026-09-12T20:19:16+00:00",
-     "author": "Anthony Ha",
-     "summary": "While OpenAI has filed confidentially for an IPO, the company will not be going public this year, according to CEO Sam Altman.",
+     "id": "2f00ed26d0eb195a",
+     "title": "Rusia ataca un tren ucraniano minutos después del paso de diplomáticos europeos",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/internacional/20260913/11633738/dron-ruso-impacta-tren-ucraniano-dos-kilometros-frontera-polonia.html",
+     "language": "es",
+     "published_at": "2026-09-13T12:05:11+00:00",
+     "author": "Autor Agencias",
+     "summary": "Nadie ha resultado herido tras el estallido en la locomotora que viajaba de Kyiv a Varsovia",
      "content_type": null
     }
    ]
   },
   {
-   "id": "s71d1d1e309fdd30",
-   "headline": "Zverev domina al local Shelton para lograr el US Open y afianza la temporada con sus dos primeros Grand Slam",
-   "summary": "El tenista alemán Alexander Zverev completa su año de consagración como un 'grande' del tenis y conquista su primer US Open al derrotar en la final al estadounidense Ben Shelton en cuatro sets por 6-3, 7-6(2), 5-7 y 6-2, en tres horas y 33 minutos. ' Sascha ' llevaba años…",
-   "why_it_matters": "",
-   "key_facts": [],
+   "id": "se5d991adea75e85",
+   "headline": "Supreme Court Suspends Voting Rights for Nationalized Individuals under 'Nietos Law'",
+   "summary": "The Supreme Court has temporarily suspended the voting rights of individuals who gained Spanish nationality through the 'Nietos Law', which grants citizenship to descendants of exiles from the Spanish Civil War and Franco era. The decision has sparked legal and political debate, with officials questioning its legality.",
+   "why_it_matters": "The ruling could significantly impact the political representation of affected citizens and raise broader questions about historical justice and legal interpretation.",
+   "key_facts": [
+    "The Supreme Court suspended the voting rights of individuals who obtained Spanish nationality via the 'Nietos Law'.",
+    "The decision applies to those who gained citizenship through the Law of Democratic Memory, excluding those who can prove descent from exiles.",
+    "The ruling was challenged by officials who called the legal basis of the suspension questionable.",
+    "The court's decision was based on an instruction from the government to classify all Spanish exiles between 1936 and 1955 as exiles."
+   ],
    "topics": [
+    "politics",
     "world"
    ],
-   "entities": [
-    "Zverev",
-    "Shelton",
-    "US Open",
-    "Grand Slam",
-    "Alexander Zverev",
-    "Ben Shelton"
-   ],
-   "importance": 0.35,
-   "relevance": 0.3,
-   "score": 1.979,
+   "entities": [],
+   "importance": 0.09,
+   "relevance": 0.9,
+   "score": 2.073,
    "publishers": [
+    "Ara",
+    "El País",
+    "La Vanguardia",
     "RTVE"
    ],
-   "publisher_count": 1,
+   "publisher_count": 4,
    "languages": [
+    "ca",
     "es"
    ],
-   "article_count": 1,
-   "first_published": "2026-09-13T22:57:17+00:00",
-   "last_published": "2026-09-13T22:57:17+00:00",
+   "article_count": 5,
+   "first_published": "2026-09-09T09:21:50+00:00",
+   "last_published": "2026-09-13T03:30:01+00:00",
    "articles": [
     {
-     "id": "71d1d1e309fdd30d",
-     "title": "Zverev domina al local Shelton para lograr el US Open y afianza la temporada con sus dos primeros Grand Slam",
+     "id": "07fd38212662de2e",
+     "title": "Cuatro horas de deliberación para suspender el voto a miles de nacionalizados por la ‘ley de nietos’",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/espana/2026-09-13/cuatro-horas-de-deliberacion-para-suspender-el-voto-a-miles-de-nacionalizados-por-la-ley-de-nietos.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Reyes Rincón",
+     "summary": "La restricción sin precedentes de un derecho fundamental se convierte en un choque del Supremo contra el propio Supremo",
+     "content_type": null
+    },
+    {
+     "id": "3542b16bb2e549f3",
+     "title": "El Supremo y la respetabilidad de Vox",
+     "source": "El País España",
+     "publisher": "El País",
+     "url": "https://elpais.com/opinion/2026-09-13/el-supremo-y-la-respetabilidad-de-vox.html",
+     "language": "es",
+     "published_at": "2026-09-13T03:30:01+00:00",
+     "author": "Máriam Martínez-Bascuñán",
+     "summary": "Con la suspensión cautelar del voto de los descendientes de los exiliados, el Supremo da a una vieja aspiración de la ultraderecha lo único que esta no podía obtener por su cuenta",
+     "content_type": null
+    },
+    {
+     "id": "3d78f8cfa73b6eec",
+     "title": "Bolaños qüestiona la suspensió del Suprem del dret a vot dels nacionalitzats per la llei de nets",
+     "source": "Ara",
+     "publisher": "Ara",
+     "url": "https://www.ara.cat/politica/bolanos-questiona-suspensio-suprem-dret-vot-dels-nacionalitzats-llei-nets_25_5848481.html",
+     "language": "ca",
+     "published_at": "2026-09-12T19:18:41+00:00",
+     "author": null,
+     "summary": "El ministre de Presidència i Justícia, Félix Bolaños, ha qüestionat aquest dissabte els arguments del Tribunal Suprem per suspendre cautelarment el dret a vot de les persones nacionalitzades per la llei de nets, provinent de la llei de memòria. \"És molt discutible jurídicament\", ha assegurat.",
+     "content_type": null
+    },
+    {
+     "id": "ff4488d54a21c0fc",
+     "title": "¿Qué es la 'ley de Nietos' y por qué el Supremo ha suspendido su efecto electoral?",
+     "source": "La Vanguardia",
+     "publisher": "La Vanguardia",
+     "url": "https://www.lavanguardia.com/politica/20260909/11630923/que-ley-nietos-supremo-supendido-efecto-electoral.html",
+     "language": "es",
+     "published_at": "2026-09-09T10:35:46+00:00",
+     "author": "Josep Maria Calvet Fransesch",
+     "summary": "El Alto Tribunal debe pronunciarse sobre la instrucción del Gobierno que generalizó la condición de exiliado a todos los españoles que salieron del país entre 1936 y 1955 sin distinción",
+     "content_type": null
+    },
+    {
+     "id": "7c3a5ac36be4a6a9",
+     "title": "¿Qué es la 'ley de nietos' y qué ha suspendido el Supremo?",
      "source": "RTVE Noticias",
      "publisher": "RTVE",
-     "url": "https://www.rtve.es/deportes/20260914/us-open-final-zverev-shelton-resultado-cronica/17223371.shtml",
+     "url": "https://www.rtve.es/noticias/20260909/ley-nietos-consecuencias-suspendido-derecho-voto-tribunal-supremo/17217891.shtml",
      "language": "es",
-     "published_at": "2026-09-13T22:57:17+00:00",
-     "author": "RTVE.es / AGENCIAS",
-     "summary": "El tenista alemán Alexander Zverev completa su año de consagración como un 'grande' del tenis y conquista su primer US Open al derrotar en la final al estadounidense Ben Shelton en cuatro sets por 6-3, 7-6(2), 5-7 y 6-2, en tres horas y 33 minutos. ' Sascha ' llevaba años…",
+     "published_at": "2026-09-09T09:21:50+00:00",
+     "author": "María José Artuch",
+     "summary": "El Tribunal Supremo ha decido suspender de manera cautelar la inscripción en el Censo Electoral de Residentes Ausentes (CERA) de las personas que obtuvieron la nacionalidad española a raíz de la Ley de Memoria Democrática, popularmente conocida como 'ley de nietos', salvo que acrediten su condición de descendientes de españoles que sufrieron exilio por la Guerra Civil y la dictadura franquista. Mediante una decisión a la que ha tenido acceso RTVE, la Sala de lo Contencioso-Administrativo acuerda suspender la posibilidad de inscribirse en el censo y votar a estas personas en los sucesivos procesos electorales que puedan convocarse, estimando parcialmente las medidas cautelares pedidas por Vox e Iustitia Europa. Te explicamos el origen de esta decisión y sus consecuencias. La llamada ' ley de nietos' es el nombre con el que se conoce una disposición adicional de la Ley de Memoria Democrática . Permite obtener la nacionalidad a los nacidos fuera de España de padres o abuelos españoles que la perdieron tras sufrir exilio por \"razones políticas, ideológicas o de creencia o de orientación e identidad sexual \". También, los hijos nacidos en el exterior de mujeres españolas \"que perdieron…",
      "content_type": null
     }
    ]
   },
   {
-   "id": "s6ff8d70bb4bfc03",
-   "headline": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
-   "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
-   "why_it_matters": "",
-   "key_facts": [],
+   "id": "sdabf2580db38198",
+   "headline": "Government relocates over 800 migrants from Ceuta streets to temporary centers",
+   "summary": "Spanish authorities have relocated more than 800 migrants from outdoor encampments in Ceuta to temporary shelters. The operation, coordinated by officials, aims to provide immediate housing and reduce overcrowding in the area. Multiple sources confirm the scale of the move and the involvement of government ministers.",
+   "why_it_matters": "The relocation reflects a significant shift in managing migrant housing in Ceuta, addressing both humanitarian needs and public safety concerns.",
+   "key_facts": [
+    "Over 800 migrants were moved from outdoor encampments in Ceuta to temporary shelters.",
+    "The operation was coordinated by government ministers, including Elma Saiz and Ángel Víctor Torres.",
+    "Temporary housing capacity in Ceuta has increased to over 4,300 places.",
+    "The move targets areas like Loma Colmenar, which were among the most overcrowded."
+   ],
    "topics": [
-    "politics"
-   ],
-   "entities": [
-    "Los",
-    "Suecia",
-    "Las"
-   ],
-   "importance": 0.35,
-   "relevance": 0.3,
-   "score": 1.971,
-   "publishers": [
-    "El País"
-   ],
-   "publisher_count": 1,
-   "languages": [
-    "es"
-   ],
-   "article_count": 1,
-   "first_published": "2026-09-13T19:17:05+00:00",
-   "last_published": "2026-09-13T19:17:05+00:00",
-   "articles": [
-    {
-     "id": "6ff8d70bb4bfc037",
-     "title": "Los socialdemócratas ganan las elecciones en Suecia, según los sondeos a pie de urna",
-     "source": "El País Internacional",
-     "publisher": "El País",
-     "url": "https://elpais.com/internacional/2026-09-13/los-socialdemocratas-ganan-las-elecciones-en-suecia-segun-los-sondeos-a-pie-de-urna.html",
-     "language": "es",
-     "published_at": "2026-09-13T19:17:05+00:00",
-     "author": "Carlos Torralba",
-     "summary": "Las encuestas otorgan a los partidos de centroizquierda en torno al 51% de los votos, frente al 47% que sumarían los de la derecha",
-     "content_type": null
-    }
-   ]
-  },
-  {
-   "id": "s2db488239574dc2",
-   "headline": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
-   "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
-   "why_it_matters": "",
-   "key_facts": [],
-   "topics": [
+    "politics",
     "world"
    ],
-   "entities": [
-    "Russia",
-    "Ukrainian",
-    "Boris Johnson",
-    "European",
-    "UK PM",
-    "Putin"
-   ],
-   "importance": 0.35,
-   "relevance": 0.5,
-   "score": 1.971,
+   "entities": [],
+   "importance": 0.06,
+   "relevance": 0.8,
+   "score": 1.948,
    "publishers": [
-    "BBC World"
+    "3Cat (324)",
+    "VilaWeb",
+    "eldiario.es"
    ],
-   "publisher_count": 1,
+   "publisher_count": 3,
    "languages": [
-    "en"
+    "ca",
+    "es"
    ],
-   "article_count": 1,
-   "first_published": "2026-09-13T19:14:21+00:00",
-   "last_published": "2026-09-13T19:14:21+00:00",
+   "article_count": 7,
+   "first_published": "2026-09-12T11:44:20+00:00",
+   "last_published": "2026-09-13T19:51:43+00:00",
    "articles": [
     {
-     "id": "2db488239574dc25",
-     "title": "Russia hits Ukrainian train shortly after Boris Johnson and top European officials leave station",
+     "id": "c1a82930473ab33c",
+     "title": "Dentro del traslado a pie de 800 migrantes a un centro de acogida de Ceuta: \"Por fin salimos de la calle\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/desalambre/sacar-migrantes-calles-ceuties-45-dias-despues-operativo-reubico-800-migrantes-pie-45-minutos_1_13506827.html",
+     "language": "es",
+     "published_at": "2026-09-13T19:51:43+00:00",
+     "author": "Gabriela Sánchez",
+     "summary": "Según el ministro Ángel Víctor Torres, con funciones de mando único, el objetivo es completar los demás traslados en \"los próximos días\" El Gobierno habilita más de 800 nuevas plazas de acogida en Ceuta y traslada allí a los migrantes de Loma Colmenar Entre el mosaico de mantas y siluetas que cada noche cubrían las aceras de las proximidades del embolsamiento de Loma Colmenar (Ceuta), las primeras cabezas se destapaban en busca de respuestas. El rugido de una larga hilera de furgones policiales empezó a despertar a los migrantes que desde hace semanas dormían a la intemperie junto a unuo de los campamentos levantados por el Gobierno en la ciudad autónoma. Un joven avisaba a su amigo tumbado de su derecha que, a su vez, despertaba al compañero de detrás. En efecto dominó, las caras de desconcierto se multiplicaban: “¿Esto es por nosotros?”, preguntaba un joven marroquí mientras doblaba una manta a toda prisa. “¿Nos llevan a un centro o a Maruecos?”. Así arrancó la primera de una serie de reubicaciones -después de las primeras realizadas desde la playa del Trampolín hace semanas- con las que el Gobierno central, 45 después de la crisis migratoria, pretende alojar a otra parte de…",
+     "content_type": null
+    },
+    {
+     "id": "e92a49c7d7568f70",
+     "title": "Las imágenes del traslado de cientos de migrantes a un nuevo centro temporal de acogida en Ceuta",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/desalambre/imagenes-traslado-cientos-migrantes-nuevo-centro-temporal-acogida-ceuta_3_13506249.html",
+     "language": "es",
+     "published_at": "2026-09-13T09:56:57+00:00",
+     "author": "Samuel Vega",
+     "summary": "El Gobierno habilita más de 800 nuevas plazas de acogida en Ceuta e inicia el traslado de migrantes que seguían en la calle El Gobierno ha iniciado el traslado de migrantes que seguían en la calle. Así ha transcurrido el operativo coordinado sobre el terreno por la ministra Elma Saiz para un nuevo centro en el barrio de Los Rosales.",
+     "content_type": null
+    },
+    {
+     "id": "e27375de61b48a1d",
+     "title": "La policia trasllada més de 800 migrants que vivien al carrer a Ceuta a una instal·lació temporal",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/la-policia-trasllada-mes-de-800-migrants-que-vivien-al-carrer-a-ceuta-a-una-installacio-temporal/noticia/3428363/",
+     "language": "ca",
+     "published_at": "2026-09-13T09:22:22+00:00",
+     "author": null,
+     "summary": "Amb l'habilitació d'aquestes places en unes carpes ja són més de 4.300 les places d'acollida temporal a la ciutat autònoma",
+     "content_type": null
+    },
+    {
+     "id": "4cad80df51150888",
+     "title": "La policia espanyola trasllada centenars d’emigrants de Ceuta a un nou espai habilitat",
+     "source": "VilaWeb",
+     "publisher": "VilaWeb",
+     "url": "https://www.vilaweb.cat/noticies/policia-espanyola-trasllada-centenars-immigrants-ceuta-nova-installacio/",
+     "language": "ca",
+     "published_at": "2026-09-13T07:19:45+00:00",
+     "author": null,
+     "summary": "L’operació pretén d'evitar que continuïn dormint a la intempèrie",
+     "content_type": null
+    },
+    {
+     "id": "dacfac6ff2f1126a",
+     "title": "El Gobierno habilita más de 800 nuevas plazas de acogida en Ceuta y traslada allí a los migrantes de Loma Colmenar",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/gobierno-habilita-800-plazas-nuevas-acogida-migrantes-permanecian-calle-ceuta_1_13505590.html",
+     "language": "es",
+     "published_at": "2026-09-13T06:03:58+00:00",
+     "author": "José Enrique Monrosi, Gabriela Sánchez",
+     "summary": "A primera hora se ha llevado a cabo el traslado de 864 hombres que permanecían a la intemperie en el Embolsamiento de Loma Colmenar, uno de las zonas más colapsadas, en un operativo coordinado sobre el terreno por la ministra Elma Saiz para un nuevo centro en el barrio de Los Rosales 24 horas con el mando único en Ceuta: “Vamos a aliviar El Trampolín, El Príncipe y Loma Colmenar en cuestión de días\" 864 nuevas plazas de acogida temporal para personas que permanecían hasta este domingo en la calle desde su entrada a Ceuta los pasados 30 y 31 de julio. Desde las siete de la mañana se ha llevado a cabo un amplio dispositivo de seguridad para dar traslado a este nuevo centro, ubicado en el barrio de Los Rosales, a una parte de los migrantes que sobrevivían a la intemperie en la zona del Embolsamiento, en Loma Colmenar, uno de los puntos más colapsados de la ciudad. La ministra de Inclusión, Migraciones y Seguridad Social coordina sobre el terreno este operativo que persigue aliviar la presión sobre uno de los barrios que soporta más presión desde la crisis fronteriza. “La solución a esta situación pasa por encontrar espacios, encontrar ubicaciones. Son recursos de acogida temporal…",
+     "content_type": null
+    },
+    {
+     "id": "459b0f25f00da619",
+     "title": "24 horas con el mando único en Ceuta: “Vamos a aliviar El Trampolín, El Príncipe y Loma Colmenar en cuestión de días\"",
+     "source": "eldiario.es",
+     "publisher": "eldiario.es",
+     "url": "https://www.eldiario.es/politica/24-horas-mando-unico-ceuta-aliviar-trampolin-principe-loma-colmenar-cuestion-dias_1_13499179.html",
+     "language": "es",
+     "published_at": "2026-09-12T19:43:07+00:00",
+     "author": "José Enrique Monrosi",
+     "summary": "elDiario.es recorre las calles de una ciudad autónoma atravesada por la emergencia humanitaria y acompaña durante una jornada de trabajo al ministro de Política Territorial, Ángel Víctor Torres, al frente del operativo de coordinación de la crisis Ceuta, radiografía de un mes de caos: “Fue un error de cálculo darlo por zanjado cuando se volvieron a Marruecos 70.000” Un blindado del Ejército que patrulla las calles de Ceuta frena en seco a la altura de la Glorieta del Teniente Reinoso, en pleno centro de la ciudad. Cuatro soldados armados con fusiles de asalto se bajan del vehículo y se adentran a toda prisa en el suelo acolchado de un pequeño parque de juegos infantil, completamente vacío a esa hora de la mañana del primer día de curso escolar. Se dirigen a un banquito situado frente al tobogán, donde hay tres adolescentes marroquíes sentados. Los tres llevan pantalón corto, camiseta oscura y chanclas. Y en cuestión de segundos se ven rodeados por los cuatro militares. La conversación dura poco. Les preguntan cuándo entraron, si han ido a registrarse ya y qué hacen ahí. Y los echan del parque. Así que los tres chavales se levantan del banco y empiezan a andar calle abajo, sin…",
+     "content_type": null
+    },
+    {
+     "id": "4276e2600a037a26",
+     "title": "Ceuta, ostatge d'una guerra híbrida: \"La instrumentalització de la migració anirà a més\"",
+     "source": "3Cat (324)",
+     "publisher": "3Cat (324)",
+     "url": "https://www.3cat.cat/3catinfo/ceuta-ostatge-duna-guerra-hibrida-la-instrumentalitzacio-de-la-migracio-anira-a-mes/noticia/3428031/",
+     "language": "ca",
+     "published_at": "2026-09-12T11:44:20+00:00",
+     "author": null,
+     "summary": "El programa \"30 minuts\" pren el pols a la ciutat autònoma que, més de 40 dies després del salt a la frontera, continua en xoc i buscant respostes a la crisi humanitària i política",
+     "content_type": null
+    }
+   ]
+  },
+  {
+   "id": "sb72e71c14ed7924",
+   "headline": "Trump reiterates support for united Ireland amid political debate",
+   "summary": "Donald Trump has again expressed support for Irish unification, claiming many agree with his stance. British Prime Minister Boris Johnson dismissed the idea of a referendum on the matter. The comments sparked discussion across the UK and Ireland.",
+   "why_it_matters": "The remarks could influence ongoing political discourse about Northern Ireland's status and potential unification.",
+   "key_facts": [
+    "Trump reiterated his support for Irish unification during a speech at the Irish Open.",
+    "British Prime Minister Boris Johnson dismissed the idea of a referendum on the issue.",
+    "Trump claimed 'many people agree' with his view on unification.",
+    "The comments sparked political debate in both Dublin and London."
+   ],
+   "topics": [
+    "politics",
+    "world"
+   ],
+   "entities": [],
+   "importance": 0.06,
+   "relevance": 0.8,
+   "score": 1.901,
+   "publishers": [
+    "BBC World",
+    "El País",
+    "The Guardian World"
+   ],
+   "publisher_count": 3,
+   "languages": [
+    "en",
+    "es"
+   ],
+   "article_count": 4,
+   "first_published": "2026-09-12T20:23:26+00:00",
+   "last_published": "2026-09-13T18:49:28+00:00",
+   "articles": [
+    {
+     "id": "be5304f41f094424",
+     "title": "Trump doubles down on united Ireland comments on day two of visit",
      "source": "BBC World",
      "publisher": "BBC World",
-     "url": "https://www.bbc.co.uk/news/articles/cy5zg41dkqwo?at_medium=RSS&at_campaign=rss",
+     "url": "https://www.bbc.co.uk/news/articles/cx2z79n0eeno?at_medium=RSS&at_campaign=rss",
      "language": "en",
-     "published_at": "2026-09-13T19:14:21+00:00",
+     "published_at": "2026-09-13T18:49:28+00:00",
      "author": null,
-     "summary": "The former UK PM said \"I don't know what warped logic drove Putin to blow up a stationary Ukrainian locomotive on the Polish border this morning\".",
+     "summary": "The US president was speaking at the Irish Open on Sunday and said \"many people agree\" with his comments.",
+     "content_type": null
+    },
+    {
+     "id": "56a5390d0e53ae5b",
+     "title": "Donald Trump doubles down on support for united Ireland",
+     "source": "The Guardian World",
+     "publisher": "The Guardian World",
+     "url": "https://www.theguardian.com/uk-news/2026/sep/13/donald-trump-doubles-down-on-support-for-united-ireland",
+     "language": "en",
+     "published_at": "2026-09-13T16:59:06+00:00",
+     "author": "Rory Carroll Ireland correspondent",
+     "summary": "US president says ‘many people agree’ with his view on unification, brushing off Andy Burnham’s opposition to referendum Donald Trump has reiterated his support for Irish unification and brushed off Andy Burnham’s opposition to a referendum. “Everybody says that. Then things happen,” the US president said on Sunday of the British prime minister’s response.",
+     "content_type": null
+    },
+    {
+     "id": "5b9df750e0002a98",
+     "title": "Trump's comments on a united Ireland may have targeted audience across the Atlantic",
+     "source": "BBC World",
+     "publisher": "BBC World",
+     "url": "https://www.bbc.co.uk/news/articles/cwyzppd1d5lo?at_medium=RSS&at_campaign=rss",
+     "language": "en",
+     "published_at": "2026-09-12T21:25:28+00:00",
+     "author": null,
+     "summary": "Nobody could have predicted that today's main global headline would be Trump's desire to see a unified Ireland.",
+     "content_type": null
+    },
+    {
+     "id": "c67792832ea798ec",
+     "title": "Trump agita el debate político en Dublín y en Londres al asegurar que sería “fantástico” ver una Irlanda unida",
+     "source": "El País Internacional",
+     "publisher": "El País",
+     "url": "https://elpais.com/internacional/2026-09-12/trump-agita-el-debate-politico-en-dublin-y-en-londres-al-asegurar-que-seria-fantastico-ver-una-irlanda-unida.html",
+     "language": "es",
+     "published_at": "2026-09-12T20:23:26+00:00",
+     "author": "Rafa De Miguel",
+     "summary": "El primer ministro británico descarta un referéndum sobre la reunificación",
      "content_type": null
     }
    ]

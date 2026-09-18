@@ -12,3 +12,4 @@ venv/
 data/*.db-wal
 data/*.db-shm
 data/local*.db
+data/*.db.bak
