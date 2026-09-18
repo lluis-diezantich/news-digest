@@ -6,6 +6,7 @@ The two pipelines are separate commands because they run on different schedules:
     news-digest digest                  # weekly: embed, cluster, LLM, publish
     news-digest digest --no-llm         # same, offline heuristics, no API calls
     news-digest digest --week 2026-W36  # rebuild a specific past week
+    news-digest digest --days 7         # rolling window ending now, for local runs
     news-digest build                   # regenerate docs/ from the database
     news-digest sources --check         # verify every configured source responds
     news-digest stats                   # what is in the database
@@ -31,7 +32,7 @@ from .config import (
     ConfigError,
     load_config,
 )
-from .models import Digest
+from .models import Digest, utcnow
 from .sources import Fetcher, adapter_for
 from .store import Store
 
@@ -84,7 +85,13 @@ def build_parser() -> argparse.ArgumentParser:
                         help="offline heuristic enrichment instead of the LLM")
     digest.add_argument("--no-embeddings", action="store_true",
                         help="skip embeddings; clustering becomes within-language only")
-    digest.add_argument("--week", help="ISO week to build, e.g. 2026-W36 (default: last week)")
+    window_group = digest.add_mutually_exclusive_group()
+    window_group.add_argument("--week",
+                              help="ISO week to build, e.g. 2026-W36 (default: last week)")
+    window_group.add_argument("--days", type=int, metavar="N",
+                              help="rolling window of the last N days, ending now, instead "
+                                   "of a calendar week -- for local experiments, not the "
+                                   "scheduled run (see rolling_window)")
     digest.add_argument("--site-url", default=os.environ.get("SITE_URL", ""),
                         help="public URL of the site, used in the RSS output")
     digest.add_argument("--dry-run", action="store_true",
@@ -140,6 +147,30 @@ def parse_week(value: str) -> tuple[datetime, datetime]:
     return monday, monday + timedelta(days=7)
 
 
+def rolling_window(days: int) -> tuple[datetime, datetime]:
+    """The last `days` days ending right now: "what happened lately".
+
+    Deliberately not the default, and deliberately not aligned to midnight.
+
+    Not the default because the scheduled run needs a window that is the same
+    whenever it fires; `digest.weekly_window` gives it a finished calendar week
+    for that reason. This is the opposite trade -- a window that moves with the
+    clock, which is what you want when you are changing the pipeline and re-running
+    it against whatever has been collected so far.
+
+    Not aligned to midnight because two runs on the same day would then cover the
+    same window, and the digest id is derived from the window's last day
+    (`Digest.week_id`), so a rolling run persisted into the real database would
+    overwrite the calendar week that shares that id. Ending at `now` keeps every
+    run distinct, but the id collision is still there: pair this with `--db` and
+    `--out` pointing somewhere scratch, or `--dry-run`. cli.md has the recipe.
+    """
+    if days < 1:
+        raise ConfigError(f"--days {days} must be at least 1")
+    end = utcnow()
+    return end - timedelta(days=days), end
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     setup_logging(args.verbose, args.quiet)
@@ -190,7 +221,11 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
         return 0
 
     if args.command == "digest":
-        window = parse_week(args.week) if args.week else None
+        window = None
+        if args.days:
+            window = rolling_window(args.days)
+        elif args.week:
+            window = parse_week(args.week)
         stats = pipeline.run_weekly(config, options, window=window)
         print(
             f"digest {stats.digest_id} | {stats.stories_published} stories from "

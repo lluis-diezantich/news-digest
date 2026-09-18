@@ -95,6 +95,25 @@ the term was taken out of the ranking formula on 2026-09-17.
 [Setup](doc/setup.md) explains why that command needs `--week`, and how to deploy
 to GitHub.
 
+### While you are still changing it
+
+`digest` on its own builds the last *finished* Monday–Sunday week, which is what a
+scheduled run needs and almost never what you want while you are editing the
+pipeline: on a Friday it rebuilds a week that ended five days ago, and anything
+collected since is invisible. `--days` takes a rolling window ending now instead:
+
+```bash
+cp data/news.db /tmp/try.db
+news-digest --db /tmp/try.db --out /tmp/out digest --days 7
+cd /tmp/out && python3 -m http.server 8001
+```
+
+Point it at a scratch database and a scratch output directory, as above. A digest's
+id comes from the last day of its window, so a rolling run *persisted* into
+`data/news.db` claims the id of the calendar week it happens to end in and
+overwrites it — `--db` and `--out` are what keep that from reaching your site.
+[CLI](doc/cli.md) has the rest of the recipes.
+
 ---
 
 ## Documentation
@@ -107,6 +126,7 @@ to GitHub.
 | **[How it works](doc/pipeline.md)** | Each stage in turn, the multilingual design, and the known limits |
 | **[CLI](doc/cli.md)** | Every command, plus recipes for trying things without breaking your site |
 | **[Attribution](doc/attribution.md)** | What is stored, robots.txt, terms of service, and per-source findings |
+| **[Rebuilding](doc/rebuilding.md)** | Wiping digests and stories to start over, what must survive, and the two failure modes that look like bugs |
 | **[Development](doc/development.md)** | Tests, layout, adding a provider, schema changes |
 
 ---

@@ -206,6 +206,60 @@ class TestAdjudicationBatching:
         assert sizes == [1, 1]
         assert len(groups) == 1
 
+    def test_one_failed_batch_does_not_end_adjudication(self):
+        """A single timeout used to abandon the whole phase, which made
+        `max_cluster_checks` meaningless -- measured 2026-09-17, one 90s read
+        timeout truncated a 600-pair budget to 64 of 274 pairs and cost 32 merges.
+        Now it skips that batch and carries on, like enrichment does.
+
+        The call counter is external because `HeuristicProvider` has its own
+        `calls` attribute, which shadows a subclass one.
+        """
+        arts, vectors = self._mutually_ambiguous(4)   # 6 pairs
+        attempts: list[int] = []
+
+        class FailsOnceThenWorks(HeuristicProvider):
+            def same_event(self, pairs, context):
+                attempts.append(len(pairs))
+                if len(attempts) == 1:
+                    raise LLMError("read timed out")
+                return {p.key: True for p in pairs}
+
+        class Stats:
+            llm_checks = 0
+
+        stats = Stats()
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=FailsOnceThenWorks(), context=Context(), stats=stats,
+            max_checks=99, check_batch_size=2,
+        )
+        # It kept going past the failure instead of stopping at the first batch.
+        assert len(attempts) > 1
+        # The failed batch is not billed, the later ones are.
+        assert stats.llm_checks > 0
+        assert len(groups) < 4
+
+    def test_repeated_failures_do_stop_adjudication(self):
+        """Two consecutive failures is still the limit, so a provider that is
+        simply down does not cost a request per remaining batch."""
+        arts, vectors = self._mutually_ambiguous(4)
+        attempts: list[int] = []
+
+        class AlwaysFails(HeuristicProvider):
+            def same_event(self, pairs, context):
+                attempts.append(len(pairs))
+                raise LLMError("ollama unreachable")
+
+        groups = clustering.cluster(
+            arts, vectors, similarity_threshold=0.999, ambiguous_threshold=0.5,
+            provider=AlwaysFails(), context=Context(), max_checks=99,
+            check_batch_size=2,
+        )
+        assert len(attempts) == clustering.MAX_CONSECUTIVE_FAILURES
+        # Nothing merged, and nothing crashed: the embedding's verdict stands.
+        assert len(groups) == 4
+
     def test_a_failure_keeps_the_merges_already_made(self):
         arts, vectors = self._mutually_ambiguous(4)   # 6 pairs
 

@@ -1,8 +1,8 @@
 import pytest
 
 from newsdigest.config import (
-    ConfigError, load_embedding_settings, load_llm_settings, load_preferences,
-    load_sources,
+    DEFAULT_LOCAL_TIMEOUT, DEFAULT_TIMEOUT, ConfigError, load_embedding_settings,
+    load_llm_settings, load_preferences, load_sources,
 )
 
 
@@ -204,3 +204,32 @@ class TestEnvSettings:
 
     def test_output_language_reaches_the_llm_settings(self):
         assert load_llm_settings("ca").output_language == "ca"
+
+
+class TestLLMTimeout:
+    """The request timeout, which was unreachable from the environment until
+    2026-09-17 and flat 90s for every provider. See config.DEFAULT_LOCAL_TIMEOUT."""
+
+    def test_local_provider_gets_the_longer_default(self, monkeypatch):
+        monkeypatch.setenv("LLM_PROVIDER", "ollama")
+        monkeypatch.delenv("LLM_TIMEOUT", raising=False)
+        assert load_llm_settings().timeout == DEFAULT_LOCAL_TIMEOUT
+
+    def test_hosted_provider_keeps_the_short_default(self, monkeypatch):
+        monkeypatch.setenv("LLM_PROVIDER", "gemini")
+        monkeypatch.delenv("LLM_TIMEOUT", raising=False)
+        assert load_llm_settings().timeout == DEFAULT_TIMEOUT
+
+    def test_env_overrides_either(self, monkeypatch):
+        monkeypatch.setenv("LLM_PROVIDER", "ollama")
+        monkeypatch.setenv("LLM_TIMEOUT", "45")
+        assert load_llm_settings().timeout == 45.0
+
+    def test_the_provider_is_built_with_it(self, monkeypatch):
+        """The bug this fixes: OllamaProvider defaults to 300 but the factory
+        passes settings.timeout, so the settings value is what actually applies."""
+        from newsdigest.llm import get_provider
+
+        monkeypatch.setenv("LLM_PROVIDER", "ollama")
+        monkeypatch.setenv("LLM_TIMEOUT", "123")
+        assert get_provider(load_llm_settings()).timeout == 123.0

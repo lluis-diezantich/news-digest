@@ -47,6 +47,13 @@ log = logging.getLogger(__name__)
 #: embeddings are for.
 FALLBACK_TEXT_THRESHOLD = 0.45
 
+#: Consecutive failed adjudication batches before the phase is abandoned, matching
+#: `enrich.MAX_CONSECUTIVE_FAILURES`. It used to be effectively 1: a single
+#: `LLMError` broke the loop, which made `max_cluster_checks` meaningless because
+#: one slow batch ended the phase. Measured 2026-09-17, one timeout truncated a
+#: 600-pair budget to 64 of 274 pairs and cost 32 merges.
+MAX_CONSECUTIVE_FAILURES = 2
+
 
 class _UnionFind:
     def __init__(self, keys: list[str]):
@@ -157,7 +164,7 @@ def _resolve_ambiguous(
     """
     ambiguous.sort(key=lambda item: -item[0])
     size = max(1, batch_size)
-    index = asked = merged = 0
+    index = asked = merged = failures = 0
 
     while index < len(ambiguous) and asked < max_checks:
         pairs: list[PairInput] = []
@@ -191,12 +198,24 @@ def _resolve_ambiguous(
         try:
             verdicts = provider.same_event(pairs, context)
         except LLMError as exc:
-            log.warning(
-                "cluster adjudication failed after %d pairs (%s); keeping the "
-                "embedding's verdict for the rest", asked - len(pairs), exc,
-            )
             asked -= len(pairs)
-            break
+            failures += 1
+            # The batch is not retried -- whatever made it fail, usually a
+            # timeout, would just cost the same wait again. Move on to the next
+            # one instead, and only give up if the provider is failing outright.
+            log.warning(
+                "cluster adjudication batch failed (%s); %d pairs adjudicated so far",
+                exc, asked,
+            )
+            if failures >= MAX_CONSECUTIVE_FAILURES:
+                log.warning(
+                    "adjudication failing repeatedly; keeping the embedding's "
+                    "verdict for the remaining %d pairs", len(ambiguous) - index,
+                )
+                break
+            continue
+
+        failures = 0
         for key, same in verdicts.items():
             if same and key in lookup:
                 left, right = lookup[key]

@@ -1,7 +1,7 @@
 {
  "title": "Weekly Digest",
  "subtitle": "The week's main stories from your sources",
- "generated_at": "2026-09-15T12:27:06+00:00",
+ "generated_at": "2026-09-18T11:59:22+00:00",
  "archive": true,
  "digests": [
   {
@@ -9,18 +9,18 @@
    "label": "14–21 September 2026",
    "period_start": "2026-09-14T00:00:00+00:00",
    "period_end": "2026-09-21T00:00:00+00:00",
-   "generated_at": "2026-09-15T12:27:06+00:00",
-   "story_count": 15,
-   "article_count": 151
+   "generated_at": "2026-09-18T11:59:21+00:00",
+   "story_count": 8,
+   "article_count": 304
   },
   {
    "id": "2026-W37",
    "label": "7–14 September 2026",
    "period_start": "2026-09-07T00:00:00+00:00",
    "period_end": "2026-09-14T00:00:00+00:00",
-   "generated_at": "2026-09-15T11:03:02+00:00",
-   "story_count": 6,
-   "article_count": 9
+   "generated_at": "2026-09-18T08:40:50+00:00",
+   "story_count": 8,
+   "article_count": 80
   }
  ]
 }

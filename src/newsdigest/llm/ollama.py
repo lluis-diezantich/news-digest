@@ -17,7 +17,12 @@ Two settings are load-bearing:
   answer by default, which lands inside the response and breaks parsing. Ollama
   ignores the field on models that have no thinking mode, so it is safe to send
   unconditionally.
-* a long timeout -- a local 8B model takes tens of seconds for a batch of 16
+* a long timeout -- a local 8B model takes MINUTES for a batch of 16 enrichments,
+  not the tens of seconds this once claimed. Measured 2026-09-17: at the 90s the
+  pipeline used to pass in, enrichment timed out twice and was abandoned, and
+  cluster adjudication stopped after 64 of 274 pairs. Keep this in step with
+  `config.DEFAULT_LOCAL_TIMEOUT`; the pipeline passes `settings.timeout`, so this
+  default only applies when the provider is built directly
   articles, where a hosted API takes two. The default here is minutes, not
   seconds, because there is no rate limit to protect and nothing is billed.
 
@@ -122,7 +127,7 @@ class OllamaProvider(LLMProvider):
         model: str = DEFAULT_MODEL,
         *,
         base_url: str = DEFAULT_BASE_URL,
-        timeout: float = 600.0,
+        timeout: float = 300.0,
         max_retries: int = 2,
         num_ctx: int = 8192,
     ):

@@ -5,6 +5,7 @@
 | `news-digest collect` | Daily: fetch, detect language, dedupe, store. No model calls. |
 | `news-digest digest` | Weekly: embed, cluster, LLM, rank, publish. |
 | `news-digest digest --week 2026-W36` | Build a specific week. Needed for the current, partial week. |
+| `news-digest digest --days 7` | Build a rolling window ending now, not a calendar week. Local runs only -- see the recipe below. |
 | `news-digest digest --no-llm --no-embeddings` | No model at all, built-in heuristics instead. |
 | `news-digest digest --dry-run` | Process, persist nothing (caches still fill). |
 | `news-digest build` | Regenerate `docs/` from the database. |
@@ -24,6 +25,19 @@ previous Monday–Sunday week; the current partial week needs naming:
 ```bash
 news-digest digest --week $(date -u +%G-W%V)
 ```
+
+**See what happened lately, not what happened last week.** `--days N` ends the
+window at *now* rather than on a week boundary, so it picks up everything collected
+since — the window you want while you are changing the pipeline:
+
+```bash
+cp data/news.db /tmp/try.db
+news-digest --db /tmp/try.db --out /tmp/out digest --days 7
+```
+
+The scratch `--db` and `--out` are not optional here. The digest id is derived from
+the last day of the window, so a rolling run that ends inside 2026-W38 is *stored
+as* `2026-W38` and replaces that week's stories. Keep it out of `data/news.db`.
 
 **Try a config change without touching your real data or site:**
 

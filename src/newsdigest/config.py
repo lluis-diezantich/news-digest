@@ -165,6 +165,12 @@ class LLMSettings:
     batch_size: int = 8
     articles_per_run: int = 400
     max_retries: int = 3
+    #: Seconds to wait on one request. 90 suits a hosted model; a local one needs
+    #: far more, and `load_llm_settings` raises the default accordingly. It was a
+    #: flat 90 until 2026-09-17, which silently capped every local run: a batch of
+    #: 16 enrichments on qwen3:8b takes longer than that, so enrichment timed out
+    #: twice and gave up, and cluster adjudication stopped after 64 of 274 pairs.
+    #: Neither failure is loud -- the digest still publishes.
     timeout: float = 90.0
     #: Waits allowed per request against a per-minute 429, and the total time one
     #: run may spend waiting on rate limits. A per-day 429 is never waited out.
@@ -505,10 +511,18 @@ def _gemini_key() -> str | None:
     return key.strip() if key and key.strip() else None
 
 
+#: Request timeout default, per provider kind. A local model generates every
+#: token on your machine, so the same batch that a hosted model answers in
+#: seconds can take minutes.
+DEFAULT_TIMEOUT = 90.0
+DEFAULT_LOCAL_TIMEOUT = 300.0
+
+
 def load_llm_settings(output_language: str = "en") -> LLMSettings:
     key = _gemini_key()
+    provider = (os.environ.get("LLM_PROVIDER") or "gemini").strip().lower()
     settings = LLMSettings(
-        provider=(os.environ.get("LLM_PROVIDER") or "gemini").strip().lower(),
+        provider=provider,
         model=os.environ.get("LLM_MODEL") or "gemini-3.6-flash",
         api_key=key,
         batch_size=max(1, _env_int("LLM_BATCH_SIZE", 8)),
@@ -524,6 +538,10 @@ def load_llm_settings(output_language: str = "en") -> LLMSettings:
         thinking_level=_thinking_level(os.environ.get("LLM_THINKING_LEVEL")),
         base_url=os.environ.get("LLM_BASE_URL") or "",
         num_ctx=max(2048, _env_int("LLM_NUM_CTX", 8192)),
+        timeout=max(1.0, _env_float(
+            "LLM_TIMEOUT",
+            DEFAULT_LOCAL_TIMEOUT if provider == "ollama" else DEFAULT_TIMEOUT,
+        )),
         output_language=output_language,
     )
     # Degrade rather than fail: the digest still builds without a key.
