@@ -1,0 +1,52 @@
+From: =?utf-8?q?Ejemplo_-_Bolet=C3=ADn_semanal?= <news@shared-mailer.example>
+To: digest@example.com
+Subject: =?utf-8?q?Resumen_de_la_semana=3A_diez_ejemplos_que_retratan?=
+ =?utf-8?q?_el_asunto?=
+Date: Sun, 20 Sep 2026 07:12:37 +0200
+Message-ID: <tracked-20260920@shared-mailer.example>
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+
+<html><body>
+<table><tr><td>
+  <a href="https://track.example/-c/117/30394/671870/20018313/860429/ecbe813d2f">
+    <img src="https://x/logo.png" alt="Logo de Boletín semanal">
+  </a>
+</td></tr></table>
+
+<table><tr><td>
+  <a href="https://track.example/-c/117/30394/671871/20018313/860429/aa11bb22cc">
+    <img src="https://x/promo.png" alt="Únete al periodismo valiente">
+  </a>
+</td></tr></table>
+
+<table>
+ <tr><td>
+   <a href="https://track.example/-c/117/30394/671878/20018313/860429/2090179c18"><img src="https://x/1.jpg" alt="foto"></a>
+   <h2><a href="https://track.example/-c/117/30394/671878/20018313/860429/2090179c18">El Congreso tumba una propuesta para prohibir la venta de pisos</a></h2>
+   <p>Pilar Araque Conde</p>
+   <a href="https://track.example/-c/117/30394/671878/20018313/860429/9c7d1e0f44">Leer artículo completo »</a>
+ </td></tr>
+
+ <tr><td>
+   <h2><a href="https://track.example/-c/117/30394/671879/20018313/860429/33ff44ee55">La inflación vuelve a comerse los salarios de los trabajadores</a></h2>
+   <p>El dato del mes refuerza las expectativas de un recorte de tipos en octubre,
+   según los analistas consultados.</p>
+   <a href="https://track.example/-c/117/30394/671879/20018313/860429/66aa77bb88">Leer artículo completo »</a>
+ </td></tr>
+
+ <!-- The same article again, lower down, with freshly minted tokens. Piano does
+      this, so URL-keyed dedupe cannot see it is one article. -->
+ <tr><td>
+   <h2><a href="https://track.example/-c/117/30394/671880/20018313/860429/cc99dd00ee">La inflación vuelve a comerse los salarios de los trabajadores</a></h2>
+   <p>El dato del mes refuerza las expectativas de un recorte de tipos en octubre,
+   según los analistas consultados.</p>
+ </td></tr>
+</table>
+
+<table><tr><td>
+  <p>Si no ves correctamente este correo <a href="https://track.example/-c/1/2/3/4/5/ff00">pulsa aquí</a>.</p>
+  <p>Si no quieres seguir recibiendo este boletín, puedes
+  <a href="https://track.example/-c/9/9/9/9/9/unsub">darte de baja</a>.</p>
+</td></tr></table>
+</body></html>

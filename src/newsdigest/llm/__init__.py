@@ -81,11 +81,22 @@ def get_provider(settings: LLMSettings) -> LLMProvider:
         return HeuristicProvider()
 
 
-def build_context(settings: Settings, preferences: Preferences) -> Context:
-    """Turn config into the per-run context the providers need."""
+def build_context(
+    settings: Settings,
+    preferences: Preferences,
+    *,
+    output_language: str | None = None,
+) -> Context:
+    """Turn config into the per-run context the providers need.
+
+    `output_language` overrides the configured value, which is how `auto` is
+    resolved: the caller has counted the week's languages by then, and a Context
+    carrying the literal string "auto" would reach the prompts and ask the model
+    to write in a language called Auto.
+    """
     ranked = sorted(preferences.topics.items(), key=lambda kv: -kv[1])
     return Context(
-        output_language=settings.output_language,
+        output_language=output_language or settings.output_language,
         interests=[name for name, _ in ranked[:8]],
         excluded_topics=list(preferences.excluded_topics),
     )

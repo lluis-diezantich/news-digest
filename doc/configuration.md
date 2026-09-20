@@ -1,192 +1,213 @@
 # Configuration
 
-Two files, and adding or removing a source never requires touching code.
+Three files, none of which contain a credential.
 
-- `config/sources.yaml` — what to read, and what to drop on sight
-- `config/preferences.yaml` — languages, the ranking formula, digest size, retention
+```
+config/sources.yaml      which newsletters, and how to recognise them
+config/filters.yaml      what is not news
+config/preferences.yaml  languages, the ranking formula, digest size, retention
+prompts/*.txt            what the model is asked (versioned separately)
+```
 
-## Sources
+Malformed config is a **startup error that names the offending entry**, never a
+silent default. That applies to unknown ranking terms, broken regexes, an
+`output_language` outside the allowed set, a topic in both the include and exclude
+lists, and an enabled source with no sender rule.
+
+## sources.yaml
 
 ```yaml
-defaults:
-  max_items_per_source: 10
-  excerpt_chars: 1200
-
 sources:
-  - name: El País Economía
-    publisher: El País        # several feeds, one outlet
-    rss: https://feeds.elpais.com/…/economia/portada
-    languages: [es]
-    weight: 1.1
-
-  - name: RTVE Noticias
-    publisher: RTVE
-    url: https://www.rtve.es/noticias/
-    method: scrape
-    languages: [ca]
-    link_selector: "article.cell a"
-    link_pattern: "\\.shtml$"
-    max_links: 12
+  - name: guardian-saturday
+    newsletter: Saturday Edition
+    publisher: The Guardian
+    languages: [en]
+    senders: ["@theguardian.com", "@email.theguardian.com"]
+    subject_patterns: ["saturday edition"]
 ```
 
-`publisher` matters more than it looks. Corroboration counts **publishers, not
-feeds**, so without it seven El País sections covering one story would read as
-seven independent outlets and one publisher could dominate the digest.
+| Key | |
+|---|---|
+| `name` | unique; identifies this newsletter |
+| `senders` | addresses or domains it arrives from. **Required** if enabled |
+| `subject_patterns` | regexes over the subject, accent-stripped and lowercased |
+| `newsletter` | human name. Defaults to `name` |
+| `publisher` | outlet this belongs to. Defaults to `name` |
+| `languages` | what it publishes in; constrains detection and is the fallback |
+| `enabled` | default true. A disabled source may omit `senders` |
+| `weight` | 0.0–2.0, default 1.0. Feeds `source_preference` and pre-ranking |
+| `topics` | hints merged into every item from this source |
+| `excerpt_chars` | cap on the blurb stored per item |
 
-`weight` no longer touches the final score — `source_preference` was removed from
-the formula. It still feeds pre-ranking (which clusters get enriched) and breaks
-ties over whose wording represents a story.
+**A bare domain matches subdomains.** `@theguardian.com` matches
+`news.email.theguardian.com`, because bulk mailers move between hosts without
+notice. A rule written with no `@` at all is treated the same way — that is the
+obvious mistake to make, and a silent no-match is the worst possible response to
+it.
 
-**`max_items_per_source: 10` is a top-ten filter, not a truncation.** Feed order
-is the newsroom's own ranking: measured 80–100% concordant with each site's front
-page across eight sources. So the cap takes each desk's top ten rather than ten
-arbitrary items — and it is what keeps advertorial out, since Ara's sponsored
-items sit at positions 14–24 of 131. Raising it puts advertising back in reach.
+**`publisher` is what corroboration counts.** Two EL PAÍS newsletters covering one
+story are one outlet's view of it. Give them the same publisher or the digest will
+read two as independent confirmation.
 
-## Dropping junk at collection
+**Subject patterns are how you narrow one address.** Most publishers send every
+newsletter they have from one address. Where several entries could match a message,
+the one whose subject pattern matched wins over a catch-all, so config file order
+never decides it.
+
+### exclude_url_patterns / exclude_title_patterns
+
+Regexes matched against an item's URL and headline, dropping it at parse time
+before it reaches the database. Global lists apply to every source; per-source
+lists are added to them. Duplicates collapse, and a broken regex is a startup
+error.
+
+These still work with newsletters — an extracted item links the publisher's own
+article — **but only on a resolved URL.** A tracking link has no section path, so
+every pattern here is inert until `extract/links.py` has unwrapped it. With
+`--no-links` the whole list does nothing.
+
+Title patterns are for junk with no section path: a weekly weather round-up, a
+football result at an outlet that files sport under its main path. Title only,
+deliberately — matching the excerpt would drop any article whose background
+paragraph happens to mention football.
+
+## filters.yaml
 
 ```yaml
-exclude_url_patterns:
-  - /especials/          # Ara native advertising
-  - /loterias?/
-  - /horoscopo?/
-  - /el-tiempo/
-  - /deportes?/          # sports, es
-  - /esports?/           # sports, ca
-  - /sports?/            # sports, en
-  - /football/
-  - /futbol/
+filters:
+  classify: true
+  max_items: 600
+  excluded_topics: [sports, celebrity]
+  include_topics: [politics, world, economics, science, technology, climate, health]
+  drop_content_types: []
 ```
 
-Regexes matched against the original URL, applied **before anything reaches the
-database**. This is for structural junk, not taste: native advertising and
-service content live at predictable paths, and no ranking signal catches them
-reliably — advertorial is written to match whatever topics score well, so a topic
-match actively promotes it. Broken patterns are a startup error.
+`excluded_topics` must use words the classifier can actually emit — the controlled
+vocabulary in `llm/base.py` `TOPICS`. A topic outside it can never be returned and
+therefore can never be excluded; that silently disarmed this list once already.
+There is a test asserting it.
 
-A per-source `exclude_url_patterns:` is merged with the global list. The Guardian
-entry used one for `/australia-news/`, which its world feed carries.
+An item is dropped only when **every** topic it carries is excluded.
 
-### By headline
+`include_topics` is advisory, not a whitelist: an item matching none of them is
+still kept, because the vocabulary will always lag the news.
 
-Some junk has no section path to match. `exclude_title_patterns` catches it:
+`drop_content_types` is empty on purpose. Section 8 of the specification excludes
+opinion that carries no news, which is a per-item judgement the classifier makes,
+not a property of the type — and a blanket `opinion` drop would lose elDiario.es's
+Boletín del director, which is a director's column and one of the ten sources.
+
+With `classify: false` filtering is the regex lists alone, which newsletters defeat
+more easily than feeds did.
+
+## preferences.yaml
+
+### settings
 
 ```yaml
-exclude_title_patterns:
-  - previsi[oó] del temps    # RAC1's daily forecast, filed under its news path
-  - el tiempo hoy            # RTVE's equivalent
-  - lamine yamal
-  - \bbar[çc]a\b
-  - \bfutbol\b
+settings:
+  supported_languages: [en, es]
+  output_language: en        # auto | en | es
 ```
 
-Two things needed it. RAC1 publishes a weather forecast every single day — six in
-the 2026-W38 window, and one of them topped the `prominence` signal outright —
-under its ordinary news path, where `/el-tiempo/` never sees it. And VilaWeb files
-football under `/noticies/`, 3Cat under `/3catinfo/`, and 20minutos put a Lamine
-Yamal family piece under `/gente/`, so `/esports?/` misses all three.
+`auto` is resolved per run, after the window's languages are counted: whichever
+language most of the week's items were in. Ties and an empty week fall back to the
+first supported language, so the result never depends on dict ordering. A Context
+carrying the literal string "auto" would reach the prompts and ask the model to
+write in a language called Auto, which is why it is resolved before the run starts.
 
-Matched against the **title only**, lowercased and accent-stripped on both sides —
-write `previsió` or `prevision`, either matches. The excerpt is deliberately not
-matched: an article whose background paragraph mentions football is not a football
-article.
-
-The weather patterns target **forecasts, not weather**. The same week's "Un muerto
-en Barcelona y grave caos de transporte por las lluvias torrenciales" is a story
-about a death and a shut-down metro; the floods, the ES-Alert and the school
-closures are news. Matching `lluvia`/`pluja`/`tormenta` would take all of it. Note
-the trap the tests pin: "Alerta per la previsió de pluges: el Govern demana
-limitar els desplaçaments" contains *previsió* but is a government instruction.
-
-Measured over the 1,938 stored articles, these 17 patterns drop 33. Three are
-known false positives, accepted on the grounds that less football is the point:
-an El Salto election analysis titled "entre el fútbol y la abstención", a VilaWeb
-interview on Barça and the Catalan language, and — if these sources ever cover it
-— Russia's Yamal gas field.
-
-Not exhaustive, by design: La Vanguardia filed one cycling piece under `/clic/`,
-so `excluded_topics` remains the backstop for strays.
-
-## The ranking formula is configuration
+### ranking
 
 ```yaml
 ranking:
   terms:
-    editorial_position: 2.0  # where its source placed it
-    corroboration: 1.5       # distinct publishers covering it
+    editorial_position: 2.0
+    corroboration: 1.5
     recency: 0.3
     story_size: 0.2
-  excluded_penalty: 1.5
+  corroboration_saturation: 5
   recency_half_life_hours: 72
 ```
 
-`final_score = Σ weight × signal`. Delete a line to remove that signal entirely;
-a misspelled term is a startup error, not a silent no-op.
-`news-digest explain <story-id>` prints the per-term breakdown, and the numbers
-shown provably sum to the score used for ranking.
+Eight terms are available: `editorial_position`, `corroboration`, `recency`,
+`story_size`, `importance`, `relevance`, `interest`, `source_preference`. Only the
+ones listed are in the formula; an unlisted one is still computed and still shown.
+An unknown name is a startup error.
 
-`editorial_position` and `corroboration` carry the formula: what a desk led with,
-and how many desks led with it. Both come from collection, so a degraded run with
-no model available ranks exactly as well as a full one — which is the point.
+**`corroboration_saturation` is the number most worth measuring.** It is where the
+curve reaches 1.0, and it has to sit at the top of the range your weeks actually
+produce. Too high and the term flattens toward nothing; too low and every
+multi-outlet story ties at exactly 1.000 — silently, since it still computes and
+still appears in `explain`. Ten newsletters cannot exceed ten publishers and will
+rarely pass five. `news-digest inspect` prints the publisher spread.
 
-`importance` used to sit alongside them at weight 2.0 and was removed on
-2026-09-17. Measured over a stored week, qwen3:8b returned 0.80–0.85 for every
-briefed story, so the term was a constant that could not reorder anything; worse,
-stories that were never briefed kept a higher article-derived value and beat
-briefed ones on it, which put a 3-publisher story above three rivals with 5 and 6.
-It is still computed and still shown on the page, like `interest` and `relevance`.
-Restore it when a model spreads the scale — `news-digest explain` makes that a
-measurement rather than a hope.
+**All the weights are uncalibrated.** Each was measured against a published top ten
+on the RSS version of this project, against a source list that no longer exists.
+The shape should hold; the numbers are a starting point.
 
-Four terms were removed after measuring what each contributed — the first three
-across a published top ten, `importance` across a stored week. The measurements
-are recorded in the config file itself:
-
-| Term | Spread | Why it went |
-|---|---|---|
-| `relevance` | 0.40 | "how well does this match THIS reader" — the personalization this digest is meant not to do, and the only term still moving the order |
-| `interest` | 0.08 | topic matching over tags too broad to mean much |
-| `importance` | 0.05 | removed 2026-09-17: qwen3:8b returns 0.80–0.85 for every briefed story, so it could not reorder anything — and it inverted, because unbriefed stories kept a higher article-derived value and beat briefed ones on it |
-| `source_preference` | — | an assertion that four outlets are trustworthy, not evidence; its +0.5 favourites bonus dwarfed the 0.8–1.2 weight spread, and dropping it took one digest from 4 distinct publishers to 6 |
-
-`editorial_position` is the counter-example worth knowing about: it was built,
-measured, **removed** because Ara's advertorial ranked 0.82–0.89 on it, then
-restored once `max_items: 10` and the URL blocklist put that advertorial out of
-reach. Two tests fail if either control is weakened.
-
-## Digest size
+### digest
 
 ```yaml
 digest:
-  max_stories: 6
-  min_articles: 3
+  max_stories: 12       # section 11 asks for 10-15
+  minor_stories: 5      # section 14's "Also worth knowing"
+  min_articles: 1
+  week_ends_on: 6       # 0 = Monday ... 6 = Sunday
+  update_readme: true
 ```
 
-"The main news of the week" is close to a definition of corroboration. Of 440
-clusters in one week, **411 were a single outlet reporting alone**; 29 had two or
-more outlets, 9 had three or more, 5 had six or more. Asking for ten stories
-therefore reached into pairs and singletons.
+`min_articles` is **1**, not the RSS project's 3. Ten hand-curated newsletters
+rarely triple-cover anything, and at 3 most weeks would publish nothing. Raise it
+only once a real week shows enough overlap. The digest falls back to the ranked
+list if the filter would empty it, so it cannot yield nothing.
 
-`min_articles` counts **articles, not publishers**, so four El País sections on
-one story would satisfy a floor of 3 while being one outlet. It has not bitten
-yet; `min_publishers` would be the strict version.
+The pipeline enriches `2 × (max_stories + minor_stories)` candidate clusters, with
+a floor of 10, and publishes from those.
 
-## Languages and retention
+### regions
 
 ```yaml
-settings:
-  supported_languages: [en, es, ca]
-  output_language: en          # the LLM reads Catalan, writes English
-
-preferences:
-  topics: {}                   # emptied: every entry was too broad to mean much
-  excluded_topics: [sports, celebrity, horoscope]
-
-storage:
-  retention_days: 45
-  embedding_retention_days: 21   # vectors dominate the database's size
+regions:
+  enabled: true
+  max_share: 0.5
 ```
 
-`excluded_topics` applies a penalty (`excluded_penalty`) rather than a hard
-filter, so a genuinely enormous sports story can still surface. It is independent
-of the ranking terms, so it works even with `topics` empty.
+Largest share of the main stories one region may hold before others are promoted.
+At 0.5 with `max_stories: 12`, no region takes more than 6. Not a quota — see
+[How it works](pipeline.md#rank--scoringpy).
+
+A story whose region is unknown is never deferred: that would punish a
+classification failure rather than a real imbalance.
+
+### storage
+
+```yaml
+storage:
+  retention_days: 120
+  email_body_retention_days: 30
+  embedding_retention_days: 60
+```
+
+Email **bodies** are emptied earliest and the rows kept. The row is what stops a
+newsletter being ingested again on the next run; the body is the bulkiest and only
+sensitive part, and nothing needs it once articles are extracted. See
+[Attribution](attribution.md).
+
+## Prompts
+
+`prompts/*.txt`, one per job:
+
+```
+enrich_article.txt    per-article detail, for ranking and entity lists
+classify_story.txt    the cheap triage pass
+write_brief.txt       the entry a reader actually sees
+cluster_stories.txt   same-event adjudication
+```
+
+Placeholders are `$name`, not `{name}` — prompts are full of prose that may contain
+braces, and a stray brace in a `.format()` template raises mid-run, after the
+mailbox has already been read. A missing *value* is an error rather than sending
+the model the literal text `$output_language`.
+
+A prompt file that is missing or empty is a loud failure, not a fallback to inline
+text.

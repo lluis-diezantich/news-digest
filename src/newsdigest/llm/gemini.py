@@ -28,7 +28,6 @@ import requests
 
 from .. import ratelimit
 from .base import (
-    SAME_EVENT_SYSTEM_PROMPT,
     Brief,
     BriefInput,
     Context,
@@ -38,8 +37,12 @@ from .base import (
     LLMProvider,
     LLMQuotaError,
     PairInput,
+    Classification,
+    ClassifyInput,
     brief_system_prompt,
+    classify_system_prompt,
     enrich_system_prompt,
+    same_event_system_prompt,
 )
 
 log = logging.getLogger(__name__)
@@ -81,10 +84,33 @@ BRIEF_SCHEMA = {
         "why_it_matters": {"type": "string"},
         "key_facts": _STRINGS,
         "topics": _STRINGS,
+        "disagreements": _STRINGS,
+        "region": {"type": "string"},
         "importance": {"type": "number"},
         "relevance": {"type": "number"},
     },
-    "required": ["headline", "summary", "why_it_matters", "key_facts", "topics"],
+    # `disagreements` is required so the model has to answer the question rather
+    # than omit it when the coverage does conflict. An empty array is the answer
+    # when it does not.
+    "required": [
+        "headline", "summary", "why_it_matters", "key_facts", "topics",
+        "disagreements",
+    ],
+}
+
+CLASSIFY_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "topics": _STRINGS,
+            "region": {"type": "string"},
+            "newsworthy": {"type": "boolean"},
+            "content_type": {"type": "string"},
+        },
+        "required": ["id", "topics", "newsworthy"],
+    },
 }
 
 SAME_EVENT_SCHEMA = {
@@ -300,6 +326,52 @@ class GeminiProvider(LLMProvider):
             )
         return results
 
+    def classify(
+        self, items: list[ClassifyInput], context: Context
+    ) -> list[Classification]:
+        if not items:
+            return []
+        prompt = json.dumps(
+            [
+                {
+                    "id": item.id,
+                    "title": item.title,
+                    "language": item.language,
+                    "excerpt": item.excerpt,
+                }
+                for item in items
+            ],
+            ensure_ascii=False,
+            indent=1,
+        )
+        data = _parse_json(
+            self._generate(classify_system_prompt(context), prompt, CLASSIFY_SCHEMA)
+        )
+        if isinstance(data, dict):
+            data = [data]
+        if not isinstance(data, list):
+            raise LLMError(f"expected a JSON array, got {type(data).__name__}")
+
+        valid_ids = {item.id for item in items}
+        out: list[Classification] = []
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            article_id = str(entry.get("id", ""))
+            if article_id not in valid_ids:
+                continue
+            out.append(
+                Classification(
+                    id=article_id,
+                    topics=list(entry.get("topics") or []),
+                    region=str(entry.get("region", "")),
+                    # Absent means keep: see Classification.newsworthy.
+                    newsworthy=bool(entry.get("newsworthy", True)),
+                    content_type=entry.get("content_type"),
+                ).clamp()
+            )
+        return out
+
     def write_brief(self, item: BriefInput, context: Context) -> Brief | None:
         payload = {
             "coverage": [
@@ -329,6 +401,8 @@ class GeminiProvider(LLMProvider):
             why_it_matters=str(data.get("why_it_matters", "")).strip(),
             key_facts=[str(f).strip() for f in (data.get("key_facts") or [])][:4],
             topics=list(data.get("topics") or []),
+            disagreements=[str(d) for d in (data.get("disagreements") or [])],
+            region=str(data.get("region", "")),
             importance=_optional_float(data.get("importance")),
             relevance=_optional_float(data.get("relevance")),
         ).clamp()
@@ -348,7 +422,7 @@ class GeminiProvider(LLMProvider):
         ]
         data = _parse_json(
             self._generate(
-                SAME_EVENT_SYSTEM_PROMPT,
+                same_event_system_prompt(context),
                 json.dumps(payload, ensure_ascii=False, indent=1),
                 SAME_EVENT_SCHEMA,
             )

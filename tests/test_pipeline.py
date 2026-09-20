@@ -1,290 +1,341 @@
-"""Both pipelines end to end, with no network and no API keys."""
+"""The pipeline end to end, with no network, no mailbox and no API keys."""
 
-import json
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import pytest
 
 from newsdigest import pipeline
-from newsdigest.config import Source
+from newsdigest.config import NewsletterSource
+from newsdigest.inbox.base import Mailbox, MailboxError, RawMessage
 from newsdigest.models import RunStats
-from newsdigest.store import Store
 
-from conftest import StubEmbedder, make_article
+from conftest import StubEmbedder
 
-MONDAY = datetime(2026, 9, 7, tzinfo=timezone.utc)
-
-
-class NullFetcher:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return None
+MONDAY = datetime(2026, 9, 14, tzinfo=timezone.utc)
+WEEK = (MONDAY, MONDAY + timedelta(days=7))
+FIXTURES = Path(__file__).parent / "fixtures" / "emails"
 
 
-def fake_sources(monkeypatch, mapping: dict[str, list]):
-    """Wire each source name to a fixed list of articles, or an exception."""
+def message(
+    source_domain="example.invalid",
+    *,
+    subject="The week in review",
+    date="Wed, 16 Sep 2026 09:00:00 +0000",
+    message_id="<m1@example.invalid>",
+    body="<html><body>{}</body></html>",
+    items=(("A significant thing happened in the world", "https://news.example/a"),),
+):
+    """One RFC822 message, built from a template rather than a fixture file."""
+    blocks = "".join(
+        f'<table><tr><td><h2><a href="{url}">{title}</a></h2>'
+        f"<p>Reported at length, with enough detail to summarize from.</p>"
+        f"</td></tr></table>"
+        for title, url in items
+    )
+    raw = (
+        f"From: Example <news@{source_domain}>\r\n"
+        f"To: digest@example.com\r\n"
+        f"Subject: {subject}\r\n"
+        f"Date: {date}\r\n"
+        f"Message-ID: {message_id}\r\n"
+        f"MIME-Version: 1.0\r\n"
+        f'Content-Type: text/html; charset="utf-8"\r\n'
+        f"\r\n"
+        f"{body.format(blocks)}\r\n"
+    )
+    return RawMessage(uid="1", raw=raw.encode("utf-8"))
 
-    class FakeAdapter:
-        def __init__(self, source):
-            self.source = source
 
-        def fetch(self, source):
-            result = mapping[source.name]
-            if isinstance(result, Exception):
-                raise result
-            return list(result)
+class FakeMailbox(Mailbox):
+    """A mailbox that hands back fixed messages, or raises."""
 
-    monkeypatch.setattr(pipeline, "adapter_for", lambda source, fetcher: FakeAdapter(source))
-    monkeypatch.setattr(pipeline, "Fetcher", lambda *a, **k: NullFetcher())
+    name = "fake"
+
+    def __init__(self, messages, error=None):
+        self.messages = list(messages)
+        self.error = error
+        self.closed = False
+        self.ranges = []
+
+    def fetch(self, since=None, until=None):
+        self.ranges.append((since, until))
+        if self.error:
+            raise self.error
+        return list(self.messages)
+
+    def close(self):
+        self.closed = True
 
 
-class TestCollect:
-    def test_detects_language_per_source(self, config, store, monkeypatch):
-        config.sources = [
-            Source(name="BBC", rss="https://a.invalid/rss", languages=["en"]),
-            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"]),
-            Source(name="El País Economía", rss="https://c.invalid/rss",
-                   languages=["es"], publisher="El País"),
-        ]
-        fake_sources(monkeypatch, {
-            "BBC": [make_article("Government approves the annual budget bill",
-                                 source="BBC", language=None)],
-            "Ara": [make_article("El Govern aprova el pressupost anual del país",
-                                 source="Ara", language=None)],
-            "El País Economía": [
-                make_article("El Gobierno aprueba el presupuesto anual del país",
-                             source="El País Economía", language=None)],
-        })
+def wire(monkeypatch, mailbox):
+    monkeypatch.setattr(pipeline, "get_mailbox", lambda settings: mailbox)
+    return mailbox
+
+
+@pytest.fixture
+def options(tmp_path):
+    return pipeline.Options(
+        db=tmp_path / "test.db",
+        out=tmp_path / "digests",
+        readme=None,
+        # No network in tests: link resolution is the only stage that would want
+        # one, and the static unwrapping it falls back to is what we test.
+        resolve_links=False,
+    )
+
+
+class TestFetch:
+    def test_stores_matching_messages(self, config, store, options, monkeypatch):
+        wire(monkeypatch, FakeMailbox([message()]))
         stats = RunStats()
-        pipeline.collect(config, store, stats)
-        assert stats.languages == {"en": 1, "ca": 1, "es": 1}
-        assert store.language_counts() == {"ca": 1, "en": 1, "es": 1}
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        assert (stats.emails_fetched, stats.emails_new) == (1, 1)
+        assert len(store.emails_in_window(*WEEK)) == 1
 
-    def test_publisher_and_source_url_are_recorded(self, config, store, monkeypatch):
-        config.sources = [
-            Source(name="El País Economía", rss="https://feed.invalid/eco",
-                   languages=["es"], publisher="El País")
-        ]
-        fake_sources(monkeypatch, {
-            "El País Economía": [
-                make_article("La inflación se moderó en agosto según el instituto",
-                             source="El País Economía", language=None)]
-        })
-        pipeline.collect(config, store, RunStats())
-        article = store.articles_in_window(
-            MONDAY, datetime.now(timezone.utc) + timedelta(days=1))[0]
-        assert article.publisher == "El País"
-        assert article.source_url == "https://feed.invalid/eco"
-
-    def test_excluded_urls_never_reach_the_store(self, config, store, monkeypatch):
-        """Structural junk is dropped at collection, not ranked down later."""
-        config.sources = [
-            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"],
-                   exclude_url_patterns=["/especials/"]),
-        ]
-        fake_sources(monkeypatch, {"Ara": [
-            make_article("El Govern aprova el pressupost anual",
-                         source="Ara", language="ca",
-                         url="https://www.ara.cat/politica/pressupost_1_1.html"),
-            make_article("La IA, pal de paller de molts nous masters",
-                         source="Ara", language="ca",
-                         url="https://www.ara.cat/especials/masters/ia_1_2.html"),
-        ]})
+    def test_unmatched_senders_are_counted_not_guessed(
+        self, config, store, options, monkeypatch
+    ):
+        """A digest built from "probably The Economist" is worse than one built
+        from nine sources."""
+        wire(monkeypatch, FakeMailbox([
+            message(),
+            message(source_domain="stranger.invalid", message_id="<m2@x>"),
+        ]))
         stats = RunStats()
-        pipeline.collect(config, store, stats)
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        assert stats.emails_fetched == 1
+        assert stats.emails_unmatched == 1
 
-        assert stats.articles_seen == 2      # both were fetched
-        assert stats.excluded == 1           # one was dropped
-        assert stats.articles_new == 1       # only one stored
-        assert stats.sources[0].excluded == 1
-        stored = [a.url for a in store.articles_in_window(
-            *__import__("newsdigest.digest", fromlist=["x"]).weekly_window(days=3650))]
-        assert not any("/especials/" in u for u in stored)
-
-    def test_excluding_nothing_leaves_collection_unchanged(self, config, store, monkeypatch):
-        config.sources = [
-            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"],
-                   exclude_url_patterns=["/horoscop/"]),
-        ]
-        fake_sources(monkeypatch, {"Ara": [
-            make_article("El Govern aprova el pressupost anual",
-                         source="Ara", language="ca"),
-        ]})
+    def test_the_window_is_enforced_on_the_parsed_header(
+        self, config, store, options, monkeypatch
+    ):
+        """IMAP's own date search is day-granular in an unknown timezone, so it
+        over-returns on purpose and the window is applied here."""
+        wire(monkeypatch, FakeMailbox([
+            message(date="Wed, 16 Sep 2026 09:00:00 +0000", message_id="<in@x>"),
+            message(date="Wed, 30 Sep 2026 09:00:00 +0000", message_id="<out@x>"),
+        ]))
         stats = RunStats()
-        pipeline.collect(config, store, stats)
-        assert stats.excluded == 0 and stats.articles_new == 1
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        assert stats.emails_fetched == 1
 
-    def test_one_broken_source_does_not_stop_the_run(self, config, store, monkeypatch):
-        config.sources = [
-            Source(name="Good", rss="https://a.invalid/rss", languages=["en"]),
-            Source(name="Bad", rss="https://b.invalid/rss", languages=["en"]),
-        ]
-        fake_sources(monkeypatch, {
-            "Good": [make_article("A working source story about the harbour", source="Good")],
-            "Bad": ConnectionError("host unreachable"),
-        })
+    def test_a_message_is_never_stored_twice(
+        self, config, store, options, monkeypatch
+    ):
+        """Re-running a week must be free, which is what keys the whole design."""
+        wire(monkeypatch, FakeMailbox([message()]))
+        for _ in range(3):
+            stats = RunStats()
+            pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                           options=options)
+        assert stats.emails_fetched == 1
+        assert stats.emails_new == 0
+        assert len(store.emails_in_window(*WEEK)) == 1
+
+    def test_an_unparseable_message_does_not_cost_the_week(
+        self, config, store, options, monkeypatch
+    ):
+        wire(monkeypatch, FakeMailbox([
+            RawMessage(uid="bad", raw=b"\xff\xfe not a message at all"),
+            message(),
+        ]))
         stats = RunStats()
-        pipeline.collect(config, store, stats)
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        assert stats.emails_fetched == 1
+
+    def test_dry_run_stores_nothing(self, config, store, options, monkeypatch):
+        wire(monkeypatch, FakeMailbox([message()]))
+        options.dry_run = True
+        stats = RunStats()
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        assert stats.emails_new == 1
+        assert store.emails_in_window(*WEEK) == []
+
+    def test_a_mailbox_that_will_not_open_is_fatal(
+        self, config, store, options, monkeypatch
+    ):
+        """The one stage with nothing to fall back on: no mail, no digest."""
+        wire(monkeypatch, FakeMailbox([], error=MailboxError("login rejected")))
+        with pytest.raises(MailboxError):
+            pipeline.fetch(config, store, RunStats(), since=WEEK[0], until=WEEK[1],
+                           options=options)
+
+
+class TestParse:
+    def _stored(self, config, store, options, messages):
+        stats = RunStats()
+        pipeline.fetch(config, store, stats, since=WEEK[0], until=WEEK[1],
+                       options=options)
+        return stats
+
+    def test_extracts_articles_and_marks_the_message_parsed(
+        self, config, store, options, monkeypatch
+    ):
+        wire(monkeypatch, FakeMailbox([message(items=(
+            ("A significant thing happened in the world", "https://news.example/a"),
+            ("Another significant thing happened elsewhere", "https://news.example/b"),
+        ))]))
+        self._stored(config, store, options, None)
+
+        stats = RunStats()
+        pipeline.parse(config, store, stats, window=WEEK, options=options)
+        assert stats.articles_new == 2
+        assert all(m.parsed for m in store.emails_in_window(*WEEK))
+
+    def test_reparsing_is_skipped_until_forced(
+        self, config, store, options, monkeypatch
+    ):
+        wire(monkeypatch, FakeMailbox([message()]))
+        self._stored(config, store, options, None)
+
+        first = RunStats()
+        pipeline.parse(config, store, first, window=WEEK, options=options)
+        assert first.emails_parsed == 1
+
+        again = RunStats()
+        pipeline.parse(config, store, again, window=WEEK, options=options)
+        assert again.emails_parsed == 0, "a parsed message must not be parsed again"
+
+        options.force = True
+        forced = RunStats()
+        pipeline.parse(config, store, forced, window=WEEK, options=options)
+        assert forced.emails_parsed == 1
+
+    def test_language_is_detected_per_source(
+        self, config, store, options, monkeypatch
+    ):
+        config.sources = [
+            NewsletterSource(name="English", senders=["news@en.invalid"],
+                             languages=["en"]),
+            NewsletterSource(name="Spanish", senders=["news@es.invalid"],
+                             languages=["es"]),
+        ]
+        config.settings.supported_languages = ["en", "es"]
+        wire(monkeypatch, FakeMailbox([
+            message(source_domain="en.invalid", message_id="<en@x>", items=(
+                ("The government approves the annual budget bill",
+                 "https://news.example/en"),)),
+            message(source_domain="es.invalid", message_id="<es@x>", items=(
+                ("El Gobierno aprueba el presupuesto anual del país",
+                 "https://news.example/es"),)),
+        ]))
+        self._stored(config, store, options, None)
+
+        stats = RunStats()
+        pipeline.parse(config, store, stats, window=WEEK, options=options)
+        assert stats.languages == {"en": 1, "es": 1}
+
+    def test_excluded_sections_never_reach_the_database(
+        self, config, store, options, monkeypatch
+    ):
+        config.sources[0].exclude_url_patterns = ["/deportes/"]
+        wire(monkeypatch, FakeMailbox([message(items=(
+            ("A significant thing happened in the world", "https://news.example/world/a"),
+            ("Resumen de la jornada con goles en el descuento",
+             "https://news.example/deportes/b"),
+        ))]))
+        self._stored(config, store, options, None)
+
+        stats = RunStats()
+        pipeline.parse(config, store, stats, window=WEEK, options=options)
+        assert stats.excluded == 1
         assert stats.articles_new == 1
-        assert stats.sources_ok == 1
-        assert [s.name for s in stats.sources_failed] == ["Bad"]
-        assert "ConnectionError" in stats.sources_failed[0].error
 
-    def test_collection_calls_no_model(self, config, store, monkeypatch):
-        """The daily pipeline must never touch an LLM or embedding API."""
-        called: list[str] = []
-        monkeypatch.setattr(pipeline, "get_llm",
-                            lambda *a, **k: called.append("llm"))
-        monkeypatch.setattr(pipeline, "get_embedder",
-                            lambda *a, **k: called.append("embed"))
-        config.sources = [Source(name="Good", rss="https://a.invalid/rss", languages=["en"])]
-        fake_sources(monkeypatch, {
-            "Good": [make_article("A story about the new harbour wall", source="Good")]
-        })
-        pipeline.run_collect(config, pipeline.Options(db=":memory:", out=None,
-                                                     dry_run=True, prune=False))
-        assert called == []
+    def test_one_broken_newsletter_does_not_stop_the_others(
+        self, config, store, options, monkeypatch
+    ):
+        """A source that throws is recorded and the run carries on."""
+        wire(monkeypatch, FakeMailbox([message(message_id="<ok@x>")]))
+        self._stored(config, store, options, None)
 
-    def test_rerunning_collection_adds_nothing(self, config, store, monkeypatch):
-        config.sources = [Source(name="Good", rss="https://a.invalid/rss", languages=["en"])]
-        articles = [make_article("A story about the new harbour wall", source="Good")]
-        fake_sources(monkeypatch, {"Good": articles})
-        first, second = RunStats(), RunStats()
-        pipeline.collect(config, store, first)
-        pipeline.collect(config, store, second)
-        assert first.articles_new == 1
-        assert second.articles_new == 0
-        assert second.duplicates == 1
+        import newsdigest.pipeline as mod
 
+        real = mod.extract
+        calls = {"n": 0}
 
-class TestWeekly:
-    def _collect(self, config, monkeypatch, db):
+        def flaky(email, **kw):
+            calls["n"] += 1
+            raise RuntimeError("extractor blew up")
+
+        monkeypatch.setattr(mod, "extract", flaky)
+        stats = RunStats()
+        pipeline.parse(config, store, stats, window=WEEK, options=options)
+        assert calls["n"] == 1
+        assert stats.sources_failed
+        assert "extractor blew up" in stats.sources_failed[0].error
+        monkeypatch.setattr(mod, "extract", real)
+
+    def test_only_the_named_source_is_parsed(
+        self, config, store, options, monkeypatch
+    ):
         config.sources = [
-            Source(name="BBC", rss="https://a.invalid/rss", languages=["en"]),
-            Source(name="Ara", rss="https://b.invalid/rss", languages=["ca"]),
-            Source(name="El País", rss="https://c.invalid/rss", languages=["es"]),
+            NewsletterSource(name="A", senders=["news@a.invalid"], languages=["en"]),
+            NewsletterSource(name="B", senders=["news@b.invalid"], languages=["en"]),
         ]
-        published = MONDAY + timedelta(days=1)
-        fake_sources(monkeypatch, {
-            "BBC": [
-                make_article("EU announces new sanctions against Russia", source="BBC",
-                             language=None, published=published),
-                make_article("Wildfires force evacuations on the northern coast",
-                             source="BBC", language=None, published=published),
-            ],
-            "Ara": [make_article("La UE anuncia noves sancions contra Rússia",
-                                 source="Ara", language=None, published=published)],
-            "El País": [make_article("La UE anuncia nuevas sanciones contra Rusia",
-                                          source="El País", language=None,
-                                          published=published)],
-        })
-        with Store(db) as store:
-            pipeline.collect(config, store, RunStats())
+        wire(monkeypatch, FakeMailbox([
+            message(source_domain="a.invalid", message_id="<a@x>"),
+            message(source_domain="b.invalid", message_id="<b@x>"),
+        ]))
+        self._stored(config, store, options, None)
 
-    def test_full_two_stage_run_offline(self, tmp_path, config, monkeypatch):
-        db, out = tmp_path / "run.db", tmp_path / "site"
-        self._collect(config, monkeypatch, db)
+        options.only = ["A"]
+        stats = RunStats()
+        pipeline.parse(config, store, stats, window=WEEK, options=options)
+        assert stats.emails_parsed == 1
 
-        options = pipeline.Options(db=db, out=out)
-        stats = pipeline.run_weekly(
-            config, options, window=(MONDAY, MONDAY + timedelta(days=7))
-        )
-        assert stats.digest_id == "2026-W37"
-        assert stats.stories_published >= 1
-        assert (out / "index.json").exists()
-        assert (out / "digests" / "2026-W37.json").exists()
 
-        index = json.loads((out / "index.json").read_text())
-        assert index["digests"][0]["id"] == "2026-W37"
+class TestRunAll:
+    def test_fetch_parse_and_publish_in_one_go(self, config, options, monkeypatch):
+        wire(monkeypatch, FakeMailbox([message(items=(
+            ("EU leaders agree a new sanctions package after the summit",
+             "https://news.example/world/sanctions"),
+            ("Floods displace thousands in the north of the country",
+             "https://news.example/world/floods"),
+        ))]))
+        stats = pipeline.run_all(config, options, window=WEEK)
+        assert stats.emails_new == 1
+        assert stats.articles_new == 2
+        assert stats.stories_published == 2
+        assert (options.out / "2026" / "2026-W38.md").exists()
 
-    def test_cross_language_merge_with_embeddings(self, tmp_path, config, monkeypatch):
-        db, out = tmp_path / "run.db", tmp_path / "site"
-        self._collect(config, monkeypatch, db)
+    def test_a_mailbox_failure_does_not_publish_a_stale_digest(
+        self, config, options, monkeypatch
+    ):
+        """Publishing last week's digest as though it were this week's is the one
+        silent failure worth being loud about."""
+        wire(monkeypatch, FakeMailbox([], error=MailboxError("host unreachable")))
+        with pytest.raises(MailboxError):
+            pipeline.run_all(config, options, window=WEEK)
+        assert not (options.out / "2026" / "2026-W38.md").exists()
 
-        embedder = StubEmbedder({"sanctions": "eu", "sanciones": "eu", "sancions": "eu"})
+    def test_cross_language_coverage_merges_into_one_story(
+        self, config, options, monkeypatch
+    ):
+        """The whole reason embeddings are not optional."""
+        config.sources = [
+            NewsletterSource(name="English", senders=["news@en.invalid"],
+                             languages=["en"], publisher="English Outlet"),
+            NewsletterSource(name="Spanish", senders=["news@es.invalid"],
+                             languages=["es"], publisher="Spanish Outlet"),
+        ]
+        wire(monkeypatch, FakeMailbox([
+            message(source_domain="en.invalid", message_id="<en@x>", items=(
+                ("EU leaders agree new sanctions against Russia",
+                 "https://news.example/en/sanctions"),)),
+            message(source_domain="es.invalid", message_id="<es@x>", items=(
+                ("La UE acuerda nuevas sanciones contra Rusia",
+                 "https://news.example/es/sanciones"),)),
+        ]))
+        embedder = StubEmbedder({"sanctions": "eu", "sanciones": "eu"})
         monkeypatch.setattr(pipeline, "get_embedder", lambda settings: embedder)
 
-        stats = pipeline.run_weekly(
-            config, pipeline.Options(db=db, out=out),
-            window=(MONDAY, MONDAY + timedelta(days=7)),
-        )
+        stats = pipeline.run_all(config, options, window=WEEK)
+        assert stats.articles_new == 2
+        assert stats.stories_published == 1
         assert stats.cross_language_clusters == 1
-
-        payload = json.loads((out / "digests" / "2026-W37.json").read_text())
-        merged = next(s for s in payload["stories"] if s["publisher_count"] == 3)
-        assert sorted(merged["languages"]) == ["ca", "en", "es"]
-        assert sorted(merged["publishers"]) == ["Ara", "BBC", "El País"]
-
-    def test_without_embeddings_the_same_event_stays_split(self, tmp_path, config, monkeypatch):
-        """The documented degradation, asserted so it cannot regress silently."""
-        db, out = tmp_path / "run.db", tmp_path / "site"
-        self._collect(config, monkeypatch, db)
-        stats = pipeline.run_weekly(
-            config, pipeline.Options(db=db, out=out),
-            window=(MONDAY, MONDAY + timedelta(days=7)),
-        )
-        assert stats.cross_language_clusters == 0
-        payload = json.loads((out / "digests" / "2026-W37.json").read_text())
-        assert all(s["publisher_count"] == 1 for s in payload["stories"])
-
-    def test_dry_run_writes_nothing(self, tmp_path, config, monkeypatch):
-        db, out = tmp_path / "run.db", tmp_path / "site"
-        self._collect(config, monkeypatch, db)
-        pipeline.run_weekly(
-            config, pipeline.Options(db=db, out=out, dry_run=True),
-            window=(MONDAY, MONDAY + timedelta(days=7)),
-        )
-        assert not out.exists()
-        with Store(db) as store:
-            # No weekly run recorded, and no digest persisted.
-            kinds = [r["kind"] for r in store.conn.execute("SELECT kind FROM runs")]
-            assert "weekly" not in kinds
-            assert store.list_digests() == []
-
-    def test_rerun_is_idempotent(self, tmp_path, config, monkeypatch):
-        db, out = tmp_path / "run.db", tmp_path / "site"
-        self._collect(config, monkeypatch, db)
-        window = (MONDAY, MONDAY + timedelta(days=7))
-        options = pipeline.Options(db=db, out=out)
-        first = pipeline.run_weekly(config, options, window=window)
-        second = pipeline.run_weekly(config, options, window=window)
-        assert first.digest_id == second.digest_id
-        assert second.enriched == 0            # everything already enriched
-        with Store(db) as store:
-            assert len(store.list_digests()) == 1
-
-
-class TestCli:
-    def test_collect_and_digest_via_the_cli(self, tmp_path, monkeypatch):
-        from newsdigest import cli
-
-        db, out = tmp_path / "cli.db", tmp_path / "site"
-        monkeypatch.setattr(
-            cli.pipeline, "adapter_for",
-            lambda source, fetcher: type("A", (), {
-                "fetch": lambda self, s: [
-                    make_article("Council approves the new harbour development",
-                                 source=s.name, language=None)]
-            })(),
-        )
-        monkeypatch.setattr(cli.pipeline, "Fetcher", lambda *a, **k: NullFetcher())
-
-        assert cli.main(["--db", str(db), "--out", str(out), "collect"]) == 0
-        assert cli.main(["--db", str(db), "--out", str(out), "digest",
-                         "--no-llm", "--no-embeddings", "--week",
-                         f"{datetime.now(timezone.utc).isocalendar()[0]}-W"
-                         f"{datetime.now(timezone.utc).isocalendar()[1]:02d}"]) == 0
-        assert (out / "index.json").exists()
-        assert cli.main(["--db", str(db), "--out", str(out), "build"]) == 0
-        assert cli.main(["--db", str(db), "stats"]) == 0
-
-    def test_bad_week_is_reported_not_crashed(self, tmp_path):
-        from newsdigest import cli
-
-        assert cli.main(["--db", str(tmp_path / "x.db"), "digest", "--week", "junk"]) == 2
-
-    def test_global_flags_work_on_either_side(self, tmp_path):
-        from newsdigest import cli
-
-        assert cli.main(["--db", str(tmp_path / "a.db"), "stats"]) == 0
-        assert cli.main(["stats", "--db", str(tmp_path / "b.db")]) == 0

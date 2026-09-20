@@ -1,9 +1,10 @@
-"""Store: schema v2 round-trips, the v1 migration, digests and pruning."""
+"""Store: emails, articles, stories, digests, pruning, and the schema guard."""
 
 import sqlite3
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
+import pytest
 
 from newsdigest import clustering
 from newsdigest.embeddings.base import normalize
@@ -11,7 +12,12 @@ from newsdigest.llm.base import Enrichment
 from newsdigest.models import Digest, RunStats, SourceReport, utcnow
 from newsdigest.store import SCHEMA_VERSION, Store
 
-from conftest import make_article
+from conftest import make_article, make_email
+
+
+def _wide_window():
+    """A window that certainly contains anything just inserted."""
+    return datetime(2000, 1, 1, tzinfo=timezone.utc), utcnow() + timedelta(days=1)
 
 CACHE_KEY = "gemini:model:en|ai"
 
@@ -172,7 +178,8 @@ class TestDigests:
         loaded = store.get_digest("2026-W37")
         assert loaded.story_ids == saved.story_ids
         assert loaded.stats == {"clusters": 5}
-        assert loaded.label == "7–14 September 2026"
+        # period_end is exclusive, so the label names the last day covered.
+        assert loaded.label == "7–13 September 2026"
 
     def test_ranking_order_is_preserved(self, store):
         saved = self._digest(store, stories=4)
@@ -254,108 +261,63 @@ class TestPrune:
         assert store.get_story(story.id) is not None
 
 
-class TestMigration:
-    def _make_v1(self, path):
-        """Build a database in the v1 shape the first release shipped."""
+class TestSchemaGuard:
+    """Opening the RSS project's database must fail loudly, not quietly work.
+
+    Nothing in this code would raise on it: `CREATE TABLE IF NOT EXISTS` is
+    silent about a table that already exists, the missing columns read as empty,
+    and the run would publish a digest built from articles whose newsletter and
+    position it had invented. There are no migrations because there is nothing to
+    migrate from -- this schema has never been deployed -- so the only correct
+    behaviour is to name the problem.
+    """
+
+    def _make_rss_database(self, path):
+        """The shape the RSS project left behind: articles, no emails."""
         conn = sqlite3.connect(path)
-        conn.executescript("""
+        conn.executescript(
+            """
             CREATE TABLE articles (
-                id TEXT PRIMARY KEY, canonical TEXT NOT NULL UNIQUE, url TEXT NOT NULL,
-                title TEXT NOT NULL, title_key TEXT NOT NULL, source TEXT NOT NULL,
-                author TEXT, published_at TEXT, fetched_at TEXT NOT NULL,
-                description TEXT NOT NULL DEFAULT '',
-                source_topics TEXT NOT NULL DEFAULT '[]',
-                source_weight REAL NOT NULL DEFAULT 1.0,
-                summary TEXT, why_it_matters TEXT, topics TEXT NOT NULL DEFAULT '[]',
-                entities TEXT NOT NULL DEFAULT '[]', importance REAL,
-                event_label TEXT, enriched_by TEXT, enriched_at TEXT, story_id TEXT);
-            CREATE TABLE stories (
-                id TEXT PRIMARY KEY, headline TEXT NOT NULL,
-                summary TEXT NOT NULL DEFAULT '', why_it_matters TEXT NOT NULL DEFAULT '',
-                topics TEXT NOT NULL DEFAULT '[]', entities TEXT NOT NULL DEFAULT '[]',
-                keywords TEXT NOT NULL DEFAULT '[]', importance REAL NOT NULL DEFAULT 0,
-                score REAL NOT NULL DEFAULT 0, first_seen TEXT NOT NULL,
-                last_updated TEXT NOT NULL, written_by TEXT);
-            CREATE TABLE llm_cache (
-                content_hash TEXT PRIMARY KEY, provider TEXT NOT NULL,
-                payload TEXT NOT NULL, created_at TEXT NOT NULL);
-            CREATE TABLE runs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, started_at TEXT NOT NULL,
-                finished_at TEXT NOT NULL, stats TEXT NOT NULL);
-            CREATE TABLE source_health (
-                name TEXT PRIMARY KEY, last_ok TEXT, last_error_at TEXT,
-                last_error TEXT, consecutive_failures INTEGER NOT NULL DEFAULT 0,
-                total_articles INTEGER NOT NULL DEFAULT 0);
-            PRAGMA user_version = 1;
-        """)
-        now = utcnow().isoformat()
+                id TEXT PRIMARY KEY, canonical TEXT, url TEXT, title TEXT,
+                source TEXT, source_url TEXT, feed_position INTEGER,
+                collected_at TEXT
+            );
+            CREATE TABLE stories (id TEXT PRIMARY KEY, headline TEXT);
+            PRAGMA user_version = 3;
+            """
+        )
         conn.execute(
-            "INSERT INTO articles (id, canonical, url, title, title_key, source, "
-            "fetched_at, description, summary, importance, story_id) "
-            "VALUES ('a1','https://x.test/1','https://x.test/1','Old article','old article',"
-            f"'Wire','{now}','An excerpt.','A summary.',0.6,'s1')")
-        conn.execute(
-            "INSERT INTO stories (id, headline, first_seen, last_updated) "
-            f"VALUES ('s1','Old story','{now}','{now}')")
-        conn.execute(
-            "INSERT INTO llm_cache (content_hash, provider, payload, created_at) "
-            f"VALUES ('h1','gemini','{{}}','{now}')")
+            "INSERT INTO articles (id, canonical, url, title, source, collected_at) "
+            "VALUES ('a1', 'https://x/1', 'https://x/1', 'Old', 'BBC', '2026-01-01')"
+        )
         conn.commit()
         conn.close()
 
-    def test_v1_database_migrates_without_losing_data(self, tmp_path):
-        path = tmp_path / "v1.db"
-        self._make_v1(path)
+    def test_an_rss_database_is_refused_by_name(self, tmp_path):
+        path = tmp_path / "old.db"
+        self._make_rss_database(path)
+        with pytest.raises(sqlite3.DatabaseError, match="RSS project"):
+            Store(path)
 
-        with Store(path) as store:
-            assert store.conn.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
-            # The renamed column carried its data across.
-            article = store.get_articles(["a1"])[0]
-            assert article.title == "Old article"
-            assert article.summary == "A summary."
-            assert article.collected_at is not None
-            assert article.publisher == "Wire"      # backfilled from source
-            assert article.language is None         # v1 had no language
+    def test_the_error_says_what_to_do_about_it(self, tmp_path):
+        path = tmp_path / "old.db"
+        self._make_rss_database(path)
+        with pytest.raises(sqlite3.DatabaseError, match="fresh database"):
+            Store(path)
 
-            # Story membership moved from articles.story_id to the join table.
-            assert [a.id for a in store.articles_by_story(["s1"])["s1"]] == ["a1"]
-            # The new tables exist and are usable.
-            assert store.list_digests() == []
-            store.cache_vectors({"h": normalize(np.array([1.0, 0.0]))}, "k")
-            assert store.summary()["cached_vectors"] == 1
-
-    def test_v1_tables_gain_the_columns_v2_added(self, tmp_path):
-        """IF NOT EXISTS does nothing for an existing table, so ALTER must."""
-        path = tmp_path / "v1cols.db"
-        self._make_v1(path)
-        with Store(path) as store:
-            assert "kind" in store._columns("runs")
-            assert {"relevance", "key_facts"} <= store._columns("stories")
-            # These queries touch the new columns and must not raise.
-            store.record_run(RunStats(), kind="weekly")
-            assert store.summary()["last_run_kind"] == "weekly"
-
-    def test_v1_source_health_is_folded_into_sources(self, tmp_path):
-        path = tmp_path / "v1health.db"
-        self._make_v1(path)
-        conn = sqlite3.connect(path)
-        conn.execute("INSERT INTO source_health (name, total_articles, "
-                     "consecutive_failures) VALUES ('Wire', 42, 3)")
-        conn.commit()
-        conn.close()
-        with Store(path) as store:
-            health = {r["name"]: r for r in store.source_health()}
-            assert health["Wire"]["total_articles"] == 42
-            assert health["Wire"]["consecutive_failures"] == 3
-
-    def test_migration_is_idempotent(self, tmp_path):
-        path = tmp_path / "v1.db"
-        self._make_v1(path)
-        with Store(path):
-            pass
-        with Store(path) as store:
-            assert store.get_articles(["a1"])[0].title == "Old article"
-
-    def test_fresh_database_is_at_the_current_version(self, tmp_path):
+    def test_a_fresh_database_is_at_the_current_version(self, tmp_path):
         with Store(tmp_path / "new.db") as store:
-            assert store.conn.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
+            version = store.conn.execute("PRAGMA user_version").fetchone()[0]
+            assert version == SCHEMA_VERSION
+            assert "emails" in {
+                row[0] for row in store.conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+
+    def test_reopening_a_current_database_is_a_no_op(self, tmp_path):
+        path = tmp_path / "new.db"
+        with Store(path) as store:
+            store.insert_emails([make_email("A", message_id="<1@x>")])
+        with Store(path) as store:
+            assert len(store.emails_in_window(*_wide_window())) == 1

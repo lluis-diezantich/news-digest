@@ -1,330 +1,174 @@
-# Source list. Adding or removing a source never requires touching code.
+# Newsletter sources. Adding or removing one never requires touching code.
 #
-# Per-source keys:
-#   name       (required) unique; identifies this feed
-#   publisher  outlet this feed belongs to, defaults to `name`. Several feeds
-#              can share one publisher -- corroboration counts PUBLISHERS, so
-#              seven El País sections covering one story read as one outlet.
-#   languages  what this source publishes in. Constrains language detection and
-#              is the fallback when a headline is too short to judge.
-#   enabled    default true
-#   method     rss (default) | scrape
-#   rss        feed URL          -- required for method: rss
-#   url        index/section URL -- required for method: scrape
-#   weight     0.0-2.0, default 1.0. Feeds into the source_preference signal.
-#   topics     hints merged into every article from this source
-#   max_items  cap per run, default = defaults.max_items_per_source
+# Recognition is two-part, and both parts matter:
+#   senders           addresses or domains this newsletter arrives from. A bare
+#                     domain (with or without a leading @) matches that domain
+#                     AND its subdomains, because bulk mailers move between
+#                     `mail.` and `news.` hosts without notice.
+#   subject_patterns  regexes matched against the SUBJECT, accent-stripped and
+#                     lowercased. Empty means "any subject from these senders".
+#   sender_name_patterns
+#                     regexes matched against the From DISPLAY NAME, same
+#                     normalisation. For publishers who send through a SHARED
+#                     bulk-mail domain -- Público uses `publisher-news.com`, which
+#                     identifies nothing -- this is the only reliable
+#                     discriminator. Always pair a shared domain with one.
 #
-# scrape-only: link_selector, link_pattern, max_links
+# Sender alone is rarely enough: most publishers send every newsletter they have
+# from one address, so without a subject rule a weekly digest and a daily
+# briefing are the same source. Every rule a source names must pass, and where
+# several entries could match one message the one that actively matched a subject
+# or display-name pattern wins over a catch-all.
+#
+# Other per-source keys:
+#   newsletter        human name, e.g. "Saturday Edition". Defaults to `name`.
+#   publisher         outlet this belongs to, defaults to `name`. Several
+#                     newsletters can share one -- corroboration counts
+#                     PUBLISHERS, so two EL PAÍS newsletters on one story are one
+#                     outlet's view of it, not two.
+#   languages         what it publishes in. Constrains language detection and is
+#                     the fallback when a headline is too short to judge.
+#   enabled           default true. A disabled source may omit `senders`.
+#   weight            0.0-2.0, default 1.0. Feeds source_preference and pre-ranking.
+#   topics            hints merged into every item from this source
+#   excerpt_chars     cap on the blurb stored per item
+#
+# THE SENDER ADDRESSES BELOW ARE PLACEHOLDERS. Subscribe from the dedicated
+# inbox, then run `news-digest sources --check`: it reports what each rule
+# matched over the last 30 days and lists every sender that matched nothing,
+# which is where a wrong address shows up. Fix them here until nothing is NONE.
 
 defaults:
-  # 10, not 25: feed order is the newsroom's own ranking (measured 80-100%
-  # concordant with the section front page on eight of these sources), so a cap
-  # takes each desk's TOP ten rather than ten arbitrary items. Costs ~18% of
-  # articles in a busy week, all of it from the six highest-volume feeds.
-  max_items_per_source: 10
   # We store only enough text to summarize from, never a full article body.
-  # See "Attribution and copyright" in the README.
+  # See doc/attribution.md.
   excerpt_chars: 1200
 
-# Dropped at collection, before anything reaches the database. Regexes, matched
-# against the article's original URL. This is for structural junk, not taste:
-# native advertising and service content live at predictable paths, and no
-# ranking signal catches them reliably -- advertorial is written to match
-# whatever topics rank well, so `interest` actively promotes it. Measured on the
-# 2026-W38 digest, four of ten published stories were one Ara advertising series.
-# Per-source lists in a source entry are added to this one.
+# Dropped at parse time, before anything reaches the database. Regexes, matched
+# against the item's URL.
+#
+# This still works with newsletters, but only on a RESOLVED url. A newsletter
+# links through a click tracker, and a tracker has no section path at all -- so
+# every pattern here silently matches nothing until `extract/links.py` has
+# unwrapped the link. That is why link resolution is not optional in a real run:
+# with `--no-links` this whole list is inert.
 exclude_url_patterns:
-  - /especials/          # Ara native advertising ("especials" = sponsored series)
-  - /loterias?/          # lottery results
-  - /horoscopo?/         # horoscopes
-  - /el-tiempo/          # weather service pages
-  # TV and film sections. Added 2026-09-15 after an Emmy awards report ranked
-  # 10th of 15: awards coverage maxes every signal the formula has (every outlet
-  # runs it, on the front page, the same morning) while being industry trivia,
-  # and asking the LLM to score it low did not work -- told an awards ceremony was
-  # "at most 0.4", qwen3:8b still returned 0.80.
-  # Partial by nature: this catches RAC1's /televisio/ and Ara's /media/series/,
-  # but VilaWeb files everything under /noticies/ and RTVE under /noticias/, so
-  # those copies still arrive. Dropping two of four articles is usually enough --
-  # it puts the story under `min_articles`.
-  - /televisi[oó]n?/     # ca "televisio", es "television"
-  - /media/              # Ara's TV and film section
-  # Sports. Measured on 909 collected articles: these three section names cover
-  # 45 of them across all three languages -- /deportes/ (es), /esports/ (ca),
-  # /sports/ (en) -- and every sub-section (tenis, futbol, ciclisme) sits under
-  # one of them. `football`/`futbol` are for outlets that file it at top level.
-  # Not exhaustive: La Vanguardia filed one cycling piece under /clic/, so
-  # `excluded_topics: [sports]` remains the backstop for strays.
-  - /deportes?/
-  - /esports?/
-  - /sports?/
-  - /football/
+  - /deportes?/          # es
+  - /esports?/           # ca
+  - /sports?/            # en
   - /futbol/
-  # NOT /lainformacion/: that looked like branded content but is a news brand
-  # 20minutos syndicates -- the three articles it caught were a CNMC report on
-  # petrol stations, butane pricing and savings taxation. Real reporting.
+  - /football/
+  - /loterias?/
+  - /horoscopo?s?/
+  - /el-tiempo/
+  - /ir_anuncio/         # El Salto's ad-slot redirect ("go_advert")
+  - /suscribirse/
+  - /suscripcion/
+  - /gente/              # es celebrity sections
+  - /celebrit(y|ies)/
+  - /moda/
+  - /fashion/
+  - /recetas?/
+  - /recipes?/
 
-# Dropped at collection by HEADLINE, for junk that has no section path to match.
-# Same rules as above: regexes, applied before anything reaches the database, and
-# a broken one is a startup error. Matched against the title only, lowercased and
-# accent-stripped -- so write "previsió" or "prevision", either matches -- because
-# matching the excerpt too would drop any article whose background paragraph
-# happens to mention football.
 exclude_title_patterns:
-  # --- weather SERVICE content, not weather news -------------------------------
-  # RAC1 files a forecast every single day ("la previsió del temps d'avui, 14 de
-  # setembre"), six of them in the 2026-W38 window alone, and one of them topped
-  # the `prominence` signal outright. RTVE files the Spanish equivalent. None of
-  # it sits under a weather path, so `/el-tiempo/` never sees it.
-  #
-  # DELIBERATELY NARROW: this catches forecasts, not weather. The same week's
-  # "Un muerto en Barcelona y grave caos de transporte por las lluvias
-  # torrenciales" is a story about a death and a shut-down metro, and the flood
-  # coverage, the ES-Alert and the school closures are real news. Matching
-  # `lluvia`/`pluja`/`tormenta` would take all of it. Widen only if you decide
-  # you want no weather at all.
-  - previsi[oó] del temps            # ca, RAC1's daily
-  - previsi[oó] d'avui               # ca, the same feature without "del temps"
-  - previsi[oó]n del tiempo          # es
-  - el tiempo hoy                    # es, RTVE's daily
-  - pron[oó]stico del tiempo         # es
-  - the weather (today|forecast)     # en
-  # --- football ---------------------------------------------------------------
-  # `/deportes/`, `/esports/` and `/sports/` already catch the outlets that have
-  # a sports section. These are for the ones that do not: VilaWeb files football
-  # under /noticies/, 3Cat under /3catinfo/, and 20minutos put a Lamine Yamal
-  # family piece under /gente/.
-  - lamine yamal
-  - \byamal\b                       # "Yamal scores twice"; also the Russian gas
-                                     # field, which these sources rarely cover
-  - \bbar[çc]a\b
-  - camp nou
-  - pilota d'or
-  - bal[oó]n de oro
-  - ballon d'or
-  - lliga de campions
-  - \bchampions\b
-  - \bfutbol\b                       # normalization strips the accent, so this
-  - \bmbapp[eé]\b                    # also matches "fútbol"
+  # Service content filed under a main news path, which no URL pattern reaches.
+  - prevision del tiempo
+  - el tiempo para
+  - horoscopo
+  - resultados de la loteria
 
 sources:
-  # ---------------------------------------------------------------- English --
-#  - name: BBC World
-#    rss: https://feeds.bbci.co.uk/news/world/rss.xml
-#    languages: [en]
-#    weight: 1.2
-#    topics: [world]
-
-#  - name: The Guardian World
-#    rss: https://www.theguardian.com/world/rss
-#    languages: [en]
-#    weight: 1.1
-#    topics: [world]
-    # The Guardian syndicates its Australian edition into /world/rss: of ~33
-    # items only 18 were actually /world/, against 10 /australia-news/ (US 2,
-    # UK 1). Those are good reporting but domestic -- state road maintenance, a
-    # NSW corruption inquiry -- and one of them reached #2 of the 2026-W38
-    # digest. Scope, not junk, and per-source so a deliberate Guardian Australia
-    # entry would be unaffected. /us-news/ and /uk-news/ are left in.
-#    exclude_url_patterns:
-#      - /australia-news/
-
-  - name: Al Jazeera
-    rss: https://www.aljazeera.com/xml/rss/all.xml
+  # --- Global / English -----------------------------------------------------
+  - name: aljazeera
+    newsletter: Weekly Newsletter
+    publisher: Al Jazeera
     languages: [en]
-    weight: 1.0
-    topics: [world]
-  # ---------------------------------------------------------------- Spanish --
-  # El País publishes one feed per section. They all share a publisher so a
-  # story covered by three sections is not mistaken for three outlets.
-  - name: El País Internacional
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada
-    languages: [es]
-    weight: 1.2
+    senders: ["@aljazeera.net"]
     topics: [world]
 
-  - name: El País España
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada
-    languages: [es]
-    weight: 1.1
-    topics: [politics]
-
-  # Same publisher, same events, different language -- the clearest check that
-  # cross-language clustering is working.
-  - name: El País (English)
-    publisher: El País
-    rss: https://feeds.elpais.com/mrss-s/pages/ep/site/english.elpais.com/portada
+  - name: guardian-saturday
+    newsletter: Saturday Edition
+    publisher: The Guardian
     languages: [en]
-    weight: 1.0
+    senders: ["@theguardian.com", "@email.theguardian.com"]
+    # The Guardian sends a dozen newsletters from one address, so this one has
+    # to be named or every briefing it publishes becomes a source.
+    subject_patterns: ["saturday edition"]
 
-  - name: eldiario.es
-    rss: https://www.eldiario.es/rss/
+  - name: reuters-world
+    newsletter: Reuters World News
+    publisher: Reuters
+    languages: [en]
+    senders: ["@reuters.com", "@newsletters.reuters.com"]
+    subject_patterns: ["world", "the daily briefing", "weekend"]
+
+  - name: semafor-flagship
+    newsletter: Flagship
+    publisher: Semafor
+    languages: [en]
+    senders: ["@semafor.com"]
+    subject_patterns: ["flagship"]
+
+  - name: economist-weekly
+    newsletter: The Economist this week
+    publisher: The Economist
+    languages: [en]
+    senders: ["@economist.com", "@news.economist.com"]
+    subject_patterns: ["the world this week", "espresso", "this week"]
+
+  # --- Spanish --------------------------------------------------------------
+  - name: elpais-weekly
+    newsletter: EL PAÍS weekly digest
+    publisher: EL PAÍS
     languages: [es]
-    weight: 1.0
+    senders: ["@elpais.com", "@email.elpais.com"]
+    subject_patterns: ["semana", "resumen", "lo mas importante"]
 
-  - name: El Salto
-    rss: https://www.elsaltodiario.com/general/feed
+  - name: eldiario-director
+    newsletter: Boletín del director
+    publisher: elDiario.es
     languages: [es]
-    weight: 0.9
+    senders: ["@eldiario.es"]
+    subject_patterns: ["boletin del director", "carta del director"]
 
-  - name: La Vanguardia
-    # Publishes Spanish and Catalan editions in one feed, so both are declared
-    # and detection decides per article.
-    rss: https://www.lavanguardia.com/rss/home.xml
-    languages: [es, ca]
-    weight: 1.0
-
-  # Verified 2026-09-14: the feed works but is weak on both counts that matter
-  # here. Excerpts are short (median ~130 chars, against ~1,200 from a scraped
-  # page) and the feed is not in date order -- 25 items spanned 69 days -- so
-  # much of what it returns falls outside the weekly window. Weighted low, and
-  # Capped at the shared default like everything else.
-  - name: 20minutos
-    publisher: 20minutos
-    rss: https://www.20minutos.es/rss/
+  - name: rne-7dias
+    newsletter: 7 días
+    publisher: RNE
     languages: [es]
-    weight: 0.8
+    senders: ["@rtve.es"]
+    subject_patterns: ["7 dias", "siete dias"]
 
-  # ---------------------------------------------------------------- Catalan --
-  - name: Ara
-    rss: https://www.ara.cat/rss/
-    languages: [ca]
-    weight: 1.1
-
-  - name: 3Cat (324)
-    rss: https://api.ccma.cat/noticies?_format=rss&origen=frontal&frontal=n324-portada-noticia&version=2.0
-    languages: [ca]
-    weight: 1.1
-
-  - name: VilaWeb
-    rss: https://www.vilaweb.cat/rss/
-    languages: [ca]
-    weight: 1.0
-
-  - name: Nació Digital
-    rss: https://www.naciodigital.cat/rss/
-    languages: [ca]
-    weight: 0.9
-
-  # An investigative outlet, not a wire: ~1.7 items/day, so it will seldom
-  # corroborate anyone else's story. The feed is undeclared in the HTML but
-  # WordPress serves it at /feed/ (verified 2026-09-14) -- 10 items, every one
-  # dated and bylined. robots.txt permits everything.
-  - name: La Directa
-    publisher: La Directa
-    rss: https://directa.cat/feed/
-    languages: [ca]
-    weight: 1.0
-
-  # --------------------------------------------------------------- Disabled --
-  # Verified 2026-09-13: works, but ~10 items, often days old, and largely
-  # image posts rather than reporting. Enable if you want it.
-  - name: Spanish Revolution
-    rss: https://spanishrevolution.net/feed/
+  - name: orden-mundial
+    newsletter: Esta Semana
+    publisher: El Orden Mundial
     languages: [es]
-    enabled: false
-    weight: 0.6
+    senders: ["@elordenmundial.com"]
+    subject_patterns: ["esta semana"]
 
-  # ----------------------------------------------------------------- Scraped --
-  # Scraped sources follow. Before enabling any of them, read that site's terms
-  # of service: the fetcher honours robots.txt and crawl-delay, but that is a
-  # technical control, not permission. (Reuters used to sit here as the example;
-  # it was removed on 2026-09-14 because its robots.txt is an allowlist that
-  # denies everyone else -- `Allow: /plus/` then `Disallow: /` -- so the fetcher
-  # refuses it and the entry could never run.)
-  # Scraped, not RSS, and that is deliberate: all 42 of RTVE's feeds are served
-  # as .xml, which both robots.txt files disallow -- api2.rtve.es via an
-  # allowlist that omits the news feeds, www.rtve.es via `Disallow: /*.xml$`
-  # next to `Allow: /*.rss$`. A .rss news feed would be permitted; RTVE
-  # publishes none. Its news sitemap is allowed but useless (no titles, newest
-  # entry 2025-03). The HTML listing is permitted and carries good metadata, so
-  # the stock scrape adapter reads it with no code changes. Verified 2026-09-14.
-  # Costs 1 + max_links requests per run, where an RSS source costs 1.
-  - name: RTVE Noticias
-    publisher: RTVE
-    url: https://www.rtve.es/noticias/
-    method: scrape
+  # Not in the original source list. Added 2026-09-20 because it is subscribed
+  # and is a genuine weekly round-up ("Actualidad semanal en El Salto"), which is
+  # exactly what this digest is built from. Sends from its own domain, so the
+  # sender rule alone is safe here.
+  - name: el-salto
+    newsletter: Actualidad semanal
+    publisher: El Salto
     languages: [es]
-    weight: 1.1
-    topics: [world]
-    link_selector: "article.cell a"
-    link_pattern: "\\.shtml$"
-    max_links: 12
+    senders: ["@elsaltodiario.com"]
+    subject_patterns: ["temas de la semana", "actualidad semanal"]
 
-  # Scraped because there is no alternative: no RSS feed at any path, and none
-  # declared in its HTML (verified 2026-09-13). robots.txt permits the homepage
-  # and article pages, and the stock adapter reads both with no code changes
-  # (verified 2026-09-14). Costs 1 + max_links requests per run.
-  # Briefly disabled on 2026-09-14 for placing no stories, then re-enabled the
-  # same day: that measurement was taken while the ranking was broken (importance
-  # a flat 0.35, corroboration 0.00 for want of embeddings), so zero yield said
-  # more about the formula than the source. Both signals work now, and a scraped
-  # section page carries real DOM-order editorial ranking, which is the digest's
-  # primary term.
-  - name: Público
+  - name: publico-pocas-palabras
+    newsletter: En pocas palabras
     publisher: Público
-    url: https://www.publico.es/
-    method: scrape
     languages: [es]
-    weight: 1.0
-    link_selector: "article a"
-    link_pattern: "publico.es/.+/.+"
-    max_links: 12
-
-  # A radio station whose site nonetheless carries text reporting, which the
-  # stock adapter reads cleanly (verified 2026-09-14: excerpts 1,020-1,200
-  # chars, all dated, Catalan on all of them). Its one declared feed is
-  # api.audioteca.rac1.cat/rss/versio, a podcast -- 100 items, every one an
-  # audio/mpeg enclosure -- so scraping is the only route to the text.
-  # Re-enabled 2026-09-14 alongside Público, for the same reason: its zero yield
-  # was measured against a ranking with no working signals. Also a fifth Catalan
-  # voice, and corroboration counts publishers.
-  - name: RAC1
-    publisher: RAC1
-    url: https://www.rac1.cat/
-    method: scrape
-    languages: [ca]
-    weight: 1.0
-    link_selector: "article a"
-    link_pattern: "/20\\d{6}/"
-    max_links: 12
-
-  # Verified 2026-09-13: ctxt.es/es/rss serves an HTML page pointing at
-  # back.ctxt.es, which returns 403 to every user agent tried. Genuinely closed
-  # rather than bot-gated, so there is nothing to enable here yet.
-  - name: CTXT
-    rss: https://back.ctxt.es/es/static/rss/
-    languages: [es]
-    enabled: false
-
-  # Verified 2026-09-14: no feed at any probed path, and the site sits behind bot
-  # protection that returns 403 intermittently -- lone requests succeed, but a
-  # run that fetches the index and then article pages trips it. The scrape
-  # config below is correct and the links are in the static HTML; it is the 403s
-  # that make it unfit for a schedule. Recorded, not enabled.
-  - name: Cadena SER
-    publisher: Cadena SER
-    url: https://cadenaser.com/
-    method: scrape
-    languages: [es]
-    enabled: false
-    link_selector: "article a"
-    link_pattern: "/20\\d{2}/\\d{2}/\\d{2}/"
-    max_links: 12
-
-  # Verified 2026-09-14: robots.txt disallows everything for us, and probably by
-  # accident. Line 50 of it is a malformed bare `User-agent:` followed by
-  # `Disallow: /`; an empty token is a substring of every user agent, so
-  # urllib.robotparser applies that group to everyone. Its real `User-agent: *`
-  # group blocks only a handful of paths, and the Allow exceptions sitting beside
-  # the blanket rule are /es/ sections, not /ca/. Whatever was intended, the
-  # fetcher refuses it, so there is nothing here to enable.
-  - name: El Periódico (CAT)
-    publisher: El Periódico
-    url: https://www.elperiodico.cat/
-    method: scrape
-    languages: [ca]
-    enabled: false
+    # Público sends through Piano, whose domain is shared and says nothing about
+    # who the publisher is -- so the display name is what identifies it, and both
+    # rules must pass. Verified against a real issue on 2026-09-20: From was
+    # `Público - Hoy en Público <news@publisher-news.com>`, nothing at publico.es.
+    #
+    # The subject pattern still names the WEEKLY. The daily "Hoy en Público"
+    # arrives from the same sender and will not match, which is deliberate: this
+    # is a weekly digest. Subscribe to "En pocas palabras" and confirm with
+    # `news-digest sources --check`.
+    senders: ["@publisher-news.com", "@publico.es"]
+    sender_name_patterns: ["publico"]
+    subject_patterns: ["en pocas palabras"]

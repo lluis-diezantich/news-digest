@@ -1,8 +1,14 @@
-"""URL canonicalization.
+"""URL handling. Three forms, for three different jobs.
 
-The canonical form is an identity key only -- it is never shown to the user and
-never followed. The original URL is always stored and always what the feed
-links to, so stripping parameters here cannot break attribution.
+    a.url             what the newsletter linked. Always stored, never altered.
+    canonical_url()   an identity key. Never shown, never followed.
+    display_url()     what the digest publishes: the original, minus tracking.
+
+Keeping them apart matters. `canonical_url` normalises aggressively -- scheme,
+`www.`, trailing slashes, `/amp` -- which is right for deciding whether two links
+are the same article and wrong for a link a reader clicks. `display_url` touches
+only the query string, because a newsletter appends its own campaign parameters to
+every link and those, unlike a feed's, were not put there by the publisher.
 """
 
 from __future__ import annotations
@@ -56,17 +62,50 @@ def canonical_url(url: str) -> str:
     return urlunsplit((scheme, host, path, urlencode(kept), ""))
 
 
+def display_url(url: str) -> str:
+    """The URL to PUBLISH: the original, minus the tracking parameters.
+
+    Distinct from `canonical_url`, which is an identity key and normalises the
+    scheme, host and path as well. Those normalisations are safe for comparison
+    and not worth risking on a link a reader clicks -- dropping `www.` or a
+    trailing `/amp` can break the odd site.
+
+    Needed because a newsletter appends its own campaign parameters to every
+    link, and unlike a feed's URL those were not put there by the publisher:
+
+        ...?utm_source=Los%20peligros%20de%20la%20IA%20y%20un%20PSOE%20catat...
+        &utm_medium=email&utm_campaign=bol2079
+
+    Publishing that is ugly, and it forwards the name of the newsletter issue to
+    anyone reading the digest.
+    """
+    if not url:
+        return ""
+    parts = urlsplit(url.strip())
+    kept = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+        if not _is_tracking(k)
+    ]
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment)
+    )
+
+
 def exclude_by_url(articles: list, patterns: list[str]) -> list:
     """Drop articles whose URL matches any pattern.
 
-    For structural junk, not taste: native advertising and service content sit
-    at predictable paths (`/especials/`, `/loterias/`, `/horoscopo/`), and no
-    ranking signal catches them reliably -- advertorial is written to match
-    whatever topics score well, so a topic match actively promotes it.
+    For structural junk, not taste: service content and ad slots sit at
+    predictable paths (`/loterias/`, `/horoscopo/`, `/ir_anuncio/`), and no ranking
+    signal catches them reliably -- advertorial is written to match whatever topics
+    score well, so a topic match actively promotes it.
 
     Matched against the original URL, not the canonical one, since the section
     path is what identifies the junk and canonicalization may rewrite it.
     Patterns are validated at config load, so they compile here.
+
+    This only works on a RESOLVED url. A newsletter's links go through a click
+    tracker, which has no section path at all, so every pattern here is inert
+    until `extract/links.py` has unwrapped them -- see `extract.links.resolve`.
     """
     if not patterns:
         return list(articles)

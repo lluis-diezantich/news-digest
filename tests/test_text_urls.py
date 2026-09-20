@@ -151,3 +151,43 @@ class TestStripBoilerplate:
         assert text.similarity(a + promo, b + promo) > text.similarity(
             text.strip_boilerplate(a + promo), text.strip_boilerplate(b + promo)
         )
+
+
+class TestDisplayUrl:
+    """What the digest publishes: the original link, minus tracking.
+
+    Separate from `canonical_url`, which is an identity key. A newsletter appends
+    its own campaign parameters to every link, and unlike a feed's URL those were
+    not put there by the publisher -- El Salto's carry the full name of the issue.
+    """
+
+    def test_campaign_parameters_are_removed(self):
+        from newsdigest.urls import display_url
+
+        got = display_url(
+            "https://www.elsaltodiario.com/culturas/allianz-retira-patrocinio"
+            "?utm_source=Los%20peligros%20de%20la%20IA&utm_medium=email"
+            "&utm_campaign=bol2079"
+        )
+        assert got == "https://www.elsaltodiario.com/culturas/allianz-retira-patrocinio"
+
+    def test_real_parameters_are_kept(self):
+        from newsdigest.urls import display_url
+
+        assert display_url("https://x.example/a?id=7&utm_source=news") == (
+            "https://x.example/a?id=7"
+        )
+
+    def test_the_host_and_path_are_left_exactly_alone(self):
+        """Unlike canonical_url. Dropping `www.` or a trailing `/amp` is safe for
+        comparison and not worth risking on a link a reader clicks."""
+        from newsdigest.urls import canonical_url, display_url
+
+        url = "http://www.example.com/a/amp"
+        assert display_url(url) == url
+        assert canonical_url(url) != url
+
+    def test_an_empty_url_is_empty(self):
+        from newsdigest.urls import display_url
+
+        assert display_url("") == ""

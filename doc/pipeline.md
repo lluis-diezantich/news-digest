@@ -1,219 +1,219 @@
 # How it works
 
 ```
-DAILY    sources → fetch → normalize → detect language → deduplicate → SQLite
-WEEKLY   SQLite  → embed → cluster across languages → LLM → rank → digest → site
+EMAIL → INGEST → PARSE → NORMALIZE → FILTER → DEDUPLICATE
+      → CLUSTER → RANK → SUMMARIZE → DIGEST → MARKDOWN
 ```
 
-Keeping those apart is the whole architecture. Collection must be cheap and
-reliable enough to run constantly, so it calls **no model at all**. The expensive
-semantic work happens once, over a week that has already finished.
+One cadence. Newsletters arrive weekly, so the whole thing runs once a week. The
+stages remain separately invocable because that is what makes iterating on any one
+of them cheap, and each is idempotent: a message is fetched once, parsed once, and
+its articles classified and enriched once, however many times you re-run.
 
-## Daily
+## Ingest — `inbox/`
 
-**Fetch.** One adapter per `method` in `config/sources.yaml`. `rss` is preferred;
-`scrape` is the fallback for sources with no usable feed. All HTTP goes through
-one client that sends an identifying User-Agent, rate limits per host, and honours
-`robots.txt` including `Crawl-delay`. Each source runs in its own error boundary —
-a broken feed is recorded in the `sources` table and the run continues.
+The mailbox is opened read-only over IMAP4 with TLS. Messages are searched by
+date, parsed, matched to a configured source, and stored.
 
-Both adapters record `feed_position` and `feed_size`: where the article sat in its
-source's listing, and how long that listing was. For RSS that is feed order, for
-scrape it is DOM order on the section page — and both are the newsroom's own
-ranking. See [configuration.md](configuration.md) for what that is used for, and
-what it must not be used for.
+Two details carry weight:
 
-**Normalize + detect.** Everything becomes an `Article` with title, publisher,
-URL, publication date, author, language and a **short excerpt**. The id is a hash
-of the canonicalized URL, so tracking parameters cannot create phantom articles.
+**The date search is widened by a day at each end, and the window enforced in
+Python.** IMAP's `SINCE`/`BEFORE` compare against the server's own `INTERNALDATE`
+at day granularity in a timezone we do not know, so a newsletter that arrived at
+23:40 UTC can sit on the wrong side of the server's midnight. Over-fetching costs
+a few messages; under-fetching loses a newsletter for good.
 
-**Filter.** `exclude_url_patterns` drops structural junk before it reaches the
-database — see [configuration.md](configuration.md).
+**A message is keyed on its `Message-ID`**, which is globally unique by definition
+and stable across mailbox moves and re-downloads. When a newsletter has none, an
+id is synthesised from a hash of the bytes — not from the clock and not from the
+server's UID, either of which would re-ingest the same newsletter every week.
 
-**Deduplicate.** Narrow on purpose: only the *same article* is removed — a
-canonical URL already stored, or one outlet re-running a near-identical headline.
-Two outlets covering one event are **not** duplicates, and neither are a
-publisher's Spanish and English editions of one story. That is clustering's job.
+Unmatched senders are counted and logged, never guessed at. A digest built from
+"probably The Economist" is worse than one built from nine sources.
 
-## Weekly
+## Parse — `extract/`
 
-**Embed.** One vector per article, cached by content hash, so re-running a week is
-free. This is the only thing that can match a Catalan headline to an English one.
+The stage with no schema on its input, and the only one with no equivalent in a
+feed reader. A feed hands over titled entries; a newsletter hands over a table
+layout from 2006 and expects a human to read it.
 
-**Cluster.** Three tiers, cheapest first: cosine ≥ `similarity_threshold` is a
-merge; the band down to `ambiguous_threshold` is referred to the LLM in batches of
-`batch_size`, capped at `max_cluster_checks` pairs per run and asked in descending
-similarity order; with no embeddings at all, within-language text similarity only —
-which barely works, and [providers.md](providers.md) has the numbers.
+The approach is structural rather than per-publisher. Every newsletter item is the
+same shape — a link to an article, a headline, and usually a sentence or two — so
+the extractor finds the links that could be articles and takes, for each, the
+**largest enclosing block that still holds only that one article**.
 
-Merging is transitive (union-find), which is what makes a single false-positive
-edge expensive: one wrong link welds two otherwise-clean clusters together. That
-is the argument for a *narrow* auto-merge tier and a *wide* adjudicated band
-rather than one finely-tuned threshold — see providers.md.
+Largest rather than smallest, because the blurb is a sibling of the headline
+rather than a child of it. And *one article* rather than *one link*: a newsletter
+links its lead story three times from one block — the image, the headline, and a
+"read more" — and counting anchors made that block look like three items, so the
+block never grew and the lead story was published with no summary. It is the item
+most worth getting right, and the failure was invisible in the counts.
 
-Centroid linkage — requiring two clusters' *average* vectors to match before they
-merge, so an outlier has to resemble the whole group rather than its nearest
-member — was implemented, measured and removed. On the 2026-W38 window at 0.80 it
-rejected 4 of 175 merges, and one was plainly wrong: a 14th article about the
-Morelos murder kept out of the 13-article cluster covering that murder, on a
-centroid score of 0.755 — the same score as a rejection that was correct, so no
-threshold below it separated the two. It rejected 17 of 509 at 0.70 and 31 of 770
-at 0.65, so it would only earn its place if the auto-merge tier were loosened.
-Don't re-add it as a global gate without that change.
+Nothing depends on a class name or a table depth, both of which change without
+notice. There are no per-source strategies yet; `tests/fixtures/emails/` is where
+to add one when a real newsletter defeats the structural rule.
 
-**Pre-rank.** Clusters are ordered using only signals collection already provided
-— publisher count, coverage volume, source weights, recency — and only the top
-`2 × max_stories` are enriched. That is the difference between summarizing six
-stories and summarizing five hundred articles.
+### What is not news
 
-**LLM.** Briefs first, then per-article enrichment with whatever budget remains.
-The brief is the only LLM output a reader sees on the page; enrichment is
-scaffolding that feeds ranking and gets cached. The order used to be reversed,
-and on a free tier that spent the whole daily allowance on scaffolding.
+A newsletter's furniture has exactly the shape the extractor is looking for. A
+sponsor slot in particular *is* a headline, a blurb and a link. Three defences:
 
-**Rank + publish.** `scoring.py` applies the formula from
-`config/preferences.yaml`, then writes the digest, the archive and RSS.
+1. **Structural**, in `boilerplate.strip_chrome` — the tags that cannot hold a
+   story, and the block around an unsubscribe or copyright line.
+2. **Per link** — social hosts, unsubscribe and preference links, "read more",
+   and the publisher's own masthead, which is a link with no path.
+3. **Per block** — anything announcing itself as paid placement. Publishers are
+   required to print that label, and it is the only reliable signal, because
+   advertorial copy is written to look like editorial.
 
-## Evaluation
+### Tracking links — `extract/links.py`
 
-`tests/fixtures/cluster_eval.json` is the ground truth: 27 articles from two
-stories dissected by hand, grouped into the 13 real events they actually cover.
-Both stories were welded out of unrelated events by the pre-fix clustering —
-`s9b661259ac146ae` mixed Ceuta/Morocco with the Podemos primaries and a Junts
-piece, `scf09754259aef38` mixed four separate court matters.
-
-Labels are stored as **events, not pairs**: two articles in one event are a
-positive, two in different events a negative. Twelve event pairs are listed as
-`unsure` and excluded from scoring rather than guessed at — they are all "same
-broader affair, but is it one event?" calls. That yields **307 labelled pairs:
-43 same, 264 different, 9 of the positives cross-language.**
-
-The fixture carries its own cached vectors, so `python -m newsdigest.eval` needs
-no embedder, no ollama and no digest run, and finishes in about a second.
-`tests/test_cluster_eval.py` turns the same numbers into regression guards.
-Both cover the **embedding tiers only** — with no provider the adjudicated band
-is left alone, so recall is a floor.
-
-Measured 2026-09-17:
+Newsletter links go through a click tracker:
 
 ```
-label      languages          n     min     p50     max
-different  cross-language    87   0.259   0.491   0.736
-different  same-language    177   0.130   0.433   0.705
-same       cross-language     9   0.556   0.694   0.782
-same       same-language     34   0.536   0.722   0.859
-
-similarity   precision  recall     f1   clusters
-      0.80       1.000   0.163  0.280         22
-      0.78       1.000   0.372  0.542         20   <- current
-      0.76       0.660   0.721  0.689         14
-      0.75       0.684   0.907  0.780         12
-      0.72       0.457   0.977  0.622          6
-      0.70       0.297   1.000  0.457          2
+https://link.mail.elpais.com/c/eJx1kM...
 ```
 
-Three things that follow, and they are the reason the tiers are shaped as they
-are:
+Three things stay broken while it does: attribution points at a URL that expires;
+the same article carries a different opaque token in every newsletter, so
+`canonical_url` cannot tell they are one article; and `exclude_url_patterns`
+matches section paths — `/deportes/`, `/horoscopo/` — which a tracker does not
+have, so every blocklist entry silently matches nothing.
 
-- **The bands overlap by 0.20.** Genuine pairs run down to 0.536, unrelated ones
-  up to 0.736. No threshold separates them, so the adjudicated band is
-  structural, not a stopgap — any threshold low enough to catch the positives
-  welds unrelated events. Both fixture stories are that failure.
-- **Cross-language coverage is effectively unreachable by the auto-merge tier.**
-  Eight of the nine genuine cross-language pairs score below 0.78; only the best
-  reaches it, at 0.782. So almost every merge that spans a language comes from
-  adjudication or from chaining, not from the embedding — and a threshold anywhere
-  near the same-language one cannot change that, because cross-language negatives
-  run up to 0.736 while its positives start at 0.556. Bridging languages needs
-  adjudication, not a number.
-- **0.80 → 0.78 was free, and was adopted on 2026-09-17.** It more than doubles
-  recall (0.163 → 0.372) with precision still 1.000 and no documented weld
-  returning. The recorded welds come back at 0.72, not before, so there is margin
-  left — but below 0.78 precision falls off a cliff (1.000 at 0.78, 0.660 at
-  0.76), which is where the adjudicated band has to take over.
+Two mechanisms, cheapest first. Most trackers put the destination in a query
+parameter, which costs nothing to unwrap and is applied recursively, because a
+link is sometimes wrapped twice — a publisher's tracker inside a mail vendor's.
+Only an opaque token needs the network.
 
-## Multilingual
+`resolve()` returns the URL **and whether it is real**, and the caller acts on the
+flag. An unresolved tracker is still stored and still published — a story we can
+only link through a tracker is a story, and dropping it would silently shrink the
+digest whenever a publisher changed mailers — but the run says how many there
+were.
 
-Articles keep their original language, title and URL — nothing is translated on
-collection. The **output** language is separate and configurable.
+## Normalize
 
-Detection runs during collection, restricted to the languages you configured.
-Asking "en, es or ca?" is a far easier question than picking from 97, and that
-restriction is what makes the es/ca pair reliable. A source's declared `languages`
-both constrains the answer and supplies the fallback when a headline is too short
-to judge.
+Language is detected per article, with the candidate set restricted to the
+languages you configured. Asking "is this English or Spanish?" is a far easier
+question than asking which of 97 languages it is, and a source's declared
+`languages` acts as both filter and fallback: publishers know what language they
+publish in, while the detector has a headline and a sentence.
 
-Measured on 440 collected articles from single-language sources, detecting
-*without* the source constraint and comparing against each source's own
-declaration: **440/440**. Benchmarking the underlying detector alone on 195
-headlines gave 99.5%; the wrapper's length and confidence guards account for the
-rest. `lingua` was tried and rejected — 99.0% at 307 MB against py3langid's
-4.6 MB.
+`collected_at` is the **email's** timestamp, not the clock. It is the honest answer
+— the item reached us when the newsletter did — and it makes every window and
+recency calculation work without pretending to know a publication time nobody
+sent.
 
-One story gathers every outlet covering the event, each link marked with the
-language it opens in:
+## Filter — `classify.py`
+
+One cheap batched call per `batch_size` articles, before clustering, answering
+three things: topics, region, and is-this-news-at-all. Cached on the article's
+content hash, so iterating on the prompt is free after the first run.
+
+It runs at the **article** level. A source that runs one sports item has not
+disqualified its front page.
+
+Every rule needs a positive signal to drop. An unclassified article is kept, a
+failed batch is kept, an exhausted quota keeps everything left, and an article is
+dropped on its topics only when *every* topic it carries is excluded — a story
+tagged `politics, sports` is a head of state at a stadium opening, and dropping it
+on the sports tag alone loses the political story. If filtering would remove
+everything, it is ignored for that run: that is far more likely to be a broken
+classifier than a week with no news in it.
+
+## Deduplicate — `dedupe.py`
+
+Deliberately narrow: this removes articles that are **the same article**, and
+nothing else. Two outlets covering one event are not duplicates — they are the
+corroboration the digest is built on, and clustering handles them. Collapsing them
+here would throw away the "sources covering this story" list.
+
+## Cluster — `clustering.py`
+
+Three tiers, cheapest first:
+
+| | |
+|---|---|
+| cosine ≥ `similarity_threshold` | same event, free |
+| between the two thresholds | ask the LLM, capped at `max_cluster_checks` pairs, highest similarity first |
+| no embeddings available | within-language text similarity, which leaves cross-language coverage split — and says so |
+
+Embeddings are not optional for the thing this project exists to do. Measured on
+one headline in three languages, token overlap scores 0.00 (en/es) and 0.06
+(en/ca) against a 0.60 merge threshold. No threshold rescues that.
+
+The text fallback threshold of 0.45 was calibrated on 37,776 real within-language
+pairs **from RSS feeds**: genuine same-event pairs that text can detect at all
+scored 0.49–0.78, the highest unrelated pair reached 0.34. Reworded coverage of one
+event lands at 0.30–0.33, inside the noise, and is not recoverable by text at any
+threshold. That calibration has not been redone on newsletter text.
+
+## Rank — `scoring.py`
 
 ```
-EU announces new sanctions against Russia                          3 outlets
-
-  EN  BBC World      EU announces new sanctions against Russia
-  ES  El País        La UE anuncia nuevas sanciones contra Rusia
-  CA  Ara            La UE anuncia noves sancions contra Rússia
+final_score = sum(weight × signal for each term in ranking.terms)
+              − excluded_penalty (if the story hits an excluded topic)
 ```
 
-The per-link marker is the only language the page shows. A story-level
-`[EN] [ES] [CA]` badge row and a per-digest `EN 12 · ES 30 · CA 8` tally were both
-removed: which languages a story happened to be covered in is an artefact of the
-source list, not something the reader is choosing between. On a link it is
-different — it says what you get if you click.
+Deterministic, and driven entirely by `config/preferences.yaml`. Dropping a term
+removes that signal from the maths entirely; a misspelled one is a startup error.
+`news-digest explain` prints the breakdown, and it provably sums to the score used
+for ranking — computed from the same rounded terms it displays, because computing
+it twice let the two disagree.
 
-## Topics
+The shipped formula is four terms:
 
-**Topics are not shown to the reader.** There are no tag chips on a story and no
-topic filter on the page; both were removed on 2026-09-15. Topics survive as an
-internal signal with exactly one job: `excluded_topics`.
+- **`editorial_position` (2.0)** — where the editor put it. A curated newsletter is
+  two judgements rather than one: they chose these items out of the day's hundreds
+  *and* chose which one opens. Primary by intent; the digest should read like the
+  newsletters it is built from.
+- **`corroboration` (1.5)** — how many independent publishers carried it. The honest
+  measure of newsworthiness, and 0.00 on every story until embeddings exist.
+- **`recency` (0.3)** and **`story_size` (0.2)** — tiebreaks.
 
-They still get computed, in this order: a feed's own `<category>` terms plus the
-`topics:` you set on that source in `config/sources.yaml`; the LLM, per article;
-the offline provider's keyword matcher when no LLM is configured; and
-`clustering.py`, which counts what a cluster's articles were tagged with and keeps
-the top four. A multi-source brief then overwrites the story's topics with its own.
+`importance` and `relevance` are computed, shown, and deliberately **not** in the
+formula. On a measured week of the RSS project, qwen3:8b returned 0.80–0.85 for
+every briefed story — a spread of 0.05, so at any weight it was a constant in
+signal's clothing. Worse, it inverted: stories that were never briefed kept a
+higher derived value, so being briefed cost a story rank.
 
-The vocabulary is **closed** — the ten topics in `llm/base.TOPICS`. Both prompts
-list them and forbid anything else, `normalize_topics` folds known synonyms and
-drops whatever is left, and `Enrichment.clamp` / `Brief.clamp` put every path
-through it. The offline matcher keys on exactly the same ten, asserted at import
-so the two cannot drift.
+Geographic spread is applied at **selection**, never to the score
+(`regions.diversify`). The order stays by score — a story does not become the
+week's lead because of where it happened — and the cap only decides which stories
+make the cut. It is not a quota: when a region genuinely holds most of the week's
+major news, the cap runs out of alternatives and those stories publish anyway.
 
-The reason to keep any of this once nothing is displayed is
-`scoring.is_excluded`, which matches `excluded_topics` against `story.topics`
-*and* the headline and summary. The topic half is what catches the case the text
-half cannot: `sports` appears nowhere in a Catalan football headline, so without a
-`sports` topic a Barça match is not excluded at all. A closed vocabulary matters
-for the same reason — `excluded_topics: [sports]` has to match the tag the model
-actually emitted, and it cannot match `football`.
+## Summarize — `enrich.py`, `prompts/`
 
-Ranking does not read topics. `interest` and `relevance` both left the formula on
-2026-09-14 and `preferences.topics` is empty, so a topic changes a story's score
-only by triggering the `excluded_penalty`.
+Briefs are written **before** per-article enrichment. The order used to be the
+other way round, and on a free tier that spent the whole daily allowance analysing
+articles and then had nothing left to write the digest with. Enrichment is
+scaffolding — it feeds ranking and is cached for next time — while the brief is the
+only LLM output a reader sees.
+
+Only the articles in candidate clusters are ever enriched, and they are
+interleaved round-robin so the per-run cap is shared. Flat concatenation gave the
+whole budget to the first cluster: on one measured run all 40 enriched articles
+landed in one 52-article cluster and seven of the eight published stories had none
+at all.
+
+Disagreements are a separate field, and a separate section in the output. Never
+folded into the summary, and never carried over from a previous run — an empty list
+is the model's answer that the coverage does not conflict, and preserving an old
+disagreement over that would assert one it just denied.
 
 ## Known limits
 
-- Without embeddings, cross-language coverage stays split. Measured, documented,
-  and asserted in tests rather than hidden.
-- Clustering is O(n²) inside the weekly window. At ~2000 articles that is 2M
-  cosine comparisons — one numpy matmul, milliseconds. It needs an index long
-  before it needs a rewrite.
-- `data/news.db` is committed as a binary blob, and vectors dominate its size.
-  `embedding_retention_days` is the knob. Switching embedding provider leaves both
-  sets cached, since `cache_key` includes the provider — deliberate, so nothing
-  silently mixes, but it doubles that storage until retention prunes it.
-- The heuristic provider cannot translate, so `output_language` is only honoured
-  with a real LLM.
-- `min_articles` counts articles rather than publishers, so a multi-feed publisher
-  can satisfy it alone.
-- The scrape adapter depends on per-site CSS selectors and will break when a site
-  redesigns. `news-digest sources --check` tells you which.
-- Topics already written to `data/news.db` keep whatever vocabulary was in force
-  when they were written; the closed vocabulary applies to new runs. Until a story
-  is re-enriched, `excluded_topics` matches against its old topics.
+- **The ranking constants are uncalibrated.** Carried over from a source list that
+  no longer exists. `corroboration_saturation` in particular: ten newsletters
+  cannot exceed ten publishers, and the default of 5 is a guess.
+- **Publication times are unknown.** Newsletters rarely date their items, so
+  `recency` mostly measures when the newsletter arrived. Over a weekly window with
+  a 72h half-life that matters less than it sounds, but it is not what the term
+  claims to measure.
+- **Per-source extraction is not implemented.** The structural rule handles the
+  fixtures; a newsletter built differently enough will need its own strategy.
+- **The text-similarity fallback threshold is inherited, not measured.**
+- **Offline filtering is weak.** With no model, the keyword classifier answers
+  topics only — it never claims something is not news, because "final" and "corona"
+  would drop a court ruling and a public-health story.

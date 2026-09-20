@@ -1,7 +1,7 @@
 """Ranking: deterministic, and driven entirely by the config formula."""
 
 from newsdigest import clustering, scoring
-from newsdigest.config import Preferences, load_preferences
+from newsdigest.config import KNOWN_RANKING_TERMS, Preferences, load_preferences
 from newsdigest.models import utcnow
 
 from conftest import make_article
@@ -13,9 +13,15 @@ def story_of(*articles):
 
 class TestSignals:
     def test_all_known_terms_are_computed(self, config):
+        """Every term the config may name has to be computable.
+
+        Compared against KNOWN_RANKING_TERMS rather than the default formula: the
+        default deliberately uses only four of the eight, and a term left out of
+        it still has to work the moment someone adds the line back."""
         story, arts = story_of(make_article("A story", importance=0.5, relevance=0.5))
         computed = scoring.signals(story, arts, config.preferences)
-        assert set(computed) == set(Preferences().ranking)
+        assert set(computed) == set(KNOWN_RANKING_TERMS)
+        assert set(Preferences().ranking) <= set(computed)
 
     def test_corroboration_counts_publishers_not_feeds(self, config):
         """Seven El País sections are one outlet, not seven."""
@@ -32,17 +38,27 @@ class TestSignals:
         assert scoring.corroboration(sections) == 0.0
         assert scoring.corroboration(outlets) > 0.5
 
-    def test_corroboration_does_not_saturate_below_the_observed_range(self):
-        """At the old base of 4, everything from 4 outlets up scored 1.000."""
+    def test_corroboration_does_not_saturate_below_the_range_it_is_given(self):
+        """A saturation point inside the range makes every story above it tie.
+
+        The failure this guards is silent: the term still computes, still appears
+        in `explain`, and has simply stopped discriminating. With ten newsletters
+        the range is narrow, so getting the saturation point right matters more
+        here than it did with twenty-two feeds.
+        """
         def outlets(n):
             return [make_article(f"Story {i}", source=f"S{i}", publisher=f"P{i}",
                                  importance=0.5) for i in range(n)]
-        four, thirteen = scoring.corroboration(outlets(4)), scoring.corroboration(outlets(13))
-        assert four < thirteen, "a 4-outlet story must not tie a 13-outlet one"
-        assert thirteen == 1.0
-        # Still monotonic in between, which is the point of moving the base.
-        values = [scoring.corroboration(outlets(n)) for n in (2, 3, 4, 5, 6, 10, 13)]
+
+        # At the default of 5, a 5-outlet story is the top of the range and a
+        # 4-outlet one must still rank below it.
+        assert scoring.corroboration(outlets(4)) < scoring.corroboration(outlets(5))
+        assert scoring.corroboration(outlets(5)) == 1.0
+        # Monotonic and distinct across the range newsletters actually produce.
+        values = [scoring.corroboration(outlets(n)) for n in (2, 3, 4, 5)]
         assert values == sorted(values) and len(set(values)) == len(values)
+        # Saturated above it, which is why the point has to be measured.
+        assert scoring.corroboration(outlets(9)) == scoring.corroboration(outlets(5))
 
     def test_saturation_point_is_configurable(self):
         arts = [make_article(f"S{i}", source=f"S{i}", publisher=f"P{i}", importance=0.5)
@@ -74,6 +90,9 @@ class TestSignals:
 
 class TestScore:
     def test_relevance_changes_the_ranking(self, config):
+        # `interest` and `relevance` are not in the shipped formula, so
+        # the term under test is named explicitly here.
+        config.preferences.ranking = {"relevance": 1.0}
         low, arts_low = story_of(make_article("A", importance=0.6, relevance=0.1,
                                               topics=["world"]))
         high, arts_high = story_of(make_article("B", importance=0.6, relevance=0.9,
@@ -83,6 +102,9 @@ class TestScore:
         )
 
     def test_preferred_topic_outranks_neutral_topic(self, config):
+        # `interest` and `relevance` are not in the shipped formula, so
+        # the term under test is named explicitly here.
+        config.preferences.ranking = {"interest": 1.0}
         tech, arts_t = story_of(make_article("Chip breakthrough", topics=["technology"],
                                             importance=0.5, relevance=0.5))
         other, arts_o = story_of(make_article("Council repaves road", topics=["local"],
@@ -92,6 +114,9 @@ class TestScore:
         )
 
     def test_keyword_bonus_applies(self, config):
+        # `interest` and `relevance` are not in the shipped formula, so
+        # the term under test is named explicitly here.
+        config.preferences.ranking = {"interest": 1.0}
         plain, a1 = story_of(make_article("A lab released a model", topics=["ai"],
                                          importance=0.5, relevance=0.5))
         named, a2 = story_of(make_article("Anthropic released a model", topics=["ai"],

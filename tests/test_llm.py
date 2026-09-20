@@ -477,3 +477,43 @@ class TestRegistryAndContext:
     def test_language_name_falls_back_to_the_code(self):
         assert language_name("ca") == "Catalan"
         assert language_name("zz") == "zz"
+
+
+class TestBriefAttribution:
+    """Whatever is sent as a brief's `sources` is printed to a reader verbatim.
+
+    Section 15 asks the model to attribute a disagreement by name, so a brief
+    given `elpais-weekly` writes "elpais-weekly reported..." into the digest. The
+    model has no way to know that is an internal config id rather than the
+    outlet's name.
+    """
+
+    def test_the_brief_is_told_publisher_names_not_source_ids(self, context):
+        from newsdigest import clustering, enrich
+        from newsdigest.llm.base import Brief, LLMProvider
+
+        from conftest import make_article
+
+        seen = {}
+
+        class Recorder(LLMProvider):
+            name, model = "recorder", "r1"
+
+            def enrich(self, items, ctx):
+                return []
+
+            def write_brief(self, item, ctx):
+                seen["sources"] = list(item.sources)
+                return Brief(headline="H", summary="S")
+
+            def same_event(self, pairs, ctx):
+                return {}
+
+        articles = [
+            make_article("A story", source="elpais-weekly", publisher="EL PAÍS"),
+            make_article("Una historia", source="guardian-saturday",
+                         publisher="The Guardian"),
+        ]
+        story = clustering.build_story(articles)
+        enrich.write_brief(Recorder(), context, story, articles)
+        assert seen["sources"] == ["EL PAÍS", "The Guardian"]

@@ -1,4 +1,4 @@
-"""The common schema every source normalizes into, plus stories and digests."""
+"""The common schema: emails in, articles and stories out, one digest a week."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def iso(value: datetime | None) -> str | None:
 
 
 def parse_date(value: Any) -> datetime | None:
-    """Best-effort date parsing across the many shapes feeds use."""
+    """Best-effort date parsing across the many shapes mail headers use."""
     if value is None or value == "":
         return None
     if isinstance(value, datetime):
@@ -50,32 +50,83 @@ def hours_since(value: datetime | None, *, now: datetime | None = None) -> float
 
 
 @dataclass
+class Email:
+    """One newsletter message, stored so it is never parsed or fetched twice.
+
+    The body is kept locally (and inside the runner) but never published: the
+    digest carries article URLs and summaries, not mailbox contents.
+    """
+
+    message_id: str
+    source: str
+    subject: str = ""
+    sender: str = ""
+    sender_name: str = ""
+    newsletter: str = ""
+    received_at: datetime = field(default_factory=utcnow)
+    html_body: str = ""
+    text_body: str = ""
+
+    # --- derived ---
+    id: str = ""
+    #: Set once articles have been extracted, so a re-run skips the parse.
+    parsed_at: datetime | None = None
+    article_count: int = 0
+
+    def __post_init__(self) -> None:
+        self.subject = (self.subject or "").strip()
+        if not self.id:
+            # Keyed on Message-ID, which is globally unique by definition and
+            # stable across mailbox moves and re-downloads.
+            self.id = hashlib.sha1(self.message_id.encode("utf-8")).hexdigest()[:16]
+
+    @property
+    def body(self) -> str:
+        """The richest body available. HTML wins: the plain-text alternative of a
+        newsletter is usually a stripped courtesy copy with the links flattened
+        out, and links are most of what we are here for."""
+        return self.html_body or self.text_body
+
+    @property
+    def parsed(self) -> bool:
+        return self.parsed_at is not None
+
+    def content_hash(self) -> str:
+        """Keys the parse cache: the same message is never re-extracted."""
+        return hashlib.sha1(self.body.encode("utf-8")).hexdigest()[:16]
+
+
+@dataclass
 class Article:
-    """One normalized article. `id` is derived, so sources never invent one."""
+    """One news item extracted from one newsletter. `id` is derived, so the
+    extractor never invents one."""
 
     title: str
     source: str
     url: str
     published_at: datetime | None = None
     author: str | None = None
-    #: Feed summary, excerpt only -- never a full article body.
+    #: The blurb the newsletter wrote about this item. Never a full article body.
     description: str = ""
-    #: Longer excerpt for scraped pages (opening paragraphs), also capped.
+    #: Longer excerpt, if one was ever resolved from the article page.
     content: str = ""
-    #: Language code, filled in during collection. None means undetermined.
+    #: Language code, filled in at parse time. None means undetermined.
     language: str | None = None
-    #: Outlet this feed belongs to; several feeds may share one.
+    #: Outlet this newsletter belongs to; several newsletters may share one.
     publisher: str = ""
-    #: The feed or index URL this came from.
-    source_url: str = ""
-    #: Where this article sat in its source's listing when first seen, and how
-    #: many items that listing held. Feed order is the newsroom's own ranking --
-    #: measured 80-100% concordant with the section page on eight sources -- so
-    #: position 1 is an editor answering "how consequential is this?" for free.
-    #: Stored raw so the normalisation can change without recollecting.
-    #: -1 means unknown (pre-v3 rows, or a source that gives no order).
-    feed_position: int = -1
-    feed_size: int = 0
+    #: Newsletter this item came from, e.g. "Saturday Edition".
+    newsletter: str = ""
+    #: The email this was extracted from.
+    email_id: str = ""
+    received_at: datetime | None = None
+    #: Where this item sat in the newsletter, and how many items it held.
+    #: A newsletter is hand-ordered by an editor who picked the items in the
+    #: first place, so position 0 is a stronger claim than a feed's position 0:
+    #: nothing arrives here by publication time alone. Stored raw so the
+    #: normalisation can change without re-parsing.
+    #: -1 means unknown.
+    item_position: int = -1
+    item_count: int = 0
     source_topics: list[str] = field(default_factory=list)
     source_weight: float = 1.0
     collected_at: datetime = field(default_factory=utcnow)
@@ -93,6 +144,13 @@ class Article:
     importance: float | None = None
     relevance: float | None = None
     content_type: str | None = None
+    #: Filled by the cheap classification pass (section 8), not by enrichment.
+    #: `region` feeds the diversity pass; `newsworthy` is False for the things a
+    #: newsletter carries that are not news. None means "not yet classified",
+    #: which is deliberately different from False -- an unclassified item is kept.
+    region: str = ""
+    newsworthy: bool | None = None
+    classified_by: str | None = None
     enriched_by: str | None = None
     enriched_at: datetime | None = None
 
@@ -119,29 +177,30 @@ class Article:
         return self.content if len(self.content) > len(self.description) else self.description
 
     def editorial_rank(self) -> float:
-        """Prominence in [0, 1] from feed position: 1.0 leads, 0.0 trails.
+        """Prominence in [0, 1] from position in the newsletter: 1.0 leads, 0.0 trails.
 
-        Feed order is the newsroom's own ordering -- measured 80-100% concordant
-        with the section front page on eight sources -- so this is an editor's
-        judgement about what leads, available free and in every language.
+        A curated newsletter is a stronger version of the signal feed order gives
+        an aggregator. An editor chose these ten items out of the day's hundreds
+        AND chose which one opens, so position 0 is two judgements rather than
+        one, and it is available in every language for free.
 
-        It measures PROMOTION rather than newsworthiness, and the two part
-        company where a publisher is paid: Ara's eight advertorial items sat at
-        positions 14-24 of 131 on 2026-09-14, out-ranking most of its reporting.
-        Two collection-side controls, not this method, are what make the signal
-        safe: `max_items: 10` never reaches position 14, and
-        `exclude_url_patterns` drops those sections outright. RAISING max_items
-        OR REMOVING A BLOCKLIST ENTRY PUTS ADVERTISING BACK AT THE TOP. Re-check
-        that before either.
+        Newsletters also fail differently from feeds. Feed junk is structural and
+        sits at predictable paths, which is what `exclude_url_patterns` catches.
+        A newsletter's junk is the sponsor slot and the housekeeping block, which
+        can sit anywhere -- including first. Two controls keep those out of reach
+        of this method rather than any cleverness here: the extractor drops
+        sponsored and housekeeping blocks before they become articles, and topic
+        classification drops what survives. LOOSENING EITHER PUTS A SPONSOR SLOT
+        AT THE TOP OF THE DIGEST.
 
-        Normalised within the source, because position 3 of a 10-item feed and
-        position 3 of a 190-item one are not the same claim. Unknown position
-        returns the neutral 0.5 rather than 0.0 -- a source that gives no order
-        should not be penalised as though its every article trailed.
+        Normalised within the newsletter, because position 3 of 8 items and
+        position 3 of 40 are not the same claim. Unknown position returns the
+        neutral 0.5 -- a newsletter we could not order should not be penalised as
+        though every item trailed.
         """
-        if self.feed_position < 0 or self.feed_size <= 1:
+        if self.item_position < 0 or self.item_count <= 1:
             return 0.5
-        return 1.0 - (min(self.feed_position, self.feed_size - 1) / (self.feed_size - 1))
+        return 1.0 - (min(self.item_position, self.item_count - 1) / (self.item_count - 1))
 
     def content_hash(self) -> str:
         """Keys the LLM and embedding caches: same text in, no new API call."""
@@ -154,7 +213,7 @@ class Article:
     def embedding_text(self) -> str:
         """What gets embedded. Title carries most of the signal; the excerpt
         disambiguates. Deliberately excludes source and date so the same event
-        from two outlets lands in the same place."""
+        from two newsletters lands in the same place."""
         return f"{self.title}\n\n{self.excerpt()}".strip()
 
     def to_json(self) -> dict[str, Any]:
@@ -163,6 +222,7 @@ class Article:
             "title": self.title,
             "source": self.source,
             "publisher": self.publisher,
+            "newsletter": self.newsletter,
             "url": self.url,
             "language": self.language,
             "published_at": iso(self.published_at),
@@ -183,6 +243,12 @@ class Story:
     key_facts: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
     entities: list[str] = field(default_factory=list)
+    #: Regions this story is about, for the diversity pass. See `regions.py`.
+    regions: list[str] = field(default_factory=list)
+    #: Where the sources disagree, in their own words. Empty when they do not.
+    #: Never merged into `summary`: silently resolving a disagreement is the one
+    #: thing a digest of several outlets must not do.
+    disagreements: list[str] = field(default_factory=list)
     importance: float = 0.0
     relevance: float = 0.0
     score: float = 0.0
@@ -212,6 +278,8 @@ class Story:
             "why_it_matters": self.why_it_matters,
             "key_facts": self.key_facts,
             "topics": self.topics,
+            "regions": self.regions,
+            "disagreements": self.disagreements,
             "entities": self.entities[:8],
             "importance": round(self.importance, 3),
             "relevance": round(self.relevance, 3),
@@ -234,6 +302,9 @@ class Digest:
     period_start: datetime
     period_end: datetime
     story_ids: list[str] = field(default_factory=list)
+    #: Stories below the main cut, published as a short list. See section 14 of
+    #: the specification: "Also worth knowing".
+    minor_story_ids: list[str] = field(default_factory=list)
     generated_at: datetime = field(default_factory=utcnow)
     article_count: int = 0
     stats: dict[str, Any] = field(default_factory=dict)
@@ -250,10 +321,20 @@ class Digest:
 
     @property
     def label(self) -> str:
-        start, end = to_utc(self.period_start), to_utc(self.period_end)
-        if start.month == end.month:
-            return f"{start.day}–{end.day} {end:%B %Y}"
-        return f"{start:%-d %b} – {end:%-d %b %Y}"
+        """The human date range, e.g. "14-20 September 2026".
+
+        `period_end` is EXCLUSIVE -- a Monday-to-Sunday week ends at midnight on
+        the following Monday -- so the label shows the day before it. Printing
+        `period_end` directly claimed a week of eight days, and always named a day
+        the digest did not cover.
+        """
+        start = to_utc(self.period_start)
+        last = to_utc(self.period_end) - timedelta(days=1)
+        if start.year != last.year:
+            return f"{start:%-d %b %Y} – {last:%-d %b %Y}"
+        if start.month == last.month:
+            return f"{start.day}–{last.day} {last:%B %Y}"
+        return f"{start:%-d %b} – {last:%-d %b %Y}"
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -263,21 +344,27 @@ class Digest:
             "period_end": iso(self.period_end),
             "generated_at": iso(self.generated_at),
             "story_count": len(self.story_ids),
+            "minor_story_count": len(self.minor_story_ids),
             "article_count": self.article_count,
         }
 
 
 @dataclass
 class SourceReport:
-    """Per-source outcome for one collection run."""
+    """Per-source outcome for one ingestion run."""
 
     name: str
     ok: bool
-    fetched: int = 0
+    #: Emails matched to this source in the window.
+    emails: int = 0
+    #: Emails not seen before.
+    new_emails: int = 0
+    #: Articles extracted from them.
+    extracted: int = 0
     new: int = 0
     duplicates: int = 0
-    #: Dropped by exclude_url_patterns. Counted separately from duplicates so a
-    #: blocklist that quietly eats a whole source is visible rather than assumed.
+    #: Dropped by exclude_url_patterns / exclude_title_patterns. Counted apart
+    #: from duplicates so a blocklist that quietly eats a source is visible.
     excluded: int = 0
     error: str | None = None
     elapsed_ms: int = 0
@@ -285,12 +372,27 @@ class SourceReport:
 
 @dataclass
 class RunStats:
+    """Counters for one run. Printed by `--dry-run`, stored with every run."""
+
     started_at: datetime = field(default_factory=utcnow)
     sources: list[SourceReport] = field(default_factory=list)
-    articles_seen: int = 0
+    emails_fetched: int = 0
+    emails_new: int = 0
+    emails_unmatched: int = 0
+    emails_parsed: int = 0
+    #: Items the extractor found in the newsletters, before exclusion.
+    articles_extracted: int = 0
+    #: Items stored, after exclusion and deduplication.
     articles_new: int = 0
+    #: Articles the weekly stage READ back for its window, which includes
+    #: everything stored on earlier runs. Deliberately distinct from
+    #: `articles_extracted`: reporting both under one name made a re-run look
+    #: like it had extracted articles it had only re-read.
+    articles_in_window: int = 0
     duplicates: int = 0
     excluded: int = 0
+    #: Dropped by topic classification (section 8), as against by regex.
+    filtered: int = 0
     languages: dict[str, int] = field(default_factory=dict)
     embedded: int = 0
     embed_cached: int = 0
@@ -298,6 +400,8 @@ class RunStats:
     clusters: int = 0
     cross_language_clusters: int = 0
     llm_checks: int = 0
+    classified: int = 0
+    classify_cached: int = 0
     enriched: int = 0
     enrich_cached: int = 0
     enrich_failed: int = 0
@@ -305,6 +409,7 @@ class RunStats:
     stories_total: int = 0
     stories_new: int = 0
     stories_published: int = 0
+    minor_stories: int = 0
     digest_id: str | None = None
 
     @property
@@ -323,9 +428,16 @@ class RunStats:
             "sources_failed": [
                 {"name": s.name, "error": s.error} for s in self.sources_failed
             ],
-            "articles_seen": self.articles_seen,
+            "emails_fetched": self.emails_fetched,
+            "emails_new": self.emails_new,
+            "emails_unmatched": self.emails_unmatched,
+            "emails_parsed": self.emails_parsed,
+            "articles_extracted": self.articles_extracted,
+            "articles_in_window": self.articles_in_window,
             "articles_new": self.articles_new,
             "duplicates": self.duplicates,
+            "excluded": self.excluded,
+            "filtered": self.filtered,
             "languages": self.languages,
             "embedded": self.embedded,
             "embed_cached": self.embed_cached,
@@ -333,6 +445,8 @@ class RunStats:
             "clusters": self.clusters,
             "cross_language_clusters": self.cross_language_clusters,
             "llm_checks": self.llm_checks,
+            "classified": self.classified,
+            "classify_cached": self.classify_cached,
             "enriched": self.enriched,
             "enrich_cached": self.enrich_cached,
             "enrich_failed": self.enrich_failed,
@@ -340,5 +454,6 @@ class RunStats:
             "stories_total": self.stories_total,
             "stories_new": self.stories_new,
             "stories_published": self.stories_published,
+            "minor_stories": self.minor_stories,
             "digest_id": self.digest_id,
         }

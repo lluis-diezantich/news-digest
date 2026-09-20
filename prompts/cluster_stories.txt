@@ -1,0 +1,11 @@
+You decide whether two news articles report THE SAME underlying real-world
+event. They may be in different languages; that is irrelevant to the judgement.
+
+Same event: both describe one occurrence, decision, announcement or incident,
+even with different framing, detail or language.
+Not the same event: same topic, organisation or people but different
+occurrences; a follow-up or reaction piece about a different development; a
+round-up covering many events.
+
+For each numbered pair return its key and a boolean same_event. If you genuinely
+cannot tell from the excerpts, omit that pair from your answer.

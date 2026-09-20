@@ -1,118 +1,77 @@
 # news-digest
 
-A personal multilingual news aggregator that runs on GitHub, or entirely on your
-own machine. It collects articles from your sources every few hours, and once a
-week turns them into one short digest: coverage of the same event grouped across
-English, Spanish and Catalan, summarized, ranked, and published as a static page.
+A personal weekly digest built from newsletters. It reads a dedicated inbox,
+pulls the individual stories out of each newsletter, throws away what is not
+news, groups coverage of the same event across English and Spanish, and writes one
+Markdown file you can read in five to ten minutes.
 
 ```
-DAILY    sources → fetch → normalize → detect language → filter → dedupe → SQLite
-WEEKLY   SQLite  → embed → cluster across languages → LLM → rank → digest → site
+EMAIL → ingest → parse → filter → dedupe → cluster → rank → summarize → digests/2026/2026-W38.md
 ```
 
-Keeping those two apart is the whole architecture. Collection must be cheap and
-reliable enough to run constantly, so it calls **no model at all**. The expensive
-semantic work happens once, over a week that has already finished.
+The goal is not to reproduce ten newsletters. It is to answer one question:
+**what happened in the world this week?**
 
-It can run at zero cost, and with no third-party API at all if you want: local
-embeddings via ONNX, a local LLM via Ollama. See [Providers](doc/providers.md).
+It can run at zero cost and with no third-party API at all: local embeddings via
+ONNX, a local model via Ollama. See [Providers](doc/providers.md).
 
 ---
 
 ## Try it locally
 
-### Version 1 - no LLM, no embeddings
-
-Just want to see it work, without installing a model?
+You need an inbox that receives the newsletters. Subscribe from a dedicated
+address — everything in the box is read, and personal mail there is just noise.
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev]'
-
-news-digest collect
-news-digest digest --no-llm --no-embeddings --week $(date -u +%G-W%V)
-make serve
-
-# then open http://localhost:8000
+cp .env.example .env          # then fill in NEWS_EMAIL_*
 ```
 
-End to end in a couple of minutes, but meaningfully worse: coverage of one event
-in different languages stays split into separate stories, and summaries are
-extractive and untranslated. Ranking holds up, because it runs on what collection
-already provides. [Providers](doc/providers.md) has the measurements.
-
-
-### Version 2 - Full version with LLM and embeddings
-
-Real embeddings and a real model, nothing hosted. This is the recommended setup.
+First, check that the source rules actually match your mail. This is the step
+that bites: the rules look right, and nothing matches.
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev,local]'          # local embeddings, ONNX
-
-brew install ollama                    # or the installer from ollama.com
-brew services start ollama             # background server on :11434, logs to a file
-ollama pull qwen3:8b                   # ~5 GB, once
+news-digest sources --check
 ```
 
-Start it as a service, not as `ollama serve &`. A backgrounded `serve` writes
-llama-server's startup dump, per-token timings and one `[GIN]` line per request to
-whatever terminal you launched it from, interleaved with the digest's own output.
-Without brew, redirect it yourself:
+It reports what each rule matched over the last 30 days and lists every sender
+that matched nothing — which is where a wrong address shows up. Fix
+`config/sources.yaml` until no source says `NONE`.
+
+Then run it:
 
 ```bash
-ollama serve >/tmp/ollama.log 2>&1 &
+news-digest run --week $(date -u +%G-W%V)
 ```
 
-Then create `.env`:
+### Without a model
 
 ```bash
-EMBEDDING_PROVIDER=local
-EMBEDDING_SIMILARITY_THRESHOLD=0.80    # model-specific; see doc/providers.md
-EMBEDDING_AMBIGUOUS_THRESHOLD=0.65
-LLM_PROVIDER=ollama
-LLM_MODEL=qwen3:8b
+news-digest run --no-llm --no-embeddings
 ```
 
-and run it:
-
-```bash
-news-digest collect
-news-digest digest --week $(date -u +%G-W%V)
-make serve                             # then open http://localhost:8000
-```
-
-Collection needs a connection — it is fetching news. Everything after it runs on
-your machine: no key, no quota, no rate limit, nothing that can be withdrawn from
-under you. Weights download once (~220 MB for embeddings, ~5 GB for the model),
-so the first run is not five minutes; later ones are.
-
-With 16 GB or more, a 12–14B model is a clear upgrade for the briefs — set
-`LLM_MODEL` and pull it instead. It is also the way back to a usable `importance`
-signal, which qwen3:8b does not provide: it returns 0.80–0.85 for everything, so
-the term was taken out of the ranking formula on 2026-09-17.
-
-[Setup](doc/setup.md) explains why that command needs `--week`, and how to deploy
-to GitHub.
+End to end in a couple of minutes, and meaningfully worse in two specific ways:
+coverage of one event in English and Spanish stays split into two separate
+stories, and nothing filters the sport and the horoscopes except the URL patterns
+in `config/sources.yaml`. [Providers](doc/providers.md) has the numbers.
 
 ### While you are still changing it
 
-`digest` on its own builds the last *finished* Monday–Sunday week, which is what a
-scheduled run needs and almost never what you want while you are editing the
-pipeline: on a Friday it rebuilds a week that ended five days ago, and anything
-collected since is invisible. `--days` takes a rolling window ending now instead:
+`run` on its own builds the last *finished* Monday-to-Sunday week, which is what
+a scheduled run needs and almost never what you want while editing: on a Friday
+it rebuilds a week that ended five days ago. Point a scratch run at a scratch
+database:
 
 ```bash
 cp data/news.db /tmp/try.db
-news-digest --db /tmp/try.db --out /tmp/out digest --days 7
-cd /tmp/out && python3 -m http.server 8001
+news-digest --db /tmp/try.db --out /tmp/out digest --days 7 --debug
 ```
 
-Point it at a scratch database and a scratch output directory, as above. A digest's
-id comes from the last day of its window, so a rolling run *persisted* into
-`data/news.db` claims the id of the calendar week it happens to end in and
-overwrites it — `--db` and `--out` are what keep that from reaching your site.
-[CLI](doc/cli.md) has the rest of the recipes.
+`--debug` writes the intermediate data to `debug/` — what arrived, what was
+extracted, what the filter dropped and why, how it clustered. That directory is
+where you look when a story you expected is missing. [CLI](doc/cli.md) has the
+rest of the recipes.
 
 ---
 
@@ -120,36 +79,117 @@ overwrites it — `--db` and `--out` are what keep that from reaching your site.
 
 | | |
 |---|---|
-| **[Setup](doc/setup.md)** | Running it locally, deploying to GitHub, and why collection runs four times a day |
-| **[Providers](doc/providers.md)** | Embeddings and LLM: local, Gemini, or Ollama. Free-tier budgeting, rate limits, and what degrades without a model |
-| **[Configuration](doc/configuration.md)** | Sources, junk filters, the ranking formula, digest size, retention |
+| **[Setup](doc/setup.md)** | The inbox, the credentials, running locally, deploying to GitHub |
+| **[Providers](doc/providers.md)** | Embeddings and LLM: local, Gemini or Ollama, and what degrades without each |
+| **[Configuration](doc/configuration.md)** | Sources and match rules, filters, the ranking formula, digest size, retention |
 | **[How it works](doc/pipeline.md)** | Each stage in turn, the multilingual design, and the known limits |
-| **[CLI](doc/cli.md)** | Every command, plus recipes for trying things without breaking your site |
-| **[Attribution](doc/attribution.md)** | What is stored, robots.txt, terms of service, and per-source findings |
-| **[Rebuilding](doc/rebuilding.md)** | Wiping digests and stories to start over, what must survive, and the two failure modes that look like bugs |
+| **[CLI](doc/cli.md)** | Every command, plus recipes for trying things without breaking your digest |
+| **[Attribution](doc/attribution.md)** | What is stored, what is published, and what is deliberately not |
+| **[Rebuilding](doc/rebuilding.md)** | Starting over, what must survive, and the failure modes that look like bugs |
 | **[Development](doc/development.md)** | Tests, layout, adding a provider, schema changes |
 
 ---
 
 ## The parts worth knowing up front
 
-**Configuration is not code.** Sources, the ranking formula, junk filters and
-digest size all live in two YAML files. Deleting a line from `ranking.terms`
-removes that signal from the maths entirely, and a misspelled term is a startup
-error rather than a silent no-op. `news-digest explain <story-id>` prints the
-per-term breakdown, and the numbers provably sum to the score used for ranking.
+**A newsletter is a curated list, and that is the best signal here.** An editor
+chose ten items out of the day's hundreds *and* chose which one opens, so position
+in the newsletter is two judgements rather than one — and it is free, and available
+in every language. It is the highest-weighted term in the ranking formula.
 
-**Nothing fails loudly that could fail quietly instead.** A broken feed is
-recorded and the run continues. An exhausted quota degrades the digest rather than
-aborting it. A per-minute rate limit is waited out; a per-day one is not.
+**Tracking links are not a cosmetic problem.** Newsletter links go through a click
+tracker, and until one is resolved back to `elpais.com/deportes/...` three things
+are broken: attribution points at a URL that expires, the same article carries a
+different opaque token in every newsletter so deduplication cannot see it is one
+article, and every section blocklist silently matches nothing.
 
-**Findings are recorded where they were learned.** Several sources cannot be used,
-several ideas were measured and rejected, and one ranking signal was built,
-removed, and restored under different conditions. Those reasons sit in the config
-and the docstrings, so the next reader does not rediscover them. If a comment
-explains why something is *not* done, it is usually load-bearing.
+**Filtering has to ask to drop something.** An unclassified item is kept, a failed
+batch is kept, an exhausted quota keeps everything left, and an item is only
+dropped on its topics when *every* topic is excluded. The worst case is a noisy
+digest, never an empty one — a wrongly dropped story is invisible in the output,
+whereas a wrongly kept one merely ranks low.
 
-**It counts publishers, not feeds.** "The main news of the week" is close to a
-definition of corroboration, and in one measured week 411 of 440 story clusters
-were a single outlet reporting alone. The digest is sized to what the week
-actually corroborates rather than to a round number.
+**Configuration is not code.** Sources, filters, the ranking formula and digest
+size live in three YAML files, and the prompts live in `prompts/`. Deleting a line
+from `ranking.terms` removes that signal from the maths entirely, and a misspelled
+term is a startup error rather than a silent no-op. `news-digest explain
+<story-id>` prints the per-term breakdown, and the numbers provably sum to the
+score used for ranking.
+
+**Where sources disagree, the digest says so.** Disagreements are a separate field
+on the story and a separate section in the output, never folded into the summary.
+Silently resolving a factual conflict is the one thing a digest of ten outlets
+must not do.
+
+**The ranking constants are not yet calibrated.** They are carried over from the
+RSS-based version of this project, where each was measured against a published top
+ten — against a source list that no longer exists. Ten newsletters cannot exceed
+ten publishers, so `corroboration_saturation` in particular is a guess until a real
+week has been measured. Every such number says so where it is defined.
+
+**Re-running is free and safe.** A message is fetched once, parsed once, and its
+articles classified and enriched once, keyed on content hash. The mailbox is opened
+read-only, so a run can neither delete a newsletter nor mark one read.
+
+<!-- digest:start -->
+
+# The Week in Global News
+14–20 September 2026
+
+*Synthesized from ten newsletters, in two languages*
+
+## 1. Los líderes europeos acuerdan un nuevo paquete de sanciones
+
+El acuerdo llega tras nueve horas de negociación en Bruselas y afecta principalmente a las exportaciones de energía.
+
+Sources:
+- [EL PAÍS](https://link.email.elpais.com/c/aGVsbG8x)
+
+## 2. EU leaders agree new sanctions package after Brussels summit
+
+The package targets energy exports and was agreed after nine hours of negotiation, with two member states abstaining.
+
+Sources:
+- [The Guardian](https://link.email.theguardian.com/c/eJxVkMtuAyEMRb-Gpa1)
+
+## 3. Floods displace thousands in northern Nigeria
+
+Aid agencies say at least 40,000 people have left their homes after the Niger river breached its banks.
+
+Sources:
+- [The Guardian](https://www.theguardian.com/world/2026/sep/18/floods-displace-thousands)
+
+## 4. Las inundaciones desplazan a miles de personas en el norte de Nigeria
+
+Las agencias humanitarias cifran en 40.000 los desplazados por la crecida del río Níger.
+
+Sources:
+- [EL PAÍS](https://elpais.com/internacional/2026-09-18/inundaciones-nigeria.html)
+
+## 5. Antarctic ice loss faster than models predicted, study finds
+
+Antarctic ice loss faster than models predicted, study finds
+
+Sources:
+- [The Guardian](https://www.theguardian.com/science/2026/sep/17/antarctic-ice-study)
+
+## 6. La inflación de la eurozona baja al 1,9% en agosto
+
+El dato refuerza las expectativas de un recorte de tipos en octubre.
+
+Sources:
+- [EL PAÍS](https://elpais.com/economia/2026-09-16/inflacion-eurozona.html)
+
+## 7. Eurozone inflation falls to 1.9% in August
+
+Eurozone inflation falls to 1.9% in August
+
+Sources:
+- [The Guardian](https://www.theguardian.com/business/2026/sep/16/inflation-eurozone)
+
+---
+
+*Built from 7 stories, 7 items, 2 publishers, en/es.*  
+*Sources: EL PAÍS, The Guardian.*
+
+<!-- digest:end -->

@@ -182,6 +182,10 @@ class TestBuildDigest:
         assert store.get_digest(result.digest.id) is not None
 
     def test_cross_language_stories_merge_with_embeddings(self, store, config, context):
+        # Three languages, though the shipped config collects two: the mechanism
+        # is language-agnostic and this is the test that proves it, so it names
+        # the languages it needs rather than inheriting them.
+        config.settings.supported_languages = ["en", "es", "ca"]
         articles = [
             make_article("EU announces new sanctions against Russia", source="BBC",
                          publisher="BBC", language="en",
@@ -242,8 +246,11 @@ class TestBuildDigest:
             window=(MONDAY, MONDAY + timedelta(days=7)),
         )
         # Each seeded headline is distinct, so one cluster holds one article.
+        # The candidate pool covers the minor-story list too, which is drawn from
+        # the same enriched set.
+        wanted = config.digest.max_stories + config.digest.minor_stories
         expected = max(digest_module.MIN_CANDIDATE_CLUSTERS,
-                       int(3 * digest_module.CANDIDATE_MULTIPLE))
+                       int(wanted * digest_module.CANDIDATE_MULTIPLE))
         assert provider.seen == expected
         assert provider.seen < 15
 

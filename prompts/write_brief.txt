@@ -1,0 +1,37 @@
+Several outlets covered one event, possibly in different languages. Write the
+single digest entry for it, in $output_language.
+
+You are producing a news digest, not commentary. Summarize neutrally:
+distinguish reported facts from claims, attribute disputed claims to whoever made
+them, avoid persuasive or evaluative language, do not editorialize, and never
+rank or characterize politicians or parties.
+
+- headline: neutral, factual, max 12 words. Not a copy of any one outlet's
+  headline, and not clickbait.
+- summary: 2-3 sentences synthesizing what the coverage AGREES on.
+- disagreements: where the outlets differ on a material fact, framing or figure,
+  one short sentence each naming both sides, at most 2. For example:
+  "Reuters reported the figure as 12 dead, while EL PAÍS reported 14."
+  Leave this list EMPTY when the coverage does not actually conflict. Never
+  resolve a conflict yourself, never split the difference, and never leave a
+  disagreement out of this list because it was inconvenient -- it must not appear
+  in `summary` as a settled fact.
+- why_it_matters: one sentence on the consequence.
+- key_facts: up to 4 short factual statements supported by the excerpts.
+- topics: 1-3 chosen ONLY from this exact list, copied exactly:
+  $topic_list
+  No other word, no qualifiers, no place names. Empty list if none fit.
+- region: the part of the world this is about, chosen ONLY from:
+  $region_list
+  Empty string if you cannot tell.
+- importance: 0.0-1.0, how consequential to a general audience. 0.9+ a major
+  world event, 0.6 significant national or industry news, 0.3 routine, 0.1
+  trivia. Be sparing with high scores. Wide coverage is NOT importance -- you are
+  being shown a story precisely because several outlets ran it, and soft news is
+  the most syndicated kind there is. An awards ceremony, a match result, a
+  celebrity item or a human-interest obituary is at most 0.4 however many outlets
+  ran it and however prominently they placed it.
+- relevance: 0.0-1.0 for a reader interested in $interests.
+
+Use only what the excerpts support. Do not add background you were not given.
+Where outlets in different languages describe the same fact, state it once.

@@ -20,6 +20,8 @@ from .base import (
     TOPICS,
     Brief,
     BriefInput,
+    Classification,
+    ClassifyInput,
     Context,
     Enrichment,
     EnrichInput,
@@ -114,6 +116,15 @@ TOPIC_PATTERNS = {
 HIGH_SIGNAL_PATTERN = _phrase_pattern(*HIGH_SIGNAL)
 
 
+def topics_for(text: str, limit: int = 4) -> list[str]:
+    """Every topic whose keywords appear in `text`. Shared by enrich and classify
+    so the two passes cannot disagree about the same article."""
+    haystack = normalize(text)
+    return [
+        topic for topic, pattern in TOPIC_PATTERNS.items() if pattern.search(haystack)
+    ][:limit]
+
+
 class HeuristicProvider(LLMProvider):
     """Deterministic stand-in for a real LLM. Same interface, no calls."""
 
@@ -130,9 +141,7 @@ class HeuristicProvider(LLMProvider):
         parts = sentences(item.excerpt)[:2]
         summary = truncate(" ".join(parts) or item.title, 280)
 
-        topics = [
-            topic for topic, pattern in TOPIC_PATTERNS.items() if pattern.search(haystack)
-        ][:4]
+        topics = topics_for(text)
 
         signal = len(set(HIGH_SIGNAL_PATTERN.findall(haystack)))
         importance = min(0.85, 0.35 + 0.12 * signal)
@@ -169,6 +178,30 @@ class HeuristicProvider(LLMProvider):
             relevance=relevance,
             content_type=None,
         ).clamp()
+
+    def classify(
+        self, items: list[ClassifyInput], context: Context
+    ) -> list[Classification]:
+        """Keyword triage, so topic filtering still works with no model at all.
+
+        Only `topics` is answered. `region` is left empty and `newsworthy` left
+        True, because neither can be decided by keyword matching without doing
+        real damage: "final" and "corona" would drop a constitutional court
+        ruling and a public-health story respectively, and a wrongly dropped item
+        is invisible to the reader. Filtering offline is therefore whatever
+        `excluded_topics` catches through the shared vocabulary -- weaker than the
+        LLM pass, and weaker in the safe direction.
+        """
+        return [
+            Classification(
+                id=item.id,
+                topics=topics_for(f"{item.title} {item.excerpt}"),
+                region="",
+                newsworthy=True,
+                content_type=None,
+            ).clamp()
+            for item in items
+        ]
 
     def write_brief(self, item: BriefInput, context: Context) -> Brief | None:
         # Nothing to synthesize without a model; the caller falls back to the

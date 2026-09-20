@@ -1,18 +1,20 @@
-"""Personal multilingual news aggregation pipeline.
+"""Personal weekly news digest, built from newsletters in a dedicated inbox.
 
-Two pipelines, separated by cadence -- which is the central architectural idea:
+    EMAIL -> INGEST -> PARSE -> NORMALIZE -> FILTER -> DEDUPLICATE
+          -> CLUSTER -> RANK -> SUMMARIZE -> DIGEST -> MARKDOWN
 
-    DAILY   sources -> fetch -> normalize -> detect language -> dedupe -> SQLite
-    WEEKLY  SQLite  -> embed -> cluster -> LLM -> rank -> digest -> static site
+One cadence: newsletters arrive weekly, so the whole thing runs once a week. The
+goal is not to reproduce ten newsletters but to synthesize them -- coverage of the
+same event grouped across English and Spanish, ranked by how many independent
+outlets carried it and where their editors placed it, and written up as five to
+ten minutes of reading.
 
-Collection is cheap and calls no model, so it can run every day. The expensive
-semantic work runs once a week over a whole finished week.
-
-Deterministic work (fetching, normalizing, deduping, ranking, rendering) is
-Python. The LLM does language understanding only: summarizing, classifying,
-extracting entities, rating importance and relevance, and adjudicating a
-borderline cluster. Embeddings do the cross-language matching that token overlap
-provably cannot.
+Deterministic work (parsing, normalizing, deduping, ranking, rendering) is
+Python. The LLM does language understanding only: triaging what is news,
+summarizing, extracting entities, and adjudicating a borderline cluster.
+Embeddings do the cross-language matching that token overlap provably cannot --
+measured on one headline in three languages, overlap scores 0.00 and 0.06 against
+a 0.60 merge threshold.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

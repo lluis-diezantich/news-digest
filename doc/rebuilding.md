@@ -1,127 +1,95 @@
-# Rebuilding digests from scratch
+# Rebuilding
 
-Sometimes a digest is wrong in a way that re-running does not fix. A run made
-with `--no-embeddings` publishes almost-unclustered output; a bad threshold welds
-unrelated events together. Because stories are keyed by their cluster's URLs,
-re-running a week *replaces* that week — but it leaves every other week alone,
-and that is usually not what you want when you are starting over.
+## Regenerate the Markdown
 
-This is the reset. It removes every digest and story while keeping the two things
-that are expensive or impossible to get back.
+`digests/` is an artefact of the database, not a second copy of the truth. Delete
+it and restore it:
 
-## What survives, and why
+```bash
+rm -rf digests
+news-digest build
+```
 
-| Kept | Why |
+This rewrites every digest file and the archive index from the stored stories. It
+writes no new stories and makes no API calls. Use it after changing `render.py`.
+
+## Re-parse a week after changing the extractor
+
+Messages are parsed once. To make a changed extractor see them again:
+
+```bash
+news-digest parse --week 2026-W38 --force
+```
+
+`--force` is scoped to the window and any `--source` you name, never the whole
+database — re-parsing three years of mail is not what you meant.
+
+Their existing articles are left in place. The extractor is deterministic, so a
+re-parse produces the same ids and the insert is a no-op; what changes is what a
+*new* extractor finds.
+
+## Re-cluster and re-rank a week
+
+```bash
+news-digest digest --week 2026-W38
+```
+
+Story ids derive from the cluster's member URLs, so re-running a week refreshes
+stories in place rather than duplicating them. Cached classifications, enrichments
+and embeddings are reused, so this is close to free.
+
+## Start over completely
+
+```bash
+rm -rf digests debug data/news.db
+news-digest run --from 2026-01-01 --to 2026-09-21
+```
+
+Everything is re-fetched from the mailbox, which is why the mailbox is opened
+read-only and nothing is ever marked seen: the inbox is the source of truth and
+this project is a cache over it.
+
+Bear in mind your provider may not hold a year of mail, and `--from`/`--to` in one
+run means every stage processes the whole range at once — one very large
+classification and enrichment bill. Better to walk it a week at a time.
+
+## Shorten the retention window
+
+Changing `email_body_retention_days` affects the next `prune`, not the history.
+Apply it now:
+
+```bash
+news-digest prune
+```
+
+Bodies older than the window are emptied and the rows kept. If the database has
+been committed, **the old bodies are still in your git history** — shortening the
+window does not clean it. Rewriting history is the only way, and for a personal
+repository it is usually not worth it; keeping the window short from the start is.
+
+## What must survive
+
+| Do not delete | Why |
 |---|---|
-| `articles` | Collected coverage. **Unrecoverable** — once an item scrolls out of a feed it is gone, and no re-run brings it back. |
-| `embedding_cache` | ~1 KB per article and slow to rebuild. Keeping it makes the next clustering pass instant. |
-| `llm_cache` | Enrichments keyed by content hash. This is what makes the optional step below free. |
-| `sources` | Your configuration and each source's health. |
+| the `emails` rows | they are what stops every newsletter being re-ingested |
+| `parsed_at` | the "already parsed" flag; `--force` is the way to clear it deliberately |
+| the `llm_cache` rows | the only reason re-running a week is affordable |
 
-Everything else is derived and safe to drop: stories, the digests that point at
-them, the story↔article join, and the story-side topic and entity vocabularies.
-Article topics and entities live in JSON columns on `articles`, not in those
-tables, so clearing them does not touch collection.
+## Two failure modes that look like bugs
 
-## Back up first
+**A rolling window overwrote a calendar week.** A digest's id comes from the last
+day of its window, so `--days 7` run on a Friday produces an id for the calendar
+week it happens to end in and replaces that week's digest. Point scratch runs at
+`--db` and `--out` somewhere temporary, or use `--dry-run`.
 
-```bash
-cp data/news.db data/news.db.bak
-```
+**Nothing is published and nothing is obviously wrong.** Almost always one of:
 
-Not optional. The delete below is one typo away from the articles table.
-
-## Clear the digests and stories
-
-```bash
-sqlite3 data/news.db "
-DELETE FROM digest_stories;
-DELETE FROM weekly_digests;
-DELETE FROM story_entities;
-DELETE FROM story_topics;
-DELETE FROM article_story;
-DELETE FROM stories;
-DELETE FROM entities;
-DELETE FROM topics;
-DELETE FROM runs WHERE kind != 'collect';
-"
-```
-
-Children before parents, so it works whether or not `PRAGMA foreign_keys` is on.
-The `runs` filter keeps collection history, which is how you tell when the feeds
-last worked.
-
-## Clear the published files
-
-Deleting rows does not delete what was already written to `docs/`. Stale files
-keep appearing in the archive:
-
-```bash
-rm docs/digests/*.json
-```
-
-`index.html`, `index.json` and `feed.xml` are rewritten by the next build, so
-leave them.
-
-## Optional: re-enrich the articles too
-
-Enrichment skips anything already enriched (`pending = [a for a in articles if
-not a.enriched]`), so a fresh digest reuses whatever the articles already carry.
-To make it genuinely from scratch:
-
-```bash
-sqlite3 data/news.db "
-UPDATE articles SET summary=NULL, why_it_matters=NULL, key_facts='[]',
-  topics='[]', entities='[]', importance=NULL, relevance=NULL,
-  content_type=NULL, enriched_by=NULL, enriched_at=NULL;
-"
-```
-
-This is cheaper than it looks. `llm_cache` still holds those enrichments keyed by
-content hash, so the next run's cache pass refills them with **zero LLM calls**.
-It only costs real requests for articles that were never enriched successfully.
-
-## Verify, then rebuild
-
-```bash
-sqlite3 data/news.db "SELECT
-  (SELECT count(*) FROM articles) articles,
-  (SELECT count(*) FROM stories) stories,
-  (SELECT count(*) FROM weekly_digests) digests;"
-
-.venv/bin/news-digest digest --week 2026-W37 2>&1 | tee /tmp/digest.log
-```
-
-Article count unchanged, the other two zero. Piping to a log matters: the
-warnings are where failures show up, and they scroll away otherwise.
-
-## Two things that will bite
-
-**The newest week wins, however bad it is.** The site's latest digest is the one
-with the highest week id, not the best one. On 2026-09-17 three good rebuilds of
-`2026-W37` published 8 stories each while the site kept showing `2026-W38` — two
-stories left over from a `--no-embeddings` run — because W38 is a later week and
-was still in the database. If the site looks wrong after a rebuild, check which
-week is latest before re-running anything:
-
-```bash
-sqlite3 data/news.db "SELECT d.digest_id, count(*) FROM digest_stories d
-  GROUP BY d.digest_id ORDER BY d.digest_id DESC;"
-```
-
-**Enrichment can time out silently.** `LLMSettings.timeout` is 90 seconds and has
-no environment variable, while a batch of 16 enrichments on a local 8B model
-needs longer. It fails twice, trips `MAX_CONSECUTIVE_FAILURES = 2`, and abandons
-the phase — the digest still publishes, so the only sign is `enriched: 0` in the
-run stats and a `batch failed` warning in the log. Losing enrichment costs you
-`topics`, which is the half of `excluded_topics` that catches what headline text
-cannot: `sports` appears nowhere in a Catalan football headline.
-
-## The database is committed
-
-`data/news.db` is in git on purpose ([pipeline.md](pipeline.md) explains why), so
-a reset shows up as a large binary diff along with the deleted `docs/digests/`
-files. Collection also writes that file every six hours from a GitHub Action, so
-commit before the next run rather than after, or you will be resolving the
-conflict described in the `.gitignore` note — and only ever in the direction that
-keeps the bot's articles.
+- The source rules do not match. `news-digest sources --check`.
+- The messages are already parsed, so `parse` has nothing to do. That is correct;
+  `digest` is the command you want, or `--force` if the extractor changed.
+- `min_articles` is above what the week corroborates. It falls back to the ranked
+  list rather than yielding nothing, so this shows up as fewer stories than
+  expected rather than zero.
+- Everything was filtered. If filtering would remove every article it is ignored
+  for that run and says so in the log — but a partial over-filter is quieter. Check
+  `not_news` in `news-digest inspect` and `debug/filtered.json`.

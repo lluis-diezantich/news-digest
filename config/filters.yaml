@@ -1,0 +1,54 @@
+# What is not news (section 8).
+#
+# Filtering is per ITEM, never per newsletter: a source that runs one sports
+# story has not disqualified its front page. It happens before clustering, so the
+# expensive stages never see the junk.
+#
+# Every rule needs a POSITIVE signal to drop something. An unclassified item is
+# kept, a failed classification batch is kept, and an exhausted quota keeps
+# everything that is left. The failure mode is therefore a noisy digest, never an
+# empty one -- and a wrongly dropped story is invisible in the output, whereas a
+# wrongly kept one merely ranks low.
+
+filters:
+  # Ask the LLM to triage each item: topics, region, and is-this-news.
+  #
+  # Off, this falls back to the regex lists in sources.yaml plus the offline
+  # keyword classifier, which is much weaker here than it was for RSS: a
+  # newsletter's junk (the sponsor slot, the housekeeping block) has no section
+  # path, and a tracking link has no path at all until it is resolved.
+  classify: true
+
+  # Items sent to the classifier per run. One batched call per `LLM_BATCH_SIZE`
+  # items, cached on content hash, so iterating on the prompt is free after the
+  # first run. 600 is roughly ten newsletters of forty items over a week, with
+  # room to spare.
+  max_items: 600
+
+  # Dropped when EVERY topic an item carries is on this list. Every, not any: an
+  # item tagged `politics, sports` is a head of state at a stadium opening, and
+  # dropping it on the sports tag alone loses the political story.
+  #
+  # Matched against the classifier's own vocabulary (see llm/base.py TOPICS), so
+  # a word that is not in that vocabulary can never match. `celebrity` is in it
+  # purely so this line has something to catch.
+  excluded_topics:
+    - sports
+    - celebrity
+
+  # What the digest is for. Advisory, not a whitelist: an item matching none of
+  # these is still kept, because the vocabulary will always lag the news.
+  include_topics:
+    - politics
+    - world
+    - economics
+    - science
+    - technology
+    - climate
+    - health
+
+  # Empty on purpose. Section 8 excludes opinion that carries no news, which is a
+  # per-item judgement the classifier makes -- not a property of the type. A
+  # blanket `opinion` drop would lose elDiario.es's Boletín del director, which
+  # is a director's column and one of the ten configured sources.
+  drop_content_types: []

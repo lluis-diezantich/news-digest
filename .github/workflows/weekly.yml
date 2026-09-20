@@ -1,7 +1,12 @@
-name: Build weekly digest
+name: Weekly digest
 
-# The weekly pipeline: embed, cluster across languages, LLM analysis, rank,
-# publish. This is where every API call happens.
+# The whole pipeline: read the inbox, extract articles, filter, cluster across
+# languages, summarize, rank, and commit the Markdown.
+#
+# One workflow, not two. The RSS version of this project collected four times a
+# day and processed weekly, because feeds expose only their most recent items and
+# a busy source could publish more than one feed-window between runs. Mail does
+# not expire from a mailbox, so there is nothing to poll for.
 
 on:
   schedule:
@@ -11,11 +16,15 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: "ISO week to build, e.g. 2026-W36 (default: last week)"
+        description: "ISO week to build, e.g. 2026-W38 (default: last week)"
         type: string
         default: ""
+      force:
+        description: "Re-parse messages already parsed (for a changed extractor)"
+        type: boolean
+        default: false
       no_llm:
-        description: "Skip the LLM and use offline heuristic enrichment"
+        description: "Skip the LLM and use offline heuristics"
         type: boolean
         default: false
       no_embeddings:
@@ -26,7 +35,7 @@ on:
 permissions:
   contents: write
 
-# Shares a group with collection: both commit data/news.db.
+# Two runs writing data/news.db at once would race on the commit.
 concurrency:
   group: news-digest-state
   cancel-in-progress: false
@@ -64,43 +73,51 @@ jobs:
           echo "FASTEMBED_CACHE_PATH=$HOME/.cache/fastembed" >> "$GITHUB_ENV"
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Local embeddings: set repo variable EMBEDDING_PROVIDER=local. No API
-          # key needed for them, and they leave the whole LLM quota for the model.
           if [ "${{ vars.EMBEDDING_PROVIDER }}" = "local" ]; then
             pip install 'fastembed>=0.8,<0.9'
           fi
           pip install -e .
 
-      - name: Build digest
+      - name: Run
         env:
-          # Add GEMINI_API_KEY under Settings -> Secrets and variables -> Actions.
-          # Without it the run still succeeds: enrichment falls back to offline
-          # heuristics and clustering to within-language text similarity, which
-          # leaves cross-language coverage split. The digest still publishes.
+          # --- Mailbox. Add these under Settings -> Secrets and variables.
+          # Without them there is no input at all, so this is the one failure
+          # that stops the run rather than degrading it.
+          NEWS_EMAIL_HOST: ${{ secrets.NEWS_EMAIL_HOST }}
+          NEWS_EMAIL_PORT: ${{ vars.NEWS_EMAIL_PORT || '993' }}
+          NEWS_EMAIL_USERNAME: ${{ secrets.NEWS_EMAIL_USERNAME }}
+          NEWS_EMAIL_PASSWORD: ${{ secrets.NEWS_EMAIL_PASSWORD }}
+          NEWS_EMAIL_FOLDER: ${{ vars.NEWS_EMAIL_FOLDER || 'INBOX' }}
+
+          # --- Model. Without a key the run still succeeds: classification and
+          # enrichment fall back to offline heuristics and clustering to
+          # within-language text similarity, which leaves cross-language coverage
+          # split into separate stories. The digest still publishes.
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'gemini' }}
           LLM_MODEL: ${{ vars.LLM_MODEL || 'gemini-3.6-flash' }}
           LLM_ARTICLES_PER_RUN: ${{ vars.LLM_ARTICLES_PER_RUN || '40' }}
-          # On a free tier the request count is what runs out, not the tokens.
+          # On a free tier the request COUNT is what runs out, not the tokens.
           LLM_BATCH_SIZE: ${{ vars.LLM_BATCH_SIZE || '16' }}
           LLM_MAX_CLUSTER_CHECKS: ${{ vars.LLM_MAX_CLUSTER_CHECKS || '0' }}
+
           EMBEDDING_PROVIDER: ${{ vars.EMBEDDING_PROVIDER || 'gemini' }}
           EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'gemini-embedding-2' }}
           EMBEDDING_DIMENSIONS: ${{ vars.EMBEDDING_DIMENSIONS || '256' }}
-          # Model-specific: 0.82/0.72 suits gemini-embedding-2, 0.70/0.60 the
-          # local MiniLM. Set these as repo variables when switching provider;
-          # the local provider warns if it sees a gemini-shaped threshold.
+          # Model-specific: 0.82/0.72 suits gemini-embedding-2, 0.80/0.65 the
+          # local MiniLM. Set these as repo variables when switching provider.
           EMBEDDING_SIMILARITY_THRESHOLD: ${{ vars.EMBEDDING_SIMILARITY_THRESHOLD }}
           EMBEDDING_AMBIGUOUS_THRESHOLD: ${{ vars.EMBEDDING_AMBIGUOUS_THRESHOLD }}
-          SITE_URL: ${{ vars.SITE_URL }}
+
           NEWS_DIGEST_USER_AGENT: >-
-            news-digest/0.2 (+https://github.com/${{ github.repository }})
+            news-digest/0.3 (+https://github.com/${{ github.repository }})
         run: |
-          news-digest digest \
+          news-digest run \
             ${{ inputs.no_llm && '--no-llm' || '' }} \
             ${{ inputs.no_embeddings && '--no-embeddings' || '' }} \
+            ${{ inputs.force && '--force' || '' }} \
             ${{ inputs.week && format('--week {0}', inputs.week) || '' }} \
-            | tee digest-summary.txt
+            | tee run-summary.txt
 
       - name: Job summary
         if: always()
@@ -108,16 +125,20 @@ jobs:
           {
             echo "### Weekly digest"
             echo '```'
-            cat digest-summary.txt 2>/dev/null || echo "no summary produced"
+            cat run-summary.txt 2>/dev/null || echo "no summary produced"
             echo '```'
             news-digest stats || true
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit digest and state
+      # Committed: the digests, the README block, and the database -- which is how
+      # dedupe and the "already parsed" flag survive between runs. NOT committed:
+      # anything under debug/, which is gitignored, and raw email bodies, which
+      # the run prunes.
+      - name: Commit the digest and state
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A docs data
+          git add -A digests data README.md
           if git diff --cached --quiet; then
             echo "nothing changed"
             exit 0

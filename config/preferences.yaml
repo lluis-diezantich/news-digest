@@ -1,15 +1,17 @@
-# Language settings, what you care about, and the ranking formula.
+# Languages, the ranking formula, and digest size.
 # Everything here is optional; delete a section to take its defaults.
 
 settings:
-  # Languages collected. Detection is restricted to this set, which is what
-  # makes telling Spanish from Catalan reliable.
+  # Languages collected. Detection is restricted to this set, which is what makes
+  # it reliable on short headlines.
   supported_languages:
     - en
     - es
-    - ca
 
-  # Language the LLM writes the digest in, independent of what it reads.
+  # Language the digest is WRITTEN in, independent of what it reads.
+  #   auto  -> whichever language most of the week's items were in
+  #   en|es -> always that
+  # `auto` is resolved per run, after the window's languages are counted.
   output_language: en
 
 preferences:
@@ -17,34 +19,24 @@ preferences:
   #   topics: [technology, economics]        -> each gets weight 1.5
   #   topics: {technology: 1.5, sports: 0.3} -> explicit weights
   # Anything not listed scores 1.0.
-  # Deliberately near-flat, and inverted against tag breadth. This is the
-  # personalization term and the digest is meant to be generic, so it should not
-  # be a strong discriminator. `politics` was 1.5 -- the highest weight on the
-  # vaguest tag, the one almost any story gets -- which is how a Victorian
-  # pothole story reached #2 of the 2026-W38 digest on `interest` alone.
-  # Broad tag -> low weight, so nothing is promoted merely for being tagged.
-  # Emptied 2026-09-14. Every entry was a broad category -- politics, world,
-  # economics -- and a tag that general says nothing about whether a story
-  # matters: it is the tag a pothole story and a war both receive. With
-  # `interest` and `relevance` both out of the formula these go unread; kept as
-  # an empty map so the option stays documented.
+  #
+  # Empty on purpose. This is the personalization term and the digest is meant to
+  # be generic -- "what happened in the world this week", not "what happened that
+  # I like". It is also inverted against tag breadth: `politics` is the vaguest
+  # tag and the one almost any story gets, so weighting it promotes stories for
+  # being vague. Kept as an empty map so the option stays documented.
   topics: {}
 
-  # Penalised hard rather than hidden, so a genuinely huge sports story can
-  # still surface.
+  # Penalised rather than hidden, so a genuinely enormous sports story can still
+  # surface. Hard exclusion is filters.yaml's job; this is the ranking backstop
+  # for what slips through it.
   excluded_topics:
     - sports
     - celebrity
-    - horoscope
 
-  # Emptied 2026-09-14. With a deliberately small source list a favourites
-  # subset says little, and outlet quality is already expressed once in each
-  # source's `weight:`. Saying it again as a +0.5 bonus made it loud enough to
-  # distort: even after source_preference left the ranking formula, this bonus
-  # still shaped pre-ranking -- which matters because only ~20 of ~198 clusters
-  # survive to compete for the digest's slots. Emptying it took the 2026-W38
-  # digest from 4 publishers to 6; RTVE and 3Cat could not make the shortlist
-  # until it was gone. `weight:` still feeds pre-ranking and tie-breaks.
+  # Empty on purpose. Outlet quality is already expressed once, in each source's
+  # `weight:`. Saying it again as a bonus made it loud enough to distort the
+  # shortlist, and with ten sources a favourites subset says very little.
   preferred_sources: []
 
   # Each distinct hit adds `keyword_bonus`.
@@ -54,124 +46,95 @@ ranking:
   # final_score = sum(weight * signal) for the terms listed here.
   # Drop a line to remove that signal entirely; a misspelling is a startup error.
   #
-  # Kept short on purpose. Each term removed on 2026-09-14 was measured across a
-  # published top ten first, and each contributed less than it appeared to:
-  #   relevance         spread 0.40 -- "how well does this match THIS reader",
-  #                     the personalization this digest is meant not to do, and
-  #                     the only term still moving the order.
-  #   interest          0.08 -- topic matching, over tags too broad to mean much.
-  #   importance        0.12 -- offline it is 0.35 + 0.12 per hit on a 33-word
-  #                     list (killed, guerra, terratremol...); 91% of articles
-  #                     matched nothing, so it was a constant in signal's
-  #                     clothing. Restored the same day once a real LLM filled it
-  #                     in, then removed again on 2026-09-17 for a different
-  #                     reason -- see the note in `terms:` below.
-  #   source_preference dwarfed by its own +0.5 favourites bonus -- an assertion
-  #                     that four outlets are trustworthy, not evidence.
+  # ALL OF THESE WEIGHTS ARE UNCALIBRATED. They are carried over from the RSS
+  # version of this project, where each was measured against a published top ten
+  # -- against a source list that no longer exists. The shape should still hold,
+  # and one term should be STRONGER here than it was there, but treat the numbers
+  # as a starting point and re-measure with `news-digest explain`.
   terms:
-    # importance REMOVED from the formula on 2026-09-17. Still computed and still
-    # shown on the page -- the same treatment interest and relevance already get.
-    #
-    # It was restored on 2026-09-14 on the strength of a 0.03-1.00 spread, but
-    # that spread belongs to the ARTICLE-level number. The story-level one is
-    # what ranks, and the brief overwrites it. Measured over the stored week:
-    # qwen3:8b returned 0.80-0.85 for every briefed story -- a spread of 0.05
-    # across six -- so at weight 2.0 it contributed a flat ~1.65 and could not
-    # reorder anything.
-    #
-    # Worse, it inverted. The four highest importance values in the database all
-    # belonged to stories that were never briefed (1.00, 1.00, 0.97, 0.88, from
-    # build_story's article maximum plus its publisher bonus), so being briefed
-    # cost a story up to 0.40, doubled by the weight. That is how a 3-publisher
-    # story ranked #5 above three rivals with 5 and 6 publishers.
-    #
-    # Put it back when a model actually spreads the scale. `news-digest explain`
-    # and the stored stories make that a measurement, not a hope.
-    #
-    # A velocity term was considered as the replacement and rejected the same
-    # day: every multi-outlet story in the window develops over 6-30 hours, so
-    # there is no burstiness left to measure, and publishers-per-hour inverts
-    # outright -- the three 2-article stories scored the highest rate of any.
-
-    # The desk's own ordering. Feed and DOM order measured 80-100% concordant
-    # with each site's front page, so position 0 is an editor saying "this leads
-    # today" -- free, and in every language. Primary by intent: the digest should
-    # read like the front pages it is built from.
+    # The editor's own ordering. In a curated newsletter this is two judgements
+    # rather than one: they chose these ten items out of the day's hundreds, and
+    # chose which one opens. Primary by intent -- the digest should read like the
+    # newsletters it is built from.
     editorial_position: 2.0
-    # How many independent outlets covered it -- the honest measure of
-    # newsworthiness, and 0.00 on every story until embeddings exist.
-    # Raised 0.8 -> 1.5 on 2026-09-17, taking the weight importance was wasting.
-    # This is what importance was meant to approximate, and it has real spread on
-    # this data -- 0.27 to 1.00 across 2 to 13 publishers -- where importance had
-    # none. Left below editorial_position, which stays primary by intent.
+
+    # How many independent outlets covered it. The honest measure of
+    # newsworthiness, and 0.00 on every story until embeddings exist, because
+    # nothing else groups coverage across languages.
+    #
+    # Expect much less spread than an RSS source list gives: ten newsletters
+    # cannot exceed ten publishers and will rarely pass five. See
+    # `corroboration_saturation` below.
     corroboration: 1.5
-    # A tiebreak, not a driver: within one source, position already implies it.
+
+    # A tiebreak, not a driver. Within one newsletter, position already implies it.
     recency: 0.3
     story_size: 0.2
+
+    # importance and relevance are deliberately ABSENT, and still computed and
+    # still shown. On the RSS project a measured week had qwen3:8b returning
+    # 0.80-0.85 for every briefed story -- a spread of 0.05 -- so at any weight it
+    # contributed a constant and could not reorder anything. Worse, it inverted:
+    # stories that were never briefed kept a higher derived value, so being
+    # briefed cost a story rank. Put either back only after checking the spread
+    # over a real week; `news-digest explain` makes that a measurement.
 
   keyword_bonus: 0.15
   excluded_penalty: 1.5
   preferred_source_bonus: 0.5
-  # Publisher count at which `corroboration` reaches 1.0. Was hardcoded to 4,
-  # which saturated below the range that matters: over one measured week the
-  # multi-publisher stories ran 2,3,4,5,6,10,11,13 publishers, and at base 4
-  # thirteen of those twenty scored exactly 1.000. A four-outlet Emmy report and
-  # a thirteen-outlet lead story were indistinguishable on the one term that is
-  # supposed to measure newsworthiness. 13 is the observed maximum.
-  corroboration_saturation: 13
-  # Over a weekly window a long half-life is right: Monday's news should still
-  # be readable on Sunday.
+
+  # Publisher count at which `corroboration` reaches 1.0.
+  #
+  # UNCALIBRATED, and the most important number here to get right. It has to sit
+  # at the top of the range the weeks actually produce: set it too high and the
+  # term flattens to nothing, too low and every multi-outlet story ties at 1.000.
+  # The RSS project measured 13 over one week across 22 feeds; ten newsletters
+  # cannot exceed 10. 5 is a guess. Run `news-digest inspect` and set it to the
+  # widest coverage a real week gives you.
+  corroboration_saturation: 5
+
+  # Over a weekly window a long half-life is right: Monday's news is still part
+  # of the week on Sunday. At 72h Monday scores about 0.16 by Sunday.
   recency_half_life_hours: 72
 
 digest:
-  title: "Weekly Digest"
-  subtitle: "The week's main stories from your sources"
-  # 8, down from 15 on 2026-09-15. The pipeline enriches `2 * max_stories`
-  # candidates and publishes half of them, so 15 meant publishing 15 of 30 --
-  # and the week only corroborated 5 clusters at 6+ outlets and 9 at 3+, so the
-  # bottom third was pairs and soft news by arithmetic, not by bad ranking. At 8
-  # the same week's Emmy report and human-interest obituary both fall below the
-  # cut. Raise it only if the tail still looks worth reading.
-  max_stories: 8
-  # 3, not 1: "the main news of the week" is what several outlets covered.
-  # 411 of 440 clusters were a single outlet reporting alone. The digest falls
-  # back to the ranked list if this would empty it, so it cannot yield nothing.
-  # Counts ARTICLES, not publishers -- four El País sections on one story satisfy
-  # it while being one outlet. `min_publishers` would be the strict version.
-  min_articles: 3
+  title: "The Week in Global News"
+  subtitle: "Synthesized from ten newsletters, in two languages"
+
+  # Section 11 asks for 10-15 major stories plus a few smaller ones. The pipeline
+  # enriches 2x (max_stories + minor_stories) candidates and publishes from those.
+  max_stories: 12
+  # Section 14's "Also worth knowing": listed with a link, not written up.
+  minor_stories: 5
+
+  # 1, NOT the RSS project's 3. Ten hand-curated newsletters rarely triple-cover
+  # anything, and at 3 most weeks would publish nothing at all. Raise it only
+  # once a real week shows enough overlap to afford it -- `news-digest inspect`
+  # prints the publisher spread.
+  min_articles: 1
+
   # Weekday the digest window ends on: 0 = Monday ... 6 = Sunday.
   week_ends_on: 6
-  # Keep past digests readable on the site.
-  archive: true
-  archive_limit: 52
 
-# `news-digest themes`: what the week was ABOUT, keyed on the names in headlines.
-# A reading tool, read-only, and separate from the digest -- it needs no model and
-# no embeddings, so it works with no API key and an exhausted quota.
-themes:
-  # Names that locate a story rather than being one. Without this list `catalunya`
-  # and `barcelona` are the two biggest "themes" of any week and mean nothing.
-  # Hand-maintained because there is no metric for it: measured over 2026-W38,
-  # article coherence scores `catalunya` 0.588 and `trump` 0.566, so any automatic
-  # floor that drops the places drops the subjects with them.
-  #
-  # An ambient PERSON is the same failure mode as a place. `trump` behaves exactly
-  # like `madrid` on this data -- it collects US trade, the Fed, China and Canada
-  # into one meaningless pile -- but adding it here would also hide the weeks when
-  # he IS the story, so it is left out. Add names as you see them misbehave.
-  containers:
-    - catalunya
-    - barcelona
-    - madrid
-    - espanya
-    - europa
-  # One outlet writing alone is not yet a subject.
-  min_publishers: 3
-  top: 10
+  # Inline the newest digest into README.md, between its markers.
+  update_readme: true
+
+# Geographic spread (section 12). Applied at SELECTION, never to the score: the
+# order stays by score, and this only decides which stories make the cut.
+regions:
+  enabled: true
+  # Largest share of the main stories one region may hold before others are
+  # promoted. Not a quota -- when a region genuinely holds most of the week's
+  # major news the cap runs out of alternatives and those stories publish anyway.
+  # At 0.5 with max_stories 12, no region takes more than 6.
+  max_share: 0.5
 
 storage:
   # Articles older than this are pruned so the committed database stays small.
-  retention_days: 45
-  # Embeddings are working data for the weekly run and the bulkiest thing in
-  # the database (~1 KB per article), so they go sooner.
-  embedding_retention_days: 21
+  retention_days: 120
+  # Email BODIES are emptied this early, and the rows kept. The row is what stops
+  # a newsletter being ingested twice; the body is the bulkiest and only
+  # sensitive part, and nothing needs it once articles are extracted (section 28).
+  email_body_retention_days: 30
+  # Embeddings are working data for one run and about 1 KB per article.
+  embedding_retention_days: 60

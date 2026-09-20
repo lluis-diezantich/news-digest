@@ -1,176 +1,146 @@
 # Providers
 
-The LLM and the embedder sit behind small interfaces (`llm/base.py`,
-`embeddings/base.py`). Adding one means a new module and a registry entry.
+Two pluggable things, both optional, each degrading in a specific and documented
+way.
 
-| Role | Options | Set with |
+## Embeddings
+
+These do the cross-language clustering, and that is the thing this project exists
+to do. Measured on one headline in three languages, token overlap scores **0.00**
+(en/es) and **0.06** (en/ca) against a 0.60 merge threshold. No threshold rescues
+that.
+
+| `EMBEDDING_PROVIDER` | |
+|---|---|
+| `gemini` | Google API. Free tier, but the per-minute limit is the binding one |
+| `local` | fastembed/ONNX on your machine. No API, no quota. `pip install 'news-digest[local]'` |
+| `none` | no embeddings; clustering falls back to within-language text similarity |
+
+Measured on 551 real articles from the RSS version of this project: **local** gave
+442 clusters and 20 cross-language groups in 8.5 seconds, against gemini's 445 / 10
+in about five minutes — most of which was waiting out per-minute 429s. Local also
+stops embeddings competing with the LLM for one free-tier budget.
+
+### Thresholds are model-specific
+
+Cosine values do not transfer between embedding models.
+
+| Model | `SIMILARITY` | `AMBIGUOUS` |
 |---|---|---|
-| Embeddings | `local` (fastembed/ONNX), `gemini`, `none` | `EMBEDDING_PROVIDER` |
-| LLM | `gemini`, `ollama` (local), `none` (built-in heuristics) | `LLM_PROVIDER` |
+| `gemini-embedding-2` | 0.82 | 0.72 |
+| local MiniLM, adjudication **on** | 0.80 | 0.65 |
 
-The two halves have genuinely different answers, and it is worth knowing why.
+Do not narrow the band while `LLM_MAX_CLUSTER_CHECKS=0`: with checks off the
+ambiguous band merges nothing, so the two knobs have to move together. Below 0.60
+MiniLM collapses into one enormous blob. The local provider warns if it sees a
+gemini-shaped threshold.
 
-**Local does not mean offline.** Collection fetches feeds and scrapes pages, so it
-needs a connection whatever the providers are. What local buys is independence
-from anyone's API: no key, no quota, no rate limit, and nothing that can be
-retired from under you — `gemini-2.5-flash` was withdrawn for new keys mid-use.
-The practical effect is that `digest` can be re-run as often as you like once the
-articles are collected, which is not true of a hosted model on a daily quota.
+`EMBEDDING_DIMENSIONS=256` keeps the committed database small, about 1 KB per
+article; 768 triples that. Gemini embeddings degrade gracefully when truncated.
 
-## Embeddings: local is the better option
+### Without embeddings
 
-Cross-lingual sentence embedding is a small-model problem, so a local model is
-not a compromise here. Measured on 551 articles from one real week, same set:
+Everything still runs. Clustering falls back to within-language text similarity at
+a threshold of 0.45, calibrated on 37,776 real within-language pairs — from RSS
+feeds, not newsletters. What you lose is the whole point: an EU sanctions story
+covered by The Guardian and EL PAÍS stays two separate stories, `corroboration`
+reads 0.00 for every story, and the digest is a list rather than a synthesis.
 
-| | Clusters | Cross-language | Time |
-|---|---|---|---|
-| `gemini-embedding-2`, 256d | 445 | 10 | ~300s, mostly waiting out 429s |
-| **local MiniLM, 384d** | **442** | **20** | **8.5s** |
+## LLM
 
-Same granularity, twice the cross-language grouping, no rate limit, no key. It
-also stops embeddings competing with the LLM for one free-tier budget.
+| `LLM_PROVIDER` | |
+|---|---|
+| `gemini` | Google API. `gemini-3.6-flash` and `gemini-3.5-flash-lite` both work |
+| `ollama` | a local model. No API and no quota, but it needs real memory |
+| `none` | built-in heuristics. No model, no cost |
 
-```bash
-pip install 'news-digest[local]'
-EMBEDDING_PROVIDER=local
-EMBEDDING_SIMILARITY_THRESHOLD=0.80
-EMBEDDING_AMBIGUOUS_THRESHOLD=0.65
-```
+With no key, `gemini` falls back to `none` automatically rather than failing.
 
-**Thresholds do not transfer between embedding models.** Cosine values are not
-comparable, and this is a silent failure — a stale threshold produces a worse
-digest with no error. Measured for MiniLM:
+`gemini-2.5-flash` was retired for new API keys — 404, verified 2026-09-14.
 
-| sim / amb | Clusters | Cross-language | Largest |
-|---|---|---|---|
-| 0.50 / 0.40 | 178 | 10 | **327** ← collapsed into one blob |
-| 0.70 / 0.60 | 442 | 20 | 25 |
-| 0.82 / 0.72 (Gemini's) | 522 | 9 | 8 ← under-merged |
+### Ollama
 
-**All three rows were measured with `LLM_MAX_CLUSTER_CHECKS=0`, which makes them
-a poor guide now.** With adjudication off, the ambiguous band merges *nothing*, so
-the column really measures "what auto-merge alone does" and a higher threshold can
-only delete merges. That is why 0.82 looked like pure under-merging.
-
-It also hid a precision problem that a cluster count cannot show. On the
-2026-W38 window, 0.70 auto-merged a Ceuta story with an unrelated Podemos
-primaries story at cosine **0.705** — inside the range of that Ceuta story's own
-genuine links (0.700–0.756). Union-find is transitive, so that one edge pulled
-three separate events into one digest entry. No threshold separates those two
-populations.
-
-The current setting is **0.80 / 0.65 with checks on**: auto-merge only what is
-unambiguous, and refer the wide 0.65–0.80 band (~595 pairs/week) to the LLM.
-Cluster counts under that arrangement have not been re-measured.
-
-The local provider warns if it sees a Gemini-shaped threshold. In CI, cache the
-model or every run re-downloads ~220 MB; `digest.yml` sets
-`FASTEMBED_CACHE_PATH` explicitly because fastembed otherwise caches under
-`$TMPDIR`, which a runner wipes between jobs.
-
-`fastembed` is pinned to `>=0.8,<0.9` deliberately: 0.8 changed MiniLM from CLS
-to mean pooling, which changes every vector, and `cache_key` does not include the
-library version.
-
-## LLM: hosted or local, and it is a hardware question
-
-### Gemini
-
-```bash
-LLM_PROVIDER=gemini
-LLM_MODEL=gemini-3.6-flash
-```
-
-`gemini-2.5-flash` was retired for new API keys (404, verified 2026-09-14);
-`gemini-3.6-flash` and `gemini-3.5-flash-lite` both work.
-
-Thinking is sent as `generationConfig.thinkingConfig.thinkingLevel` — nested. The
-flatter spellings 400 with "Unknown name", so an implementation that puts it one
-level too high silently loses the setting to the retry-without-it fallback.
-`LLM_THINKING_LEVEL` defaults to `low`: thought tokens are billed as output,
-count against the per-minute token allowance, and come out of `maxOutputTokens`,
-so on schema-enforced extraction they cost three ways and buy nothing.
-
-### Ollama, locally
-
-No API, no key, no quota — but it needs a machine with real memory. A GitHub
-runner (2 vCPU, no GPU) cannot do this inside the 45-minute job; an
+A GitHub runner (2 vCPU, no GPU) cannot do this inside the 45-minute job. An
 Apple-silicon laptop can.
 
 ```bash
-brew install ollama && brew services start ollama   # see setup.md: not `ollama serve &`
-ollama pull qwen3:8b
-LLM_PROVIDER=ollama
+brew install ollama
+brew services start ollama       # background server on :11434, logs to a file
+ollama pull qwen3:8b             # ~5 GB, once
 ```
 
-`LLM_MODEL` selects the model; a 12–14B model is a clear upgrade for the
-`importance` judgements if there is memory for it. `LLM_BASE_URL` points
-elsewhere, `LLM_NUM_CTX` sets the window.
-
-Three details in `llm/ollama.py` are load-bearing. Ollama is used rather than
-llama.cpp directly because it enforces a **JSON Schema** through `format`, and a
-local model reliably wanders out of JSON on the array-of-objects enrich call
-without it. `think: false` is always sent, because hybrid models otherwise emit
-reasoning into the response and break parsing. And `num_ctx` defaults to 8192,
-because a batch of 16 articles at 900-char excerpts overflows 4k and an
-overflowed prompt is **truncated silently** — surfacing as missing ids, not an
-error.
-
-## Staying inside a free tier
-
-The scarce resource is the **request count**, not tokens. One run on 2026-09-15
-spent a whole day's allowance on 13 enrichment requests plus retries, and the six
-briefs — the only LLM output a reader sees — got nothing.
-
-Four structural guards: enrichment and embeddings are cached by content hash;
-requests are batched; only pre-ranked candidate clusters are enriched; and
-**briefs are requested before per-article enrichment**, so the part that reaches
-the page is paid for first and enrichment takes the remainder.
-
-Then the budget knobs:
+Start it as a **service**, not `ollama serve &`. A backgrounded `serve` writes
+llama-server's startup dump, per-token timings and one `[GIN]` line per request to
+whatever terminal you launched it from, interleaved with the digest's own output.
+Without brew, redirect it yourself:
 
 ```bash
-LLM_BATCH_SIZE=16            # halves requests for the same articles
-LLM_ARTICLES_PER_RUN=40      # six published stories do not need 100 analysed
-LLM_MAX_CLUSTER_CHECKS=0     # on a metered tier only: see below
+ollama serve >/tmp/ollama.log 2>&1 &
 ```
 
-Together, roughly 4 requests per digest instead of 17.
+Then in `.env`:
 
-`LLM_MAX_CLUSTER_CHECKS=0` is a *Gemini* economy, and an expensive one: it buys a
-request back by letting the embedding auto-merge every borderline pair unchecked.
-On ollama, where requests are free, set it high (600 is a week's worth of pairs)
-and widen the ambiguous band to match. Adjudication runs in descending similarity
-order, so any budget is spent on the closest calls first.
+```bash
+EMBEDDING_PROVIDER=local
+EMBEDDING_SIMILARITY_THRESHOLD=0.80
+EMBEDDING_AMBIGUOUS_THRESHOLD=0.65
+LLM_PROVIDER=ollama
+LLM_MODEL=qwen3:8b
+```
 
-### Two kinds of 429
+Do not lower `LLM_TIMEOUT` for a local run — it defaults to 300s for ollama and 90s
+otherwise, because a local model generates every token on your machine. At 90s a
+batch of 16 on qwen3:8b times out, and both enrichment and cluster adjudication
+give up quietly while the digest still publishes. The only signs are `enriched: 0`
+and a `batch failed` warning.
 
-Google answers a per-minute and a per-day limit with the same status code, and
-the difference decides what to do. A weekly run fires its requests in one burst,
-so the per-minute allowance is the one it trips — and waiting clears it, which on
-a batch job costs nothing. `ratelimit.py` reads the body: a `QuotaFailure` naming
-a `...PerMinute...` quota is waited out, honouring the server's own `RetryInfo`
-delay, while `...PerDay...` is terminal. Total waiting is bounded per run
-(`LLM_RATE_LIMIT_WAIT`, 600s) so a low allowance cannot spend the workflow's
-timeout asleep.
+With 16 GB or more, a 12–14B model is a clear upgrade for the briefs. It is also
+the way back to a usable `importance` signal, which qwen3:8b does not provide: it
+returned 0.80–0.85 for every story, a spread of 0.05, which is why the term is out
+of the ranking formula.
 
-## What degrades without a model
+### Budgeting a free tier
 
-Everything still runs. Two things get worse, both visible:
+The scarce resource is the **request count**, not the tokens. The four jobs, in the
+order the pipeline spends on them:
 
-1. **Summaries are extractive and untranslated** — a Spanish article keeps a
-   Spanish summary under `output_language: en`.
-2. **`importance` becomes near-useless** — but so it was *with* a model, which is
-   why it no longer ranks anything. Without one it is `0.35 + 0.12` per hit on a
-   33-word list and 91% of articles match nothing. With qwen3:8b it came back at
-   0.80–0.85 for every briefed story, measured over a stored week: a constant
-   wearing a signal's clothes either way. It left `ranking.terms` on 2026-09-17
-   and its weight went to `corroboration`. Nothing about a degraded run is worse
-   on this axis now, because the full run no longer uses the signal either.
+| Job | Cost | Turn it off with |
+|---|---|---|
+| classify | one request per `LLM_BATCH_SIZE` items, ~600 items/week | `filters.classify: false` |
+| same_event | one request per batch of ambiguous pairs | `LLM_MAX_CLUSTER_CHECKS=0` |
+| write_brief | **one request per candidate cluster** | `write_story_briefs: false` |
+| enrich | one request per `LLM_BATCH_SIZE` articles, capped by `LLM_ARTICLES_PER_RUN` | `LLM_ARTICLES_PER_RUN=0` |
 
-Without **embeddings** specifically, cross-language coverage stays split, and
-that is not a tuning problem: over 37,776 real within-language pairs, text
-similarity tops out at 0.28 for genuine same-event pairs, while the same event in
-three languages scores 0.00 (en/es) and 0.06 (en/ca). `clustering.py` records the
-numbers and a test asserts the limitation so nobody "fixes" it by lowering a
-threshold.
+Briefs are paid for **first**. On a measured run of the RSS project, 13 enrichment
+requests plus retries exhausted a whole day's allowance and all six briefs fell
+back to raw article text — enrichment is scaffolding that is cached for next time,
+while the brief is the only LLM output a reader ever sees.
+
+Everything is cached on content hash, so a second run over the same week costs
+nothing. That is what makes iterating on a prompt affordable.
+
+A per-minute 429 is waited out (`LLM_RATE_LIMIT_RETRIES`, `LLM_RATE_LIMIT_WAIT`);
+a per-day one is terminal and stops LLM work for the run, degrading the digest
+rather than aborting it.
+
+`LLM_THINKING_LEVEL=low` is the cheapest level the 3.x Flash models accept. Thought
+tokens are billed as output, count against the per-minute token allowance, and come
+out of `maxOutputTokens` — so a thinking-heavy reply can exhaust the budget before
+writing any JSON, and this is schema-enforced extraction.
+
+### Without a model
+
+`--no-llm`, or no key. What you lose:
+
+- **Filtering.** The offline classifier answers topics only, by keyword. It never
+  claims something is not news, because "final" and "corona" would drop a court
+  ruling and a public-health story. So sport and horoscopes are caught only by the
+  URL and title patterns in `config/sources.yaml`.
+- **Summaries.** Extractive, and untranslated — with `output_language: en` and a
+  Spanish source, the summary stays Spanish.
+- **Merged headlines.** A multi-source story borrows the highest-importance
+  article's own headline instead.
+- **Disagreements.** Never detected.
+- **Cluster adjudication.** The ambiguous band keeps the embedding's own verdict.
+
+Ranking holds up, because it runs on what parsing already provides.

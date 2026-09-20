@@ -1,14 +1,15 @@
 """LLM enrichment stage, with the guards that keep it inside a free tier.
 
 Four of them:
-  * it runs weekly, never during daily collection;
-  * only articles in candidate stories are sent, not the whole week;
+  * only articles in CANDIDATE clusters are sent, not the whole week;
   * a content-hash cache means text already processed is never sent again;
-  * requests are batched, and a per-run article cap bounds a busy week.
+  * requests are batched, and a per-run article cap bounds a busy week;
+  * briefs are paid for first, so enrichment gets what is left rather than the
+    other way round -- see `digest.build_digest`.
 
 Failure is never fatal. A quota error stops LLM work for the run, a transport
-error skips one batch, and anything unenriched still reaches the digest with its
-source's own description.
+error skips one batch, and anything unenriched still reaches the digest with the
+newsletter's own blurb.
 """
 
 from __future__ import annotations
@@ -53,7 +54,9 @@ def _to_input(article: Article) -> EnrichInput:
     return EnrichInput(
         id=article.id,
         title=article.title,
-        source=article.source,
+        # Publisher, for the same reason `write_brief` sends it: `source` is an
+        # internal config id, and a model shown "elpais-weekly" will use it.
+        source=article.publisher or article.source,
         language=article.language,
         published=iso(article.published_at),
         excerpt=truncate(article.excerpt(), EXCERPT_CHARS),
@@ -191,7 +194,12 @@ def write_brief(
             BriefInput(
                 story_id=story.id,
                 headlines=[a.title for a in ordered],
-                sources=[a.source for a in ordered],
+                # PUBLISHER, not source. Section 15 asks the model to attribute a
+                # disagreement by name -- "Reuters reported X, while EL PAÍS..." --
+                # so whatever is sent here is printed to a reader verbatim.
+                # `a.source` is an internal config id (`elpais-weekly`), and the
+                # model has no way to know it is not the outlet's name.
+                sources=[a.publisher for a in ordered],
                 languages=[a.language or "" for a in ordered],
                 excerpts=[truncate(a.best_summary(), 500) for a in ordered],
             ),

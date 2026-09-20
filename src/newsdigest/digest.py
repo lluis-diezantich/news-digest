@@ -1,22 +1,29 @@
-"""Weekly processing: turn a week of collected articles into one digest.
+"""Weekly processing: turn a week of newsletters into one digest.
 
-    window -> filter -> embed -> cluster -> pre-rank -> LLM -> rank -> persist
+    window -> filter -> embed -> cluster -> pre-rank -> LLM -> rank -> select
 
-The pre-rank step is what keeps this affordable. Clusters are ordered using only
-signals available without an LLM -- how many publishers covered it, how much
-coverage there is, source weights, recency, and configured topic hints -- and
-only the articles in the surviving clusters are ever sent for enrichment. That is
-the difference between summarizing 30 stories and summarizing 3000 articles.
+Two steps keep this affordable.
+
+`classify` runs first, over every article, and is one cheap batched call that
+answers "is this news, and what is it about". It is what removes the sport, the
+sponsor copy and the horoscopes before anything expensive sees them.
+
+`prerank` then orders the surviving clusters using only signals that need no
+model -- how many publishers covered it, how much coverage there is, where the
+editors put it, source weights, recency -- and only the articles in the top
+clusters are ever enriched. That is the difference between summarizing 25 stories
+and summarizing 800 articles.
 """
 
 from __future__ import annotations
 
 import logging
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta, timezone
 
-from . import clustering, enrich, scoring
+from . import classify as classify_module
+from . import clustering, enrich, regions, scoring
 from .config import Config
 from .embeddings.base import EmbeddingProvider
 from .embed import embed_articles
@@ -28,7 +35,8 @@ from .text import normalize
 log = logging.getLogger(__name__)
 
 #: Clusters kept for LLM enrichment, as a multiple of the digest's story count.
-#: Some will rank lower once the LLM has scored them, so we keep slack.
+#: Some will rank lower once the LLM has scored them, so we keep slack -- and the
+#: minor-story list is drawn from the same pool, so it needs candidates too.
 CANDIDATE_MULTIPLE = 2.0
 #: Never enrich fewer clusters than this, however small max_stories is.
 MIN_CANDIDATE_CLUSTERS = 10
@@ -64,7 +72,7 @@ def select_candidates(articles: list[Article]) -> list[Article]:
 def prerank_score(articles: list[Article], config: Config) -> float:
     """Rank a cluster without any LLM output.
 
-    Deliberately uses only what collection already gave us, because this decides
+    Deliberately uses only what ingestion already gave us, because this decides
     which clusters are worth paying to enrich.
     """
     prefs = config.preferences
@@ -73,20 +81,21 @@ def prerank_score(articles: list[Article], config: Config) -> float:
     age_hours = max(0.0, (utcnow() - newest).total_seconds() / 3600.0)
 
     # Saturation comes from config for the same reason it does in
-    # `scoring.corroboration`: hardcoded to 4 this tied every story with four or
-    # more publishers, and this is the function that decides which ~16 of ~198
-    # clusters are worth paying to enrich. A four-outlet report and a
-    # thirteen-outlet lead story competed for those slots as equals.
+    # `scoring.corroboration`: this is the function that decides which clusters
+    # are worth paying to enrich, and a saturation point below the range the
+    # sources produce makes every multi-outlet story tie.
     corroboration = 0.0 if len(publishers) <= 1 else min(
         1.0, math.log(len(publishers), max(2.0, prefs.corroboration_saturation))
     )
     size = min(1.0, math.log(len(articles) + 1, 8))
     weight = sum(a.source_weight for a in articles) / len(articles)
     recency = math.exp(-math.log(2) * age_hours / max(1.0, prefs.recency_half_life_hours))
+    # Position in the newsletter, which is the one editorial signal available
+    # before any model runs. Cheap here and primary in the real formula.
+    position = max(a.editorial_rank() for a in articles)
 
-    # Topic hints from the feeds plus the reader's keywords, both pre-LLM.
     haystack = normalize(" ".join(a.title for a in articles))
-    hint_topics = {t for a in articles for t in a.source_topics}
+    hint_topics = {t for a in articles for t in (a.topics or a.source_topics)}
     topic_weight = max(
         (w for t in hint_topics for name, w in prefs.topics.items()
          if name in normalize(t) or normalize(t) in name),
@@ -100,6 +109,7 @@ def prerank_score(articles: list[Article], config: Config) -> float:
 
     score = (
         1.5 * corroboration
+        + 1.2 * position
         + 1.0 * size
         + 0.8 * recency
         + 0.6 * topic_weight
@@ -118,17 +128,23 @@ def prerank_score(articles: list[Article], config: Config) -> float:
 @dataclass
 class DigestResult:
     digest: Digest
+    #: (story, its articles), in published order.
     stories: list[tuple[Story, list[Article]]]
+    #: Section 14's "Also worth knowing": ranked below the cut, listed not written.
+    minor: list[tuple[Story, list[Article]]] = field(default_factory=list)
+    #: Language the LLM was asked to write in, after `auto` was resolved.
+    output_language: str = "en"
 
 
 def _interleave(groups: list[list[Article]]) -> list[Article]:
     """Flatten clusters round-robin, so the per-run enrichment cap is shared.
 
-    Flat concatenation gave the whole budget to the first cluster: on the
-    2026-W38 run all 40 enriched articles landed in one 52-article cluster and
-    seven of the eight published stories had none at all -- which is also how
-    `importance` came to mean "10 outlets" rather than "important". Round-robin
-    guarantees every candidate cluster its share; worst case, one article each.
+    Flat concatenation gives the whole budget to the first cluster: measured on
+    the RSS version of this pipeline, all 40 enriched articles landed in one
+    52-article cluster and seven of the eight published stories had none at all --
+    which is also how `importance` came to mean "10 outlets" rather than
+    "important". Round-robin guarantees every candidate cluster its share; worst
+    case, one article each.
     """
     out: list[Article] = []
     for index in range(max((len(g) for g in groups), default=0)):
@@ -150,6 +166,12 @@ def _apply_brief(story: Story, brief: Brief, written_by: str) -> None:
     story.why_it_matters = brief.why_it_matters or story.why_it_matters
     story.key_facts = brief.key_facts or story.key_facts
     story.topics = brief.topics or story.topics
+    # Never OR-ed with the existing value: an empty list is the brief's answer
+    # that the coverage does not conflict, and preserving a previous run's
+    # disagreement over that would assert one the model just denied.
+    story.disagreements = brief.disagreements
+    if brief.region:
+        story.regions = [brief.region]
     if brief.importance is not None:
         story.importance = brief.importance
     if brief.relevance is not None:
@@ -168,12 +190,14 @@ def build_digest(
     now: datetime | None = None,
     window: tuple[datetime, datetime] | None = None,
     persist: bool = True,
+    debug: object | None = None,
 ) -> DigestResult:
     """Run the whole weekly pipeline.
 
     With `persist=False` (a dry run) no story, digest or run is written. The
-    enrichment and embedding caches are still filled, since those are derived
-    data and make the next real run cheaper rather than changing its output.
+    classification, enrichment and embedding caches are still filled, since those
+    are derived data and make the next real run cheaper rather than changing its
+    output.
     """
     start, end = window or weekly_window(now, week_ends_on=config.digest.week_ends_on)
     log.info("weekly window %s .. %s", start.date(), end.date())
@@ -181,7 +205,9 @@ def build_digest(
     articles = select_candidates(
         store.articles_in_window(start, end, languages=config.settings.supported_languages)
     )
-    stats.articles_seen = len(articles)
+    stats.articles_in_window = len(articles)
+    if debug is not None:
+        debug.dump("articles", articles)
     if not articles:
         log.warning("no articles in the window; nothing to digest")
         digest = Digest(id=Digest.week_id(end - timedelta(days=1)),
@@ -189,15 +215,43 @@ def build_digest(
         if persist:
             store.save_digest(digest)
         stats.digest_id = digest.id
-        return DigestResult(digest=digest, stories=[])
+        return DigestResult(
+            digest=digest, stories=[], output_language=context.output_language
+        )
 
-    # 1. Embeddings for the whole window -- clustering needs them all.
+    # 1. Filter, before anything expensive. Section 8.
+    filter_report = classify_module.classify_articles(
+        store, llm, config.llm, config.filters, context, articles, persist=persist,
+    )
+    stats.classified = filter_report.classified
+    stats.classify_cached = filter_report.cached
+    stats.llm_calls = llm.calls
+
+    kept = classify_module.apply_filters(articles, config.filters, filter_report)
+    stats.filtered = filter_report.dropped
+    if debug is not None:
+        debug.dump("filtered", filter_report.dropped_not_news
+                   + filter_report.dropped_topic
+                   + filter_report.dropped_content_type)
+        debug.dump("kept", kept)
+    if not kept:
+        # Every article filtered out is far more likely to be a broken classifier
+        # than a week with no news in it, so the whole week is used rather than
+        # publishing nothing.
+        log.warning(
+            "filtering removed all %d articles; ignoring it for this run",
+            len(articles),
+        )
+        kept = articles
+    articles = kept
+
+    # 2. Embeddings for the whole window -- clustering needs them all.
     vectors, embed_report = embed_articles(store, embedder, articles)
     stats.embedded = embed_report.embedded
     stats.embed_cached = embed_report.cached
     stats.embed_calls = embed_report.calls
 
-    # 2. Cluster.
+    # 3. Cluster.
     groups = clustering.cluster(
         articles,
         vectors,
@@ -216,21 +270,22 @@ def build_digest(
         len(articles), len(groups), stats.cross_language_clusters,
     )
 
-    # 3. Pre-rank without the LLM, and keep only what is worth enriching.
+    # 4. Pre-rank without the LLM, and keep only what is worth enriching.
     groups.sort(key=lambda g: prerank_score(g, config), reverse=True)
-    keep = max(MIN_CANDIDATE_CLUSTERS, int(config.digest.max_stories * CANDIDATE_MULTIPLE))
+    wanted = config.digest.max_stories + config.digest.minor_stories
+    keep = max(MIN_CANDIDATE_CLUSTERS, int(wanted * CANDIDATE_MULTIPLE))
     candidates = groups[:keep]
     log.info("enriching the top %d of %d clusters", len(candidates), len(groups))
+    if debug is not None:
+        debug.dump_clusters("clusters", groups)
 
-    # 4. Briefs FIRST, before per-article enrichment.
+    # 5. Briefs FIRST, before per-article enrichment.
     #
-    # The order used to be the other way round, and on a free tier that spent
-    # the whole daily allowance analysing articles and then had nothing left to
-    # write the digest with. Enrichment is scaffolding -- it feeds ranking and is
-    # cached for next time -- while the brief is the only LLM output a reader
-    # actually sees on the page. So the brief is paid for first and enrichment
-    # gets the remainder. Observed 2026-09-15: 13 enrichment requests plus
-    # retries exhausted the day, and all six briefs fell back to raw article text.
+    # The order used to be the other way round, and on a free tier that spent the
+    # whole daily allowance analysing articles and then had nothing left to write
+    # the digest with. Enrichment is scaffolding -- it feeds ranking and is cached
+    # for next time -- while the brief is the only LLM output a reader actually
+    # sees. So the brief is paid for first and enrichment gets the remainder.
     ranked: list[tuple[Story, list[Article]]] = []
     briefs: dict[str, Brief] = {}
     quota_hit = False
@@ -245,27 +300,10 @@ def build_digest(
                 brief = None
             if brief:
                 briefs[story.id] = brief
-                # `brief.importance` IS copied over again as of 2026-09-18, the
-                # day a model earned it. The 2026-09-17 removal was correct for
-                # qwen3:8b, which returned 0.80-0.85 for every story. Its
-                # replacement -- build_story's `max(article importance) + 0.03 *
-                # (publishers - 1)` -- turned out to be worse than a constant on
-                # the run that followed: only 40 articles are enriched per run, so
-                # 7 of 8 published stories had NO enriched article at all and
-                # scored the publisher bonus alone. 0.27 meant "10 outlets", not
-                # "moderately important". A story-level number costs one request
-                # per candidate cluster instead of enriching 700 articles, which
-                # is the only way significance is affordable at all.
-                #
-                # Safe to try because `importance` is not in `ranking.terms`: if
-                # gemini also returns a flat 0.8 for everything, this changes the
-                # number on the page and nothing about the order. Check the spread
-                # after one run before putting the term back in the formula.
                 _apply_brief(story, brief, llm.name)
-
         ranked.append((story, group))
 
-    # 5. Per-article enrichment with whatever budget survived the briefs.
+    # 6. Per-article enrichment with whatever budget survived the briefs.
     candidate_articles = _interleave(candidates)
     enrich_report = enrich.enrich_articles(
         store, llm, config.llm, context, candidate_articles, persist=persist
@@ -277,11 +315,9 @@ def build_digest(
     # EVERY story is rebuilt, not just one whose brief failed. Enrichment is what
     # fills `entities`, `key_facts` and the article-level topics, and build_story
     # reads those off the articles -- so gating the rebuild on a FAILED brief meant
-    # a successful brief threw all of it away. Every story in the 2026-W38
-    # database has an empty entity list for that reason, and the enrichment
-    # requests that run paid for bought nothing but a warm cache. build_story
-    # derives the id from the cluster's URLs, so this refreshes in place rather
-    # than duplicating, and the brief goes back on top of it.
+    # a successful brief threw all of it away. build_story derives the id from the
+    # cluster's URLs, so this refreshes in place rather than duplicating, and the
+    # brief goes back on top of it.
     if enrich_report.enriched or enrich_report.cached:
         for index, (story, group) in enumerate(ranked):
             rebuilt = clustering.build_story(group)
@@ -290,51 +326,75 @@ def build_digest(
                 _apply_brief(rebuilt, brief, story.written_by or llm.name)
             ranked[index] = (rebuilt, group)
 
-    # 6. Score once, after every source of story fields has had its turn.
+    # 7. Score once, after every source of story fields has had its turn.
     for story, group in ranked:
         story.score = scoring.score_story(story, group, config.preferences)
-
     stats.llm_calls = llm.calls
 
-    # 6. Final ranking and the cut.
+    # 8. The cut: minimum coverage, then score, then geographic spread.
     ranked.sort(key=lambda pair: pair[0].score, reverse=True)
     if config.digest.min_articles > 1:
         ranked = [
             pair for pair in ranked if len(pair[1]) >= config.digest.min_articles
         ] or ranked
-    ranked = ranked[: config.digest.max_stories]
 
-    for story, group in ranked:
+    main = regions.diversify(
+        ranked,
+        limit=config.digest.max_stories,
+        max_share=config.regions.max_share,
+        enabled=config.regions.enabled,
+    )
+    chosen_ids = {story.id for story, _ in main}
+    minor = [pair for pair in ranked if pair[0].id not in chosen_ids][
+        : config.digest.minor_stories
+    ]
+
+    for story, group in main + minor:
         if persist and store.replace_story(story, [a.id for a in group]):
             stats.stories_new += 1
         stats.stories_total += 1
-    stats.stories_published = len(ranked)
+    stats.stories_published = len(main)
+    stats.minor_stories = len(minor)
 
     digest = Digest(
         id=Digest.week_id(end - timedelta(days=1)),
         period_start=start,
         period_end=end,
-        story_ids=[story.id for story, _ in ranked],
-        article_count=sum(len(group) for _, group in ranked),
+        story_ids=[story.id for story, _ in main],
+        minor_story_ids=[story.id for story, _ in minor],
+        article_count=sum(len(group) for _, group in main + minor),
         stats={
-            "articles_in_window": len(articles),
+            "articles_in_window": stats.articles_in_window,
+            "articles_filtered": stats.filtered,
             "clusters": stats.clusters,
             "cross_language_clusters": stats.cross_language_clusters,
             "embedded": stats.embedded,
             "embed_cached": stats.embed_cached,
+            "classified": stats.classified,
             "enriched": stats.enriched,
             "enrich_cached": stats.enrich_cached,
             "llm_calls": stats.llm_calls,
             "llm_cluster_checks": stats.llm_checks,
             "languages": _language_counts(articles),
+            "regions": regions.spread([story for story, _ in main]),
+            "output_language": context.output_language,
         },
     )
     if persist:
         store.save_digest(digest)
     stats.digest_id = digest.id
-    log.info("digest %s: %d stories from %d articles",
-             digest.id, len(ranked), digest.article_count)
-    return DigestResult(digest=digest, stories=ranked)
+    if debug is not None:
+        debug.dump_stories("stories", main, minor)
+    log.info(
+        "digest %s: %d stories (+%d minor) from %d articles",
+        digest.id, len(main), len(minor), digest.article_count,
+    )
+    return DigestResult(
+        digest=digest,
+        stories=main,
+        minor=minor,
+        output_language=context.output_language,
+    )
 
 
 def _language_counts(articles: list[Article]) -> dict[str, int]:

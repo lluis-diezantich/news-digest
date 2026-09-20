@@ -58,7 +58,7 @@ class TestConfigLoading:
     BASE = """
 sources:
   - name: Ara
-    rss: https://www.ara.cat/rss/
+    senders: ["@ara.cat"]
     languages: [ca]
 """
 
@@ -169,7 +169,7 @@ class TestTitlePatternConfig:
         path = tmp_path / "s.yaml"
         path.write_text(
             "exclude_title_patterns:\n  - 'unclosed ('\n"
-            "sources:\n  - name: X\n    rss: https://x.example/f.xml\n",
+            "sources:\n  - name: X\n    senders: ['@x.example']\n",
             encoding="utf-8",
         )
         with pytest.raises(ConfigError, match="exclude_title_patterns"):
@@ -179,7 +179,7 @@ class TestTitlePatternConfig:
         path = tmp_path / "s.yaml"
         path.write_text(
             "exclude_title_patterns:\n  - lamine yamal\n"
-            "sources:\n  - name: X\n    rss: https://x.example/f.xml\n"
+            "sources:\n  - name: X\n    senders: ['@x.example']\n"
             "    exclude_title_patterns:\n      - el tiempo hoy\n",
             encoding="utf-8",
         )

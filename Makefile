@@ -1,4 +1,4 @@
-.PHONY: help install test collect digest offline check build serve stats clean
+.PHONY: help install test run fetch parse digest offline check inspect build stats clean
 
 help:
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "%-10s %s\n", $$1, $$2}'
@@ -11,27 +11,32 @@ install:  ## create .venv and install the package with dev extras
 test:  ## run the test suite
 	.venv/bin/pytest -q
 
-collect:  ## daily pipeline: fetch, detect language, dedupe, store (no LLM)
-	.venv/bin/news-digest collect
+run:  ## the whole thing: fetch, parse, cluster, summarize, publish
+	.venv/bin/news-digest run
 
-digest:  ## weekly pipeline: embed, cluster, LLM, rank, publish
+fetch:  ## read the mailbox into the database
+	.venv/bin/news-digest fetch
+
+parse:  ## extract articles from stored messages
+	.venv/bin/news-digest parse
+
+digest:  ## cluster, summarize, rank and write, from what is already stored
 	.venv/bin/news-digest digest
 
-offline:  ## weekly pipeline with no API calls at all
+offline:  ## the weekly half with no API calls at all
 	.venv/bin/news-digest digest --no-llm --no-embeddings
 
-check:  ## fetch every enabled source once and report
+check:  ## do the source match rules actually match your mail?
 	.venv/bin/news-digest sources --check
 
-build:  ## regenerate docs/ from the database
-	.venv/bin/news-digest build
+inspect:  ## what is stored for the last finished week; writes nothing
+	.venv/bin/news-digest inspect
 
-serve:  ## serve docs/ at http://localhost:8000 (the page needs http, not file://)
-	@echo "open http://localhost:8000"
-	@cd docs && python3 -m http.server 8000
+build:  ## regenerate digests/ from the database
+	.venv/bin/news-digest build
 
 stats:  ## summarize the database
 	.venv/bin/news-digest stats
 
-clean:  ## remove caches and local scratch databases
-	rm -rf .pytest_cache **/__pycache__ data/local*.db
+clean:  ## remove caches, debug output and scratch databases
+	rm -rf .pytest_cache **/__pycache__ debug data/local*.db

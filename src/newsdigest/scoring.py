@@ -69,14 +69,19 @@ def corroboration(
 ) -> float:
     """Saturating bonus for multi-publisher coverage, in [0, 1].
 
-    Counts publishers, not feeds. Seven El País section feeds covering one story
-    are one outlet's view of it, and treating them as seven would let a single
-    publisher dominate the digest.
+    Counts publishers, not newsletters. Two EL PAÍS newsletters covering one
+    story are one outlet's view of it, and treating them as two would let a
+    single publisher dominate the digest.
 
     `saturation` is where the curve reaches 1.0, and it has to sit at the top of
-    the range your sources produce rather than below it: at the old value of 4,
-    every story with four or more outlets scored exactly 1.000, so the term said
-    nothing about the stories competing for the digest's slots.
+    the range your sources produce rather than inside it: a saturation point below
+    the range makes every story above it score exactly 1.000, so the term stops
+    saying anything about the stories competing for the digest's slots -- silently,
+    since it still computes and still appears in `explain`.
+
+    This matters more with newsletters than it did with feeds. Ten sources cannot
+    exceed ten publishers and will rarely pass five, so the usable range is narrow
+    and the default is a guess until a real week has been measured.
     """
     distinct = len({a.publisher for a in articles})
     return 0.0 if distinct <= 1 else min(1.0, math.log(distinct, max(2.0, saturation)))
@@ -90,17 +95,17 @@ def story_size(articles: list[Article]) -> float:
 def editorial_position(articles: list[Article]) -> float:
     """Best prominence any outlet gave this story, in [0, 1].
 
-    Feed and DOM order are the newsroom's own ordering -- measured 80-100%
-    concordant with the section front page on eight of the configured sources --
-    so position 0 is a human editor's answer to "what leads today", free and in
-    every language.
+    Position in a newsletter is an editor's own ordering, and a stronger claim
+    than a feed's: they chose these ten items out of the day's hundreds AND chose
+    which one opens. Free, and available in every language.
 
     It measures PROMOTION, not newsworthiness, and those differ where a
-    publisher is paid: on 2026-09-14 Ara's eight advertorial items sat at
-    positions 14-24 of 131. Two collection-side controls keep that out of reach
-    rather than any cleverness here -- `max_items` takes only the top ten, and
-    `exclude_url_patterns` drops the sections advertorial lives in. Widening
-    either one puts advertising back at the top of the digest.
+    publisher is paid. A newsletter's sponsor slot is the case that matters, and
+    it can sit anywhere -- including first, which is where it is worth most. Two
+    extraction-side controls keep it out of reach rather than any cleverness here:
+    `extract/boilerplate.py` drops a block labelled as paid placement before it
+    becomes an article, and classification drops what survives that. Loosening
+    either puts advertising at the top of the digest.
 
     The maximum, not the mean: a story one outlet led with and another buried is
     still a story someone thought led the day.

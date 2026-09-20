@@ -1,181 +1,216 @@
-"""Static output: the archive, the index, and RSS."""
+"""Markdown output: the digest file, the archive index, and the README block."""
 
-import json
-import re
 from datetime import datetime, timedelta, timezone
 
-from newsdigest import clustering, render
+from newsdigest import render
 from newsdigest.digest import DigestResult
-from newsdigest.models import Digest
+from newsdigest.models import Digest, Story
 
 from conftest import make_article
 
-MONDAY = datetime(2026, 9, 7, tzinfo=timezone.utc)
+MONDAY = datetime(2026, 9, 14, tzinfo=timezone.utc)
 
 
-def seed_digest(store, week="2026-W37", *, offset_weeks=0, titles=None):
-    titles = titles or ["Parliament approves the budget", "Wildfires close the coast road"]
-    start = MONDAY + timedelta(weeks=offset_weeks)
+def story(headline, *, summary="What happened, briefly.", **kw):
+    return Story(id=Story.make_id(headline), headline=headline, summary=summary, **kw)
+
+
+def result(pairs, minor=(), week="2026-W38"):
+    digest = Digest(
+        id=week,
+        period_start=MONDAY,
+        period_end=MONDAY + timedelta(days=7),
+        story_ids=[s.id for s, _ in pairs],
+        minor_story_ids=[s.id for s, _ in minor],
+        article_count=sum(len(a) for _, a in pairs),
+    )
+    return DigestResult(digest=digest, stories=list(pairs), minor=list(minor))
+
+
+def one(headline, *, publishers=("BBC",), **kw):
     articles = [
-        make_article(title, source=f"Outlet {i}", publisher=f"Outlet {i}",
-                     importance=0.5 + 0.1 * i, relevance=0.5,
-                     topics=["world"], entities=["Parliament"],
-                     published=start + timedelta(days=1, hours=i))
-        for i, title in enumerate(titles)
+        make_article(headline, source=p, publisher=p) for p in publishers
     ]
-    store.insert_articles(articles)
-    pairs = []
-    for article in articles:
-        story = clustering.build_story([article])
-        story.score = 1.0 + articles.index(article) * 0.1
-        store.replace_story(story, [article.id])
-        pairs.append((story, [article]))
-    pairs.sort(key=lambda p: -p[0].score)
-    digest = Digest(id=week, period_start=start, period_end=start + timedelta(days=7),
-                    story_ids=[s.id for s, _ in pairs], article_count=len(articles))
-    store.save_digest(digest)
-    return DigestResult(digest=digest, stories=pairs)
+    return story(headline, **kw), articles
 
 
-class TestWriteSite:
-    def test_writes_the_expected_files(self, tmp_path, config, store):
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        assert (tmp_path / "index.html").exists()
-        assert (tmp_path / "index.json").exists()
-        assert (tmp_path / "digests" / "2026-W37.json").exists()
-        assert (tmp_path / "feed.xml").exists()
-        assert (tmp_path / ".nojekyll").exists()
+class TestDigestMarkdown:
+    def test_the_heading_carries_the_title_and_the_dates(self, config):
+        text = render.digest_markdown(config, result([one("A thing happened")]))
+        assert text.startswith(f"# {config.digest.title}")
+        # period_end is exclusive, so the label stops at the last day covered.
+        assert "14–20 September 2026" in text
 
-    def test_digest_payload_shape(self, tmp_path, config, store):
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        payload = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-        assert payload["id"] == "2026-W37"
-        assert payload["label"]
-        assert payload["story_count"] == 2
-        assert payload["output_language"] == "en"
-        assert {p["name"] for p in payload["publishers"]} == {"Outlet 0", "Outlet 1"}
-        assert payload["languages"] == [{"code": "en", "articles": 2}]
-
-        story = payload["stories"][0]
-        for field in ("headline", "summary", "why_it_matters", "key_facts", "topics",
-                      "entities", "importance", "relevance", "score",
-                      "publishers", "publisher_count", "languages", "articles"):
-            assert field in story, field
-        article = story["articles"][0]
-        for field in ("title", "url", "source", "publisher", "language", "published_at"):
-            assert field in article, field
-
-    def test_original_title_and_url_are_preserved(self, tmp_path, config, store):
-        """Attribution: the link and the outlet's own headline must survive."""
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        payload = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-        titles = {a["title"] for s in payload["stories"] for a in s["articles"]}
-        assert "Parliament approves the budget" in titles
-        urls = {a["url"] for s in payload["stories"] for a in s["articles"]}
-        assert all(u.startswith("https://") for u in urls)
-
-    def test_story_order_follows_the_digest_ranking(self, tmp_path, config, store):
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        payload = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-        assert [s["id"] for s in payload["stories"]] == result.digest.story_ids
-
-
-class TestArchive:
-    def test_every_week_gets_its_own_file_and_index_entry(self, tmp_path, config, store):
-        seed_digest(store, "2026-W36", offset_weeks=-1,
-                    titles=["Older story about a ferry"])
-        result = seed_digest(store, "2026-W37")
-        render.write_site(tmp_path, config, store, result)
-
-        assert (tmp_path / "digests" / "2026-W36.json").exists()
-        assert (tmp_path / "digests" / "2026-W37.json").exists()
-        index = json.loads((tmp_path / "index.json").read_text())
-        assert [d["id"] for d in index["digests"]] == ["2026-W37", "2026-W36"]
-        assert index["archive"] is True
-        assert index["digests"][0]["story_count"] == 2
-
-    def test_archive_disabled_writes_only_the_latest(self, tmp_path, config, store):
-        seed_digest(store, "2026-W36", offset_weeks=-1, titles=["Older story"])
-        result = seed_digest(store, "2026-W37")
-        config.digest.archive = False
-        render.write_site(tmp_path, config, store, result)
-        index = json.loads((tmp_path / "index.json").read_text())
-        assert [d["id"] for d in index["digests"]] == ["2026-W37"]
-        assert not (tmp_path / "digests" / "2026-W36.json").exists()
-
-    def test_archive_limit_is_respected(self, tmp_path, config, store):
-        for week in range(30, 38):
-            seed_digest(store, f"2026-W{week}", offset_weeks=week - 37,
-                        titles=[f"Story from week {week} about local matters"])
-        config.digest.archive_limit = 3
-        render.write_site(tmp_path, config, store, None)
-        index = json.loads((tmp_path / "index.json").read_text())
-        assert len(index["digests"]) == 3
-
-    def test_output_is_reproducible_from_the_database_alone(self, tmp_path, config, store):
-        """Delete docs/ and one `build` restores it."""
-        seed_digest(store, "2026-W36", offset_weeks=-1, titles=["Older story"])
-        seed_digest(store, "2026-W37")
-        render.write_site(tmp_path, config, store, None)
-        first = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-
-        for path in tmp_path.rglob("*"):
-            if path.is_file():
-                path.unlink()
-        render.write_site(tmp_path, config, store, None)
-        second = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-        assert first["stories"] == second["stories"]
-
-    def test_no_digest_yet_still_writes_a_valid_index(self, tmp_path, config, store):
-        render.write_site(tmp_path, config, store, None)
-        index = json.loads((tmp_path / "index.json").read_text())
-        assert index["digests"] == []
-        assert (tmp_path / "index.html").exists()
-
-
-class TestRss:
-    def test_contains_one_item_per_story_with_attribution(self, tmp_path, config, store):
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result, site_url="https://me.example/")
-        xml = (tmp_path / "feed.xml").read_text()
-        assert xml.count("<item>") == 2
-        assert "https://me.example/" in xml
-        assert "Sources:" in xml
-        assert "Outlet 0" in xml
-
-    def test_escapes_markup_in_headlines(self, tmp_path, config, store):
-        result = seed_digest(store, titles=["Rates rise & <b>markets</b> react"])
-        render.write_site(tmp_path, config, store, result)
-        xml = (tmp_path / "feed.xml").read_text()
-        assert "&amp;" in xml and "<b>" not in xml
-
-    def test_is_well_formed(self, tmp_path, config, store):
-        from xml.etree import ElementTree
-
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        ElementTree.parse(tmp_path / "feed.xml")  # raises if malformed
-
-
-class TestPageShell:
-    def test_shell_reads_only_fields_the_payload_provides(self, tmp_path, config, store):
-        """Guards against the page referencing a field the renderer dropped."""
-        result = seed_digest(store)
-        render.write_site(tmp_path, config, store, result)
-        html = (tmp_path / "index.html").read_text()
-        payload = json.loads((tmp_path / "digests" / "2026-W37.json").read_text())
-        index = json.loads((tmp_path / "index.json").read_text())
-
-        referenced = set(re.findall(r"\b(?:story|a|d|entry)\.([a-z_]+)\b", html))
-        available = (
-            set(payload) | set(payload["stories"][0]) | set(payload["stories"][0]["articles"][0])
-            | set(index) | set(index["digests"][0])
-            # JS builtins and locals that the regex also catches.
-            | {"length", "map", "filter", "join", "toFixed", "split", "every",
-               "includes", "indexOf", "toUpperCase", "value", "code", "articles", "name"}
+    def test_stories_are_numbered_in_order(self, config):
+        text = render.digest_markdown(
+            config, result([one("First thing"), one("Second thing")])
         )
-        assert referenced <= available, referenced - available
+        assert "## 1. First thing" in text
+        assert "## 2. Second thing" in text
+        assert text.index("## 1.") < text.index("## 2.")
+
+    def test_each_story_links_every_publisher_once(self, config):
+        text = render.digest_markdown(
+            config, result([one("A thing", publishers=("BBC", "Reuters", "BBC"))])
+        )
+        assert text.count("[BBC]") == 1
+        assert "[Reuters]" in text
+
+    def test_why_it_matters_appears_when_there_is_one(self, config):
+        s, a = one("A thing", why_it_matters="It changes the budget.")
+        text = render.digest_markdown(config, result([(s, a)]))
+        assert "**Why it matters:** It changes the budget." in text
+
+    def test_an_empty_section_is_omitted_entirely(self, config):
+        """The target is five to ten minutes of reading, so nothing is padded."""
+        text = render.digest_markdown(config, result([one("A thing")]))
+        assert "Why it matters" not in text
+        assert "Where sources differ" not in text
+
+    def test_a_week_with_no_stories_says_so(self, config):
+        text = render.digest_markdown(config, result([]))
+        assert "No stories were published" in text
+
+    def test_the_footer_records_what_it_was_built_from(self, config):
+        text = render.digest_markdown(
+            config, result([one("A thing", publishers=("BBC", "EL PAÍS"))])
+        )
+        assert "2 publishers" in text
+        assert "Sources: BBC, EL PAÍS" in text
+
+    def test_brackets_in_a_headline_cannot_break_a_link(self, config):
+        text = render.digest_markdown(config, result([one("A [bracketed] thing")]))
+        assert "\\[bracketed\\]" in text
+
+    def test_a_headline_cannot_smuggle_in_a_heading(self, config):
+        text = render.digest_markdown(config, result([one("### Not a heading")]))
+        assert "## 1. Not a heading" in text
+
+
+class TestDisagreements:
+    """Section 15: where sources differ, the digest says so, and never resolves
+    it silently into the summary."""
+
+    def test_they_get_their_own_section(self, config):
+        s, a = one(
+            "A thing", publishers=("Reuters", "EL PAÍS"),
+            disagreements=["Reuters reported 12 dead, while EL PAÍS reported 14."],
+        )
+        text = render.digest_markdown(config, result([(s, a)]))
+        assert "**Where sources differ:**" in text
+        assert "Reuters reported 12 dead" in text
+
+    def test_they_are_not_folded_into_the_summary(self, config):
+        s, a = one("A thing", summary="Agreed facts only.",
+                   disagreements=["One outlet said X, another said Y."])
+        text = render.digest_markdown(config, result([(s, a)]))
+        summary_part = text.split("**Where sources differ:**")[0]
+        assert "another said Y" not in summary_part
+
+    def test_no_disagreement_means_no_section(self, config):
+        text = render.digest_markdown(config, result([one("A thing")]))
+        assert "Where sources differ" not in text
+
+
+class TestMinorStories:
+    """Section 14's "Also worth knowing": listed, not written up."""
+
+    def test_they_are_listed_under_their_own_heading(self, config):
+        text = render.digest_markdown(
+            config, result([one("Main thing")], minor=[one("Smaller thing")])
+        )
+        assert "## Also worth knowing" in text
+        assert "Smaller thing" in text
+
+    def test_they_get_no_write_up(self, config):
+        s, a = one("Smaller thing", summary="A summary nobody should see here.")
+        text = render.digest_markdown(config, result([one("Main")], minor=[(s, a)]))
+        assert "A summary nobody should see here" not in text
+
+    def test_none_means_no_heading(self, config):
+        text = render.digest_markdown(config, result([one("Main thing")]))
+        assert "Also worth knowing" not in text
+
+
+class TestFiles:
+    def test_the_path_is_year_then_week(self, tmp_path):
+        digest = Digest(id="2026-W38", period_start=MONDAY,
+                        period_end=MONDAY + timedelta(days=7))
+        assert render.digest_path(tmp_path, digest) == tmp_path / "2026" / "2026-W38.md"
+
+    def test_writing_creates_the_year_directory(self, tmp_path, config):
+        path = render.write_digest(tmp_path, config, result([one("A thing")]))
+        assert path.exists()
+        assert path.read_text(encoding="utf-8").startswith("#")
+
+    def test_the_index_lists_every_week_newest_first(self, tmp_path, config, store):
+        for week, day in (("2026-W37", 7), ("2026-W38", 14)):
+            store.save_digest(Digest(
+                id=week,
+                period_start=datetime(2026, 9, day, tzinfo=timezone.utc),
+                period_end=datetime(2026, 9, day + 7, tzinfo=timezone.utc),
+            ))
+        render.write_all(tmp_path, config, store, result([one("A thing")]))
+        index = (tmp_path / "README.md").read_text(encoding="utf-8")
+        assert index.index("2026-W38") < index.index("2026-W37")
+
+    def test_rebuild_restores_every_file_from_the_database(
+        self, tmp_path, config, store
+    ):
+        """`digests/` is an artefact of the database, not a second copy of it."""
+        s, articles = one("A stored thing", publishers=("BBC",))
+        store.insert_articles(articles)
+        store.replace_story(s, [a.id for a in articles])
+        store.save_digest(Digest(
+            id="2026-W38", period_start=MONDAY, period_end=MONDAY + timedelta(days=7),
+            story_ids=[s.id],
+        ))
+        written = render.rebuild(tmp_path, config, store)
+        assert written == 1
+        text = (tmp_path / "2026" / "2026-W38.md").read_text(encoding="utf-8")
+        assert "A stored thing" in text
+
+    def test_rebuild_keeps_the_two_tiers_apart(self, tmp_path, config, store):
+        main, main_articles = one("Main thing")
+        minor, minor_articles = one("Smaller thing")
+        store.insert_articles(main_articles + minor_articles)
+        store.replace_story(main, [a.id for a in main_articles])
+        store.replace_story(minor, [a.id for a in minor_articles])
+        store.save_digest(Digest(
+            id="2026-W38", period_start=MONDAY, period_end=MONDAY + timedelta(days=7),
+            story_ids=[main.id], minor_story_ids=[minor.id],
+        ))
+        render.rebuild(tmp_path, config, store)
+        text = (tmp_path / "2026" / "2026-W38.md").read_text(encoding="utf-8")
+        assert "## 1. Main thing" in text
+        assert "## Also worth knowing" in text
+        assert "## 2." not in text
+
+
+class TestReadme:
+    def test_the_digest_goes_between_the_markers(self, tmp_path, config):
+        readme = tmp_path / "README.md"
+        readme.write_text(
+            f"# My project\n\nSome prose.\n\n{render.README_START}\nold\n"
+            f"{render.README_END}\n\nMore prose.\n",
+            encoding="utf-8",
+        )
+        render.update_readme(readme, config, result([one("A new thing")]))
+        text = readme.read_text(encoding="utf-8")
+        assert "A new thing" in text
+        assert "old" not in text
+        assert text.startswith("# My project")
+        assert text.rstrip().endswith("More prose.")
+
+    def test_a_readme_without_markers_is_left_alone(self, tmp_path, config):
+        """This runs unattended every Monday. A workflow that rewrites
+        hand-written documentation is worse than one that does nothing."""
+        readme = tmp_path / "README.md"
+        readme.write_text("# My project\n\nAll hand written.\n", encoding="utf-8")
+        render.update_readme(readme, config, result([one("A new thing")]))
+        assert readme.read_text(encoding="utf-8") == "# My project\n\nAll hand written.\n"
+
+    def test_a_missing_readme_is_not_created(self, tmp_path, config):
+        readme = tmp_path / "README.md"
+        render.update_readme(readme, config, result([one("A thing")]))
+        assert not readme.exists()

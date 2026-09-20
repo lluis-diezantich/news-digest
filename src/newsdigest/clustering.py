@@ -34,6 +34,7 @@ from .llm.base import (
     normalize_topics,
 )
 from .models import Article, Story, utcnow
+from .regions import region_of
 from .text import article_similarity, truncate
 
 log = logging.getLogger(__name__)
@@ -314,6 +315,7 @@ def build_story(articles: list[Article]) -> Story:
 
     publishers = sorted({a.publisher for a in articles})
     languages = sorted({a.language for a in articles if a.language})
+    region = region_of(articles)
 
     return Story(
         id=Story.make_id(seed),
@@ -323,6 +325,9 @@ def build_story(articles: list[Article]) -> Story:
         key_facts=facts[:4],
         topics=[t for t, _ in topic_counts.most_common(MAX_TOPICS)],
         entities=[e for e, _ in entity_counts.most_common(10)],
+        # A list, though only ever one entry, so a story that straddles two
+        # regions can be recorded as such later without a schema change.
+        regions=[region] if region else [],
         # A story is as important as its most important article, nudged up when
         # several publishers independently thought it worth covering.
         importance=min(

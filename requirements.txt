@@ -1,5 +1,4 @@
 # Pinned-ish runtime deps for GitHub Actions. Mirrors pyproject [project.dependencies].
-feedparser>=6.0.11
 PyYAML>=6.0
 requests>=2.32
 python-dateutil>=2.9

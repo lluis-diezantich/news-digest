@@ -7,9 +7,31 @@ venv/
 .env
 .DS_Store
 
+# Intermediate JSON from `--debug`. Sanitized, but still a per-run artefact that
+# has no business in the history.
+debug/
+
 # Local scratch DBs. The canonical pipeline state (data/news.db) IS committed --
-# it is how dedupe/clustering survives between GitHub Actions runs.
+# it is how deduplication and the "already parsed" flag survive between runs.
+# Raw email bodies live in it until `prune` empties them, so the retention
+# setting `email_body_retention_days` is what keeps mailbox content out of the
+# published history. Keep it short.
 data/*.db-wal
 data/*.db-shm
 data/local*.db
 data/*.db.bak
+
+# Real newsletter fixtures. They carry the mailbox address in their Received
+# headers and, for some publishers, a per-subscriber id inside every link
+# (Piano's `/-c/117/.../20018313/860429/...` segment is constant across an
+# issue). Committing one publishes both. Keep them locally -- they are what the
+# extractor is developed against -- and let the two synthetic fixtures below,
+# which are hand-written and carry nothing real, be the ones the tests assert on.
+# The safe default is ignored, so a newly dropped-in real issue is never
+# committed by accident. A SYNTHETIC fixture has to be listed below to be
+# tracked -- and the tests import it by name, so a missing line shows up as a
+# failing test rather than as silence.
+tests/fixtures/emails/*.eml
+!tests/fixtures/emails/guardian_saturday.eml
+!tests/fixtures/emails/elpais_semana.eml
+!tests/fixtures/emails/tracked_newsletter.eml

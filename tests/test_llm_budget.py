@@ -12,8 +12,9 @@ from conftest import make_article
 
 from newsdigest import digest as digest_module
 from newsdigest.config import (
-    Config, DigestSettings, EmbeddingSettings, LLMSettings, Preferences,
-    Settings, Source, StorageSettings, load_llm_settings,
+    Config, DigestSettings, EmbeddingSettings, FilterSettings, LLMSettings,
+    NewsletterSource, Preferences, RegionSettings, Settings, StorageSettings,
+    load_llm_settings,
 )
 from newsdigest.llm.base import Brief, Context, LLMProvider, LLMQuotaError
 from newsdigest.models import RunStats
@@ -56,7 +57,9 @@ def config_for(**llm):
                     resolve_clusters=False, articles_per_run=100, batch_size=8)
     settings.update(llm)
     return Config(
-        sources=[Source(name="S", rss="https://x.invalid/rss", languages=["en"])],
+        sources=[NewsletterSource(name="S", senders=["n@x.invalid"], languages=["en"])],
+        filters=FilterSettings(classify=False),
+        regions=RegionSettings(),
         settings=Settings(supported_languages=["en"], output_language="en"),
         preferences=Preferences(),
         digest=DigestSettings(max_stories=2, min_articles=1),

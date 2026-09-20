@@ -41,7 +41,6 @@ from typing import Any
 import requests
 
 from .base import (
-    SAME_EVENT_SYSTEM_PROMPT,
     Brief,
     BriefInput,
     Context,
@@ -50,8 +49,12 @@ from .base import (
     LLMError,
     LLMProvider,
     PairInput,
+    Classification,
+    ClassifyInput,
     brief_system_prompt,
+    classify_system_prompt,
     enrich_system_prompt,
+    same_event_system_prompt,
 )
 
 log = logging.getLogger(__name__)
@@ -100,10 +103,30 @@ BRIEF_SCHEMA: dict[str, Any] = {
         "why_it_matters": {"type": "string"},
         "key_facts": _STRINGS,
         "topics": _STRINGS,
+        "disagreements": _STRINGS,
+        "region": {"type": "string"},
         "importance": {"type": "number"},
         "relevance": {"type": "number"},
     },
-    "required": ["headline", "summary", "why_it_matters", "key_facts", "topics"],
+    "required": [
+        "headline", "summary", "why_it_matters", "key_facts", "topics",
+        "disagreements",
+    ],
+}
+
+CLASSIFY_SCHEMA: dict[str, Any] = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "topics": _STRINGS,
+            "region": {"type": "string"},
+            "newsworthy": {"type": "boolean"},
+            "content_type": {"type": "string"},
+        },
+        "required": ["id", "topics", "newsworthy"],
+    },
 }
 
 SAME_EVENT_SCHEMA: dict[str, Any] = {
@@ -244,6 +267,46 @@ class OllamaProvider(LLMProvider):
             log.debug("ollama returned %d of %d enrichments", len(out), len(items))
         return out
 
+    def classify(
+        self, items: list[ClassifyInput], context: Context
+    ) -> list[Classification]:
+        if not items:
+            return []
+        prompt = json.dumps(
+            [
+                {
+                    "id": item.id,
+                    "title": item.title,
+                    "language": item.language,
+                    "excerpt": item.excerpt,
+                }
+                for item in items
+            ],
+            ensure_ascii=False,
+            indent=1,
+        )
+        data = _parse_json(
+            self._generate(classify_system_prompt(context), prompt, CLASSIFY_SCHEMA)
+        )
+        if not isinstance(data, list):
+            raise LLMError("ollama did not return a list of classifications")
+
+        wanted = {item.id for item in items}
+        out: list[Classification] = []
+        for entry in data:
+            if not isinstance(entry, dict) or str(entry.get("id")) not in wanted:
+                continue
+            out.append(
+                Classification(
+                    id=str(entry["id"]),
+                    topics=_strings(entry.get("topics")),
+                    region=str(entry.get("region") or ""),
+                    newsworthy=bool(entry.get("newsworthy", True)),
+                    content_type=entry.get("content_type"),
+                ).clamp()
+            )
+        return out
+
     def write_brief(self, item: BriefInput, context: Context) -> Brief | None:
         payload = {
             "headlines": item.headlines,
@@ -266,6 +329,8 @@ class OllamaProvider(LLMProvider):
             why_it_matters=str(data.get("why_it_matters") or ""),
             key_facts=_strings(data.get("key_facts")),
             topics=_strings(data.get("topics")),
+            disagreements=_strings(data.get("disagreements")),
+            region=str(data.get("region") or ""),
             importance=_optional_number(data.get("importance")),
             relevance=_optional_number(data.get("relevance")),
         ).clamp()
@@ -285,7 +350,7 @@ class OllamaProvider(LLMProvider):
         ]
         data = _parse_json(
             self._generate(
-                SAME_EVENT_SYSTEM_PROMPT,
+                same_event_system_prompt(context),
                 json.dumps(payload, ensure_ascii=False, indent=1),
                 SAME_EVENT_SCHEMA,
             )

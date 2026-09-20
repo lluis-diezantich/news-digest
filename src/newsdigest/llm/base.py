@@ -3,9 +3,18 @@
 Everything the pipeline needs from an LLM is behind this interface, so swapping
 providers means adding one module and one registry entry.
 
-The LLM is asked for language understanding only -- summarize, classify, extract,
+The LLM is asked for language understanding only -- classify, summarize, extract,
 rate, and adjudicate a borderline cluster. It never decides the final ranking;
 `scoring.py` does that from a formula you control.
+
+Four jobs, in the order the pipeline uses them:
+
+  classify     cheap triage over every article: topics, region, is-this-news
+  same_event   adjudicate a borderline cluster
+  write_brief  merge one cluster into the entry a reader sees
+  enrich       per-article detail, for ranking and the entity lists
+
+The prompts for all four live in `prompts/`, not here.
 """
 
 from __future__ import annotations
@@ -13,6 +22,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
+from .. import prompts
+from ..regions import REGIONS, normalize_region
 from ..text import normalize
 
 #: Article kinds the model may return.
@@ -213,12 +224,55 @@ class Brief:
     why_it_matters: str = ""
     key_facts: list[str] = field(default_factory=list)
     topics: list[str] = field(default_factory=list)
+    #: Where the outlets differ, one sentence each. Section 15: these are kept
+    #: apart from `summary` so a disagreement cannot be silently resolved into
+    #: the digest's own voice.
+    disagreements: list[str] = field(default_factory=list)
+    region: str = ""
     importance: float | None = None
     relevance: float | None = None
 
     def clamp(self) -> "Brief":
         """A brief's topics overwrite the whole story's, so they matter most."""
         self.topics = normalize_topics(self.topics)
+        self.region = normalize_region(self.region)
+        self.disagreements = [
+            d.strip() for d in self.disagreements if str(d).strip()
+        ][:2]
+        return self
+
+
+@dataclass
+class ClassifyInput:
+    """One article for the cheap triage pass."""
+
+    id: str
+    title: str
+    language: str | None
+    excerpt: str
+
+
+@dataclass
+class Classification:
+    """Triage verdict for one article.
+
+    `newsworthy` defaults to True, and that default is load-bearing: this pass
+    decides what is dropped before clustering, so a model that omits the field,
+    or a batch that fails outright, must not silently empty the digest. Filtering
+    is something the classifier has to actively ask for.
+    """
+
+    id: str
+    topics: list[str] = field(default_factory=list)
+    region: str = ""
+    newsworthy: bool = True
+    content_type: str | None = None
+
+    def clamp(self) -> "Classification":
+        self.topics = normalize_topics(self.topics)
+        self.region = normalize_region(self.region)
+        kind = (self.content_type or "").strip().lower()
+        self.content_type = kind if kind in CONTENT_TYPES else None
         return self
 
 
@@ -236,7 +290,13 @@ class PairInput:
 
 
 class LLMProvider(ABC):
-    """Implement these three methods to add a provider."""
+    """Implement the three abstract methods to add a provider.
+
+    `classify` is deliberately NOT abstract. Its default offers no opinion, which
+    the pipeline reads as "keep everything" -- so a new provider that cannot
+    triage degrades to no topic filtering rather than to an empty digest, and can
+    be added without implementing four methods at once.
+    """
 
     name: str = ""
     model: str = ""
@@ -246,6 +306,18 @@ class LLMProvider(ABC):
 
     def cache_key(self, context: Context) -> str:
         return f"{self.name}:{self.model}:{context.cache_key_part()}"
+
+    def classify_cache_key(self, context: Context) -> str:
+        """Separate from `cache_key` so a prompt change to one pass does not
+        invalidate the other's cache -- they are different questions about the
+        same text and cost very different amounts to re-answer."""
+        return f"{self.name}:{self.model}:classify:{context.cache_key_part()}"
+
+    def classify(
+        self, items: list["ClassifyInput"], context: Context
+    ) -> list["Classification"]:
+        """Triage a batch. One Classification per input `id`, or none at all."""
+        return []
 
     @abstractmethod
     def enrich(self, items: list[EnrichInput], context: Context) -> list[Enrichment]:
@@ -268,84 +340,41 @@ class LLMProvider(ABC):
         """
 
 
+def _topic_list() -> str:
+    return ", ".join(TOPICS)
+
+
+def _region_list() -> str:
+    return ", ".join(REGIONS)
+
+
 def enrich_system_prompt(context: Context) -> str:
-    interests = ", ".join(context.interests) or "general news"
-    excluded = ", ".join(context.excluded_topics) or "none"
-    topic_list = ", ".join(TOPICS)
-    return f"""\
-You are a news desk editor building one reader's personal weekly digest.
+    return prompts.render(
+        "enrich_article",
+        output_language=language_name(context.output_language),
+        topic_list=_topic_list(),
+        interests=", ".join(context.interests) or "general news",
+        excluded=", ".join(context.excluded_topics) or "none",
+    )
 
-Articles arrive in English, Spanish or Catalan. Read them in their original
-language. Write EVERY piece of output in {language_name(context.output_language)},
-whatever language the article was written in. Never translate the article's
-title -- that is preserved separately and shown as published.
 
-For each article you get title, source, language, publication time and a short
-excerpt. That excerpt is all you get: never invent detail beyond it, and never
-speculate about what the rest of the article says.
-
-Return for every article:
-- summary: 1-2 neutral sentences, max 45 words, in your own words.
-- why_it_matters: one short clause on the consequence or stakes. Empty string if
-  the excerpt does not support one.
-- key_facts: up to 3 short factual statements the excerpt actually contains
-  (numbers, dates, names, decisions). No inference.
-- topics: 1-3 chosen ONLY from this exact list, copied exactly:
-  {topic_list}
-  Use no other word, invent nothing, and do not qualify them ("politics", never
-  "spanish politics"). A country, city or organization is never a topic -- it is
-  an entity. Return an empty list rather than a topic that is not on the list.
-- entities: the people, organizations, places and products the article is about.
-  Canonical names, at most 6. Keep names in their original form.
-- importance: 0.0-1.0, how consequential to a general audience. 0.9+ major world
-  event, 0.6 significant national or industry news, 0.3 routine, 0.1 trivia. Be
-  sparing with high scores.
-- relevance: 0.0-1.0, how well this matches THIS reader's interests, which are:
-  {interests}. Score low for topics they exclude: {excluded}. Relevance is
-  independent of importance -- a major story outside their interests is high
-  importance and low relevance.
-- content_type: one of reporting, analysis, opinion, other.
-
-Return one object per input article, keeping the given id. No commentary."""
+def classify_system_prompt(context: Context) -> str:
+    return prompts.render(
+        "classify_story",
+        topic_list=_topic_list(),
+        region_list=_region_list(),
+    )
 
 
 def brief_system_prompt(context: Context) -> str:
-    topic_list = ", ".join(TOPICS)
-    return f"""\
-Several outlets covered one event, possibly in different languages. Write the
-single digest entry for it, in {language_name(context.output_language)}.
-
-- headline: neutral, factual, max 12 words. Not a copy of any one outlet's
-  headline, and not clickbait.
-- summary: 2-3 sentences synthesizing what the coverage agrees on. If sources
-  conflict on a material fact, say so plainly rather than picking a side.
-- why_it_matters: one sentence on the consequence.
-- key_facts: up to 4 short factual statements supported by the excerpts.
-- topics: 1-3 chosen ONLY from this exact list, copied exactly:
-  {topic_list}
-  No other word, no qualifiers, no place names. Empty list if none fit.
-- importance: 0.0-1.0, how consequential to a general audience. 0.9+ a major world
-  event, 0.6 significant national or industry news, 0.3 routine, 0.1 trivia. Be
-  sparing with high scores. Wide coverage is NOT importance -- you are being shown
-  a story precisely because several outlets ran it, and soft news is the most
-  syndicated kind there is. An awards ceremony, a match result, a celebrity item,
-  a lottery draw or a human-interest obituary is at most 0.4 however many outlets
-  ran it and however prominently they placed it.
-- relevance: 0.0-1.0 for a reader interested in {', '.join(context.interests) or 'general news'}.
-
-Use only what the excerpts support. Do not add background you were not given.
-Where outlets in different languages describe the same fact, state it once."""
+    return prompts.render(
+        "write_brief",
+        output_language=language_name(context.output_language),
+        topic_list=_topic_list(),
+        region_list=_region_list(),
+        interests=", ".join(context.interests) or "general news",
+    )
 
 
-SAME_EVENT_SYSTEM_PROMPT = """\
-You decide whether two news articles report THE SAME underlying real-world
-event. They may be in different languages; that is irrelevant to the judgement.
-
-Same event: both describe one occurrence, decision, announcement or incident,
-even with different framing, detail or language.
-Not the same event: same topic, organisation or people but different
-occurrences; a follow-up or reaction piece about a different development; a
-round-up covering many events.
-
-For each numbered pair return its key and a boolean `same_event`. If you
-genuinely cannot tell from the excerpts, omit that pair from your answer."""
+def same_event_system_prompt(context: Context | None = None) -> str:
+    return prompts.render("cluster_stories")

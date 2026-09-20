@@ -1,18 +1,19 @@
-"""Command line entry point.
+"""Command line interface.
 
-The two pipelines are separate commands because they run on different schedules:
+    news-digest run                     # fetch, parse, and publish the week
+    news-digest fetch --from 2026-09-14 # just read the mailbox
+    news-digest parse --force           # re-extract, after changing the parser
+    news-digest digest --days 7         # rebuild from what is already stored
+    news-digest inspect --week 2026-W38 # what happened, changing nothing
+    news-digest sources --check         # do the match rules actually match?
+    news-digest explain <story-id>      # why did this rank where it did?
 
-    news-digest collect                 # daily: fetch, detect language, store
-    news-digest digest                  # weekly: embed, cluster, LLM, publish
-    news-digest digest --no-llm         # same, offline heuristics, no API calls
-    news-digest digest --week 2026-W36  # rebuild a specific past week
-    news-digest digest --days 7         # rolling window ending now, for local runs
-    news-digest build                   # regenerate docs/ from the database
-    news-digest sources --check         # verify every configured source responds
-    news-digest stats                   # what is in the database
-    news-digest explain <story-id>      # why a story ranked where it did
-    news-digest themes                  # what the week was ABOUT, no model needed
-    news-digest themes iran             # every article on one theme
+Section 26 of the specification lists `process` and `generate` as separate
+commands. They are one command here, `digest`, because clustering, summarizing,
+ranking and writing share a transaction: stopping between them would mean
+persisting a digest with no summaries in it, which is not a state worth being
+able to reach. `process` and `generate` are accepted as aliases so the names in
+the specification still work.
 """
 
 from __future__ import annotations
@@ -20,123 +21,146 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import os
 import sys
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 
-from . import pipeline, render, scoring, themes as themes_module
+from . import pipeline, render, scoring
 from .config import (
     DEFAULT_DB,
+    DEFAULT_DEBUG,
+    DEFAULT_FILTERS,
     DEFAULT_OUT,
     DEFAULT_PREFERENCES,
     DEFAULT_SOURCES,
+    REPO_ROOT,
     ConfigError,
     load_config,
 )
-from .models import Digest, utcnow
-from .sources import Fetcher, adapter_for
+from .digest import select_candidates, weekly_window
+from .inbox import MailboxError, Matcher, get_mailbox, parse_message
+from .models import utcnow
 from .store import Store
+
+log = logging.getLogger(__name__)
 
 
 def _add_global_args(parser: argparse.ArgumentParser, *, suppress: bool) -> None:
-    """Shared options.
+    """Options accepted either side of the subcommand.
 
     Added to the top-level parser with real defaults and to every subparser with
     SUPPRESS defaults, so `--db X digest` and `digest --db X` both work and the
-    subparser only overrides what was actually typed.
+    subparser only overrides what was actually typed. Without SUPPRESS the
+    subparser's default silently overwrites a value given before the subcommand,
+    which is the shape every recipe in the docs uses.
     """
 
     def default(value):
         return argparse.SUPPRESS if suppress else value
 
     parser.add_argument("--sources", type=Path, default=default(DEFAULT_SOURCES),
-                        help=f"sources YAML (default: {DEFAULT_SOURCES})")
+                        help=f"sources file (default: {DEFAULT_SOURCES})")
     parser.add_argument("--preferences", type=Path, default=default(DEFAULT_PREFERENCES),
-                        help=f"preferences YAML (default: {DEFAULT_PREFERENCES})")
+                        help=f"preferences file (default: {DEFAULT_PREFERENCES})")
+    parser.add_argument("--filters", type=Path, default=default(DEFAULT_FILTERS),
+                        help=f"filters file (default: {DEFAULT_FILTERS})")
     parser.add_argument("--db", type=Path, default=default(DEFAULT_DB),
                         help=f"SQLite database (default: {DEFAULT_DB})")
     parser.add_argument("--out", type=Path, default=default(DEFAULT_OUT),
-                        help=f"static site output directory (default: {DEFAULT_OUT})")
-    parser.add_argument("-v", "--verbose", action="store_true", default=default(False),
-                        help="debug logging")
-    parser.add_argument("-q", "--quiet", action="store_true", default=default(False),
-                        help="warnings and errors only")
+                        help=f"digest output directory (default: {DEFAULT_OUT})")
+    parser.add_argument("--debug", nargs="?", const=str(DEFAULT_DEBUG),
+                        default=default(None), metavar="DIR",
+                        help="export intermediate JSON (default: debug/)")
+    parser.add_argument("-v", "--verbose", action="store_true", default=default(False))
+    parser.add_argument("-q", "--quiet", action="store_true", default=default(False))
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="news-digest",
-        description="Personal multilingual news aggregator: collect daily, digest weekly.",
+        description="Turn a week of newsletters into one digest.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     _add_global_args(parser, suppress=False)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
     common = argparse.ArgumentParser(add_help=False)
     _add_global_args(common, suppress=True)
 
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    # Window options, shared by every command that has a window.
+    window = argparse.ArgumentParser(add_help=False)
+    group = window.add_mutually_exclusive_group()
+    group.add_argument("--week", help="an ISO week like 2026-W38")
+    group.add_argument("--days", type=int, metavar="N",
+                       help="the last N days, ending now")
+    window.add_argument("--from", dest="from_date", metavar="DATE",
+                        help="window start, YYYY-MM-DD")
+    window.add_argument("--to", dest="to_date", metavar="DATE",
+                        help="window end, YYYY-MM-DD (exclusive)")
+    window.add_argument("--source", action="append", default=[], dest="only",
+                        metavar="NAME", help="restrict to one source; repeatable")
 
-    collect = subparsers.add_parser("collect", parents=[common],
-                                   help="daily collection: fetch, normalize, store")
-    collect.add_argument("--no-prune", action="store_true", help="keep articles past retention")
-    collect.add_argument("--dry-run", action="store_true",
-                         help="fetch and store, but record no run and prune nothing")
+    fetch = subparsers.add_parser("fetch", parents=[common, window],
+                                  help="read the mailbox into the database")
+    fetch.add_argument("--dry-run", action="store_true",
+                       help="report what would be stored, store nothing")
 
-    digest = subparsers.add_parser("digest", parents=[common],
-                                   help="weekly processing: embed, cluster, LLM, publish")
+    parse_cmd = subparsers.add_parser("parse", parents=[common, window],
+                                      help="extract articles from stored messages")
+    parse_cmd.add_argument("--force", action="store_true",
+                           help="re-parse messages already parsed, for a changed parser")
+    parse_cmd.add_argument("--no-links", action="store_true",
+                           help="do not resolve tracking links over the network")
+    parse_cmd.add_argument("--dry-run", action="store_true")
+
+    digest = subparsers.add_parser(
+        "digest", parents=[common, window], aliases=["process", "generate"],
+        help="cluster, summarize, rank and write the digest",
+    )
     digest.add_argument("--no-llm", action="store_true",
-                        help="offline heuristic enrichment instead of the LLM")
+                        help="offline heuristics instead of a model")
     digest.add_argument("--no-embeddings", action="store_true",
-                        help="skip embeddings; clustering becomes within-language only")
-    window_group = digest.add_mutually_exclusive_group()
-    window_group.add_argument("--week",
-                              help="ISO week to build, e.g. 2026-W36 (default: last week)")
-    window_group.add_argument("--days", type=int, metavar="N",
-                              help="rolling window of the last N days, ending now, instead "
-                                   "of a calendar week -- for local experiments, not the "
-                                   "scheduled run (see rolling_window)")
-    digest.add_argument("--site-url", default=os.environ.get("SITE_URL", ""),
-                        help="public URL of the site, used in the RSS output")
+                        help="skip embeddings; clustering becomes within-language")
     digest.add_argument("--dry-run", action="store_true",
-                        help="process but persist nothing: no stories, digest, site "
-                             "or run record (caches are still filled)")
+                        help="build and report, write no digest and no stories")
 
-    build = subparsers.add_parser("build", parents=[common],
-                                  help="regenerate docs/ from the database")
-    build.add_argument("--site-url", default=os.environ.get("SITE_URL", ""))
+    run = subparsers.add_parser("run", parents=[common, window],
+                                help="fetch, parse and publish in one go")
+    run.add_argument("--no-llm", action="store_true")
+    run.add_argument("--no-embeddings", action="store_true")
+    run.add_argument("--no-links", action="store_true")
+    run.add_argument("--no-prune", action="store_true",
+                     help="keep data past retention")
+    run.add_argument("--force", action="store_true")
+    run.add_argument("--dry-run", action="store_true")
 
-    sources_cmd = subparsers.add_parser("sources", parents=[common],
-                                        help="list configured sources")
+    inspect = subparsers.add_parser("inspect", parents=[common, window],
+                                    help="what is stored for a window; writes nothing")
+    inspect.add_argument("--json", action="store_true")
+
+    subparsers.add_parser("build", parents=[common],
+                          help="regenerate digests/ from the database")
+
+    sources_cmd = subparsers.add_parser(
+        "sources", parents=[common], help="list sources, or test them against the mailbox"
+    )
     sources_cmd.add_argument("--check", action="store_true",
-                             help="fetch each enabled source once and report the result")
+                             help="open the mailbox and report what each rule matches")
+    sources_cmd.add_argument("--days", type=int, default=30,
+                             help="days of mail to check against (default: 30)")
 
-    stats_cmd = subparsers.add_parser("stats", parents=[common], help="summarize the database")
-    stats_cmd.add_argument("--json", action="store_true", help="machine-readable output")
+    stats_cmd = subparsers.add_parser("stats", parents=[common],
+                                      help="summarize the database")
+    stats_cmd.add_argument("--json", action="store_true")
 
     explain = subparsers.add_parser("explain", parents=[common],
-                                    help="show a story's ranking breakdown")
-    explain.add_argument("story_id", help="story id, as shown in the digest JSON")
-
-    themes_cmd = subparsers.add_parser(
-        "themes", parents=[common],
-        help="what the week was about, keyed on the names in the headlines",
-    )
-    themes_cmd.add_argument(
-        "theme", nargs="?",
-        help="show every article on one theme instead of the list (any of its keys)",
-    )
-    themes_window = themes_cmd.add_mutually_exclusive_group()
-    themes_window.add_argument("--week", help="an ISO week like 2026-W36")
-    themes_window.add_argument("--days", type=int, metavar="N",
-                               help="rolling window of N days ending now")
-    themes_cmd.add_argument("--top", type=int, default=None,
-                            help="themes to list (default: themes.top)")
-    themes_cmd.add_argument("--min-outlets", type=int, default=None, dest="min_outlets",
-                            help="outlets a theme needs (default: themes.min_publishers)")
-    themes_cmd.add_argument("--json", action="store_true", help="machine-readable output")
+                                    help="per-term ranking breakdown for one story")
+    explain.add_argument("story_id")
 
     prune = subparsers.add_parser("prune", parents=[common],
-                                  help="drop articles past the retention window")
-    prune.add_argument("--days", type=int, default=None, help="override retention_days")
+                                  help="apply retention now")
+    prune.add_argument("--days", type=int, default=None,
+                       help="override storage.retention_days")
 
     return parser
 
@@ -145,15 +169,19 @@ def setup_logging(verbose: bool, quiet: bool) -> None:
     level = logging.DEBUG if verbose else logging.WARNING if quiet else logging.INFO
     logging.basicConfig(
         level=level,
-        format="%(asctime)s %(levelname)-7s %(name)-24s %(message)s",
+        format="%(asctime)s %(levelname)-7s %(name)-22s %(message)s",
         datefmt="%H:%M:%S",
         stream=sys.stderr,
     )
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
+# --------------------------------------------------------------------------- #
+# windows
+# --------------------------------------------------------------------------- #
+
 def parse_week(value: str) -> tuple[datetime, datetime]:
-    """Turn '2026-W36' into that ISO week's [Monday, next Monday) window."""
+    """Turn '2026-W38' into that ISO week's [Monday, next Monday) window."""
     try:
         year_part, week_part = value.upper().split("-W")
         year, week = int(year_part), int(week_part)
@@ -162,33 +190,366 @@ def parse_week(value: str) -> tuple[datetime, datetime]:
         )
     except (ValueError, TypeError) as exc:
         raise ConfigError(
-            f"--week {value!r} is not an ISO week like 2026-W36 ({exc})"
+            f"--week {value!r} is not an ISO week like 2026-W38 ({exc})"
         ) from None
     return monday, monday + timedelta(days=7)
 
 
-def rolling_window(days: int) -> tuple[datetime, datetime]:
-    """The last `days` days ending right now: "what happened lately".
+def _date(value: str, flag: str) -> datetime:
+    try:
+        return datetime.combine(
+            datetime.strptime(value, "%Y-%m-%d").date(), time.min, tzinfo=timezone.utc
+        )
+    except ValueError:
+        raise ConfigError(f"{flag} {value!r} is not a date like 2026-09-14") from None
 
-    Deliberately not the default, and deliberately not aligned to midnight.
 
-    Not the default because the scheduled run needs a window that is the same
-    whenever it fires; `digest.weekly_window` gives it a finished calendar week
-    for that reason. This is the opposite trade -- a window that moves with the
-    clock, which is what you want when you are changing the pipeline and re-running
-    it against whatever has been collected so far.
+def resolve_window(args: argparse.Namespace, config) -> tuple[datetime, datetime]:
+    """The window a command should operate on.
 
-    Not aligned to midnight because two runs on the same day would then cover the
-    same window, and the digest id is derived from the window's last day
-    (`Digest.week_id`), so a rolling run persisted into the real database would
-    overwrite the calendar week that shares that id. Ending at `now` keeps every
-    run distinct, but the id collision is still there: pair this with `--db` and
-    `--out` pointing somewhere scratch, or `--dry-run`. cli.md has the recipe.
+    Four ways to say it, in precedence order: `--from/--to`, `--week`, `--days`,
+    and nothing at all.
+
+    Nothing at all means the last FINISHED Monday-to-Sunday week, which is what a
+    scheduled run needs and almost never what you want while editing the
+    pipeline: on a Friday it rebuilds a week that ended five days ago. `--days`
+    is the rolling alternative -- and a rolling window's digest id comes from the
+    day it ends on, so a rolling run persisted into the real database claims the
+    id of the calendar week it lands in. Pair it with `--db`/`--out` pointing
+    somewhere scratch, or with `--dry-run`.
     """
-    if days < 1:
-        raise ConfigError(f"--days {days} must be at least 1")
-    end = utcnow()
-    return end - timedelta(days=days), end
+    from_date = getattr(args, "from_date", None)
+    to_date = getattr(args, "to_date", None)
+    if from_date or to_date:
+        start = _date(from_date, "--from") if from_date else utcnow() - timedelta(days=7)
+        end = _date(to_date, "--to") if to_date else utcnow()
+        if end <= start:
+            raise ConfigError(f"--to {to_date} is not after --from {from_date}")
+        return start, end
+
+    if getattr(args, "week", None):
+        return parse_week(args.week)
+
+    days = getattr(args, "days", None)
+    if days:
+        if days < 1:
+            raise ConfigError(f"--days {days} must be at least 1")
+        end = utcnow()
+        return end - timedelta(days=days), end
+
+    return weekly_window(week_ends_on=config.digest.week_ends_on)
+
+
+def _options(args: argparse.Namespace, config) -> pipeline.Options:
+    return pipeline.Options(
+        db=args.db,
+        out=args.out,
+        readme=REPO_ROOT / "README.md",
+        debug_dir=Path(args.debug) if getattr(args, "debug", None) else None,
+        dry_run=getattr(args, "dry_run", False),
+        prune=not getattr(args, "no_prune", False),
+        force=getattr(args, "force", False),
+        only=list(getattr(args, "only", []) or []),
+        resolve_links=not getattr(args, "no_links", False),
+    )
+
+
+# --------------------------------------------------------------------------- #
+# reporting
+# --------------------------------------------------------------------------- #
+
+def print_summary(stats, *, dry_run: bool = False) -> None:
+    """The counters section 22 asks for, in the order the pipeline produces them."""
+    rows = [
+        ("Fetched", f"{stats.emails_fetched} emails"
+                    + (f", {stats.emails_new} new" if stats.emails_new else "")
+                    + (f" ({stats.emails_unmatched} unmatched)"
+                       if stats.emails_unmatched else "")),
+        ("Parsed", f"{stats.emails_parsed} emails"),
+        ("Extracted", f"{stats.articles_extracted} items"
+                      + (f" ({stats.excluded} excluded, {stats.duplicates} dupes)"
+                         if stats.excluded or stats.duplicates else "")),
+        ("Stored", f"{stats.articles_new} articles"),
+        ("In window", f"{stats.articles_in_window} articles"),
+        ("Filtered", f"{stats.filtered} not news"),
+        ("Clusters", f"{stats.clusters}"
+                     + (f" ({stats.cross_language_clusters} cross-language)"
+                        if stats.cross_language_clusters else "")),
+        ("Selected", f"{stats.stories_published} stories"
+                     + (f" (+{stats.minor_stories} minor)"
+                        if stats.minor_stories else "")),
+    ]
+    # Rows that belong to a stage this command did not run are dropped, so
+    # `parse` does not print a confident "Clusters: 0".
+    empty_is_noise = {
+        "Fetched", "Parsed", "Extracted", "Stored", "In window", "Clusters",
+        "Selected",
+    }
+    rows = [
+        (label, value) for label, value in rows
+        if not (label in empty_is_noise and value.split()[0] == "0")
+    ] or rows
+    width = max(len(label) for label, _ in rows) + 2
+    print()
+    if dry_run:
+        print("DRY RUN — nothing was written\n")
+    for label, value in rows:
+        print(f"{label + ':':<{width}}{value}")
+    if stats.languages:
+        print(f"{'Languages:':<{width}}"
+              + ", ".join(f"{k} {v}" for k, v in stats.languages.items()))
+    if stats.llm_calls or stats.embed_calls:
+        print(f"{'API calls:':<{width}}{stats.llm_calls} llm, "
+              f"{stats.embed_calls} embedding")
+    failed = stats.sources_failed
+    if failed:
+        print("\nSources with errors:")
+        for report in failed:
+            print(f"  {report.name}: {report.error}")
+    print()
+
+
+def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    command = args.command
+    if command in ("process", "generate"):
+        command = "digest"
+    options = _options(args, config)
+
+    if command == "fetch":
+        start, end = resolve_window(args, config)
+        stats = pipeline.run_fetch(config, options, since=start, until=end)
+        print_summary(stats, dry_run=options.dry_run)
+        return 0
+
+    if command == "parse":
+        stats = pipeline.run_parse(
+            config, options, window=resolve_window(args, config)
+        )
+        print_summary(stats, dry_run=options.dry_run)
+        return 0
+
+    if command == "digest":
+        stats = pipeline.run_weekly(
+            config, options, window=resolve_window(args, config)
+        )
+        print_summary(stats, dry_run=options.dry_run)
+        return 0 if stats.stories_published or options.dry_run else 1
+
+    if command == "run":
+        start, end = resolve_window(args, config)
+        stats = pipeline.run_all(
+            config, options, since=start, until=end, window=(start, end)
+        )
+        print_summary(stats, dry_run=options.dry_run)
+        return 0 if stats.stories_published or options.dry_run else 1
+
+    if command == "inspect":
+        return _inspect(args, config, log)
+
+    if command == "build":
+        with Store(args.db) as store:
+            written = render.rebuild(
+                args.out, config, store, readme=options.readme
+            )
+        print(f"rebuilt {written} digest file(s) in {args.out}")
+        return 0
+
+    if command == "sources":
+        return _sources(args, config, log)
+
+    if command == "stats":
+        with Store(args.db) as store:
+            summary = store.summary()
+        if args.json:
+            print(json.dumps(summary, indent=2, ensure_ascii=False))
+        else:
+            for key, value in summary.items():
+                if key == "last_run":
+                    continue
+                print(f"{key + ':':<22}{value}")
+        return 0
+
+    if command == "explain":
+        return _explain(args, config, log)
+
+    if command == "prune":
+        days = args.days if args.days is not None else config.storage.retention_days
+        with Store(args.db) as store:
+            removed = store.prune(
+                days,
+                config.storage.embedding_retention_days,
+                config.storage.email_body_retention_days,
+            )
+        print(f"pruned {removed} rows (retention {days}d)")
+        return 0
+
+    log.error("unknown command %r", args.command)
+    return 2
+
+
+def _inspect(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    """Read-only: what is stored for a window, and how it would cluster.
+
+    Writes nothing -- no story, no digest, no cache row -- and builds no provider,
+    so it works with no API key, no mailbox and an exhausted quota. This is the
+    command for answering "why is that story not in the digest" without paying
+    for a run.
+    """
+    start, end = resolve_window(args, config)
+    with Store(args.db) as store:
+        emails = store.emails_in_window(start, end)
+        articles = select_candidates(
+            store.articles_in_window(
+                start, end, languages=config.settings.supported_languages
+            )
+        )
+        digest = store.get_digest(store.latest_digest().id) if store.latest_digest() else None
+
+    publishers = sorted({a.publisher for a in articles})
+    by_source: dict[str, int] = {}
+    for article in articles:
+        by_source[article.source] = by_source.get(article.source, 0) + 1
+
+    payload = {
+        "window": [start.date().isoformat(), end.date().isoformat()],
+        "emails": len(emails),
+        "emails_unparsed": sum(1 for m in emails if not m.parsed),
+        "articles": len(articles),
+        "publishers": len(publishers),
+        "by_source": dict(sorted(by_source.items(), key=lambda kv: -kv[1])),
+        "languages": {
+            lang: sum(1 for a in articles if a.language == lang)
+            for lang in sorted({a.language for a in articles if a.language})
+        },
+        "unclassified": sum(1 for a in articles if a.newsworthy is None),
+        "not_news": sum(1 for a in articles if a.newsworthy is False),
+        "regions": {
+            region: sum(1 for a in articles if a.region == region)
+            for region in sorted({a.region for a in articles if a.region})
+        },
+        "latest_digest": digest.id if digest else None,
+    }
+
+    if args.json:
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        return 0 if articles else 1
+
+    print(f"\n{start.date()} .. {end.date()}\n")
+    for key in ("emails", "emails_unparsed", "articles", "publishers",
+                "unclassified", "not_news"):
+        print(f"{key + ':':<18}{payload[key]}")
+    if payload["languages"]:
+        print(f"{'languages:':<18}"
+              + ", ".join(f"{k} {v}" for k, v in payload["languages"].items()))
+    if payload["regions"]:
+        print(f"{'regions:':<18}"
+              + ", ".join(f"{k} {v}" for k, v in payload["regions"].items()))
+    if by_source:
+        print("\nby source:")
+        for name, count in payload["by_source"].items():
+            print(f"  {name:<24}{count}")
+    if not articles:
+        print("\nNothing stored for this window.")
+        return 1
+
+    # Publisher spread is the number to look at before touching
+    # `corroboration_saturation`, which is uncalibrated for this source list: the
+    # term saturates at that value, so it has to sit at the top of the range the
+    # weeks actually produce rather than above or below it.
+    print(f"\n{'publishers:':<18}{len(publishers)} -- {', '.join(publishers)}")
+    print(
+        f"{'saturation:':<18}{config.preferences.corroboration_saturation:g} "
+        f"(corroboration reaches 1.0 here)"
+    )
+    print()
+    return 0
+
+
+def _sources(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    """List the configured sources, or test the match rules against real mail."""
+    sources = config.sources
+    if not args.check:
+        print()
+        for source in sources:
+            flag = " " if source.enabled else "-"
+            print(f"{flag} {source.name:<24}{source.publisher:<18}"
+                  f"{','.join(source.languages) or '?':<6}"
+                  f"{', '.join(source.senders)}")
+            if source.subject_patterns:
+                print(f"    subject: {', '.join(source.subject_patterns)}")
+            if source.sender_name_patterns:
+                print(f"    name   : {', '.join(source.sender_name_patterns)}")
+        print(f"\n{len(config.enabled_sources)} of {len(sources)} enabled\n")
+        return 0
+
+    # --check is the command for the question that actually bites: the rules look
+    # right, so why did nothing match? It reports per source AND lists the senders
+    # that matched nothing, which is where a wrong address shows up.
+    matcher = Matcher(config.enabled_sources)
+    since = utcnow() - timedelta(days=args.days)
+    counts: dict[str, int] = {s.name: 0 for s in config.enabled_sources}
+    unmatched: dict[str, int] = {}
+
+    try:
+        with get_mailbox(config.mailbox) as mailbox:
+            raw = mailbox.fetch(since, None)
+    except MailboxError as exc:
+        log.error("%s", exc)
+        return 2
+
+    for message in raw:
+        try:
+            parsed = parse_message(message.raw)
+        except ValueError:
+            continue
+        source = matcher.match(parsed)
+        if source is None:
+            key = parsed.sender or "(no sender)"
+            unmatched[key] = unmatched.get(key, 0) + 1
+        else:
+            counts[source.name] += 1
+
+    print(f"\n{len(raw)} messages in the last {args.days} days\n")
+    for name, count in counts.items():
+        mark = "ok  " if count else "NONE"
+        print(f"  {mark} {name:<24}{count}")
+    if unmatched:
+        print("\nsenders matching no source:")
+        for sender, count in sorted(unmatched.items(), key=lambda kv: -kv[1]):
+            print(f"  {count:>4}  {sender}")
+    silent = [name for name, count in counts.items() if not count]
+    print()
+    return 1 if silent else 0
+
+
+def _explain(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    with Store(args.db) as store:
+        story = store.get_story(args.story_id)
+        if story is None:
+            log.error("no story %r; ids appear in the digest JSON and debug output",
+                      args.story_id)
+            return 1
+        articles = store.articles_by_story([story.id]).get(story.id, [])
+
+    breakdown = scoring.explain(story, articles, config.preferences)
+    print(f"\n{story.headline}\n")
+    print(f"{len(articles)} articles from {len({a.publisher for a in articles})} "
+          f"publishers, {'/'.join(story.languages) or '?'}")
+    if story.regions:
+        print(f"region: {story.regions[0]}")
+    print()
+    total = breakdown.pop("total")
+    for term, value in sorted(breakdown.items(), key=lambda kv: -abs(kv[1])):
+        weight = config.preferences.ranking.get(term)
+        suffix = f"  (weight {weight})" if weight else ""
+        print(f"  {term:<22}{value:>9.4f}{suffix}")
+    print(f"  {'TOTAL':<22}{total:>9.4f}\n")
+    if story.disagreements:
+        print("sources differ:")
+        for line in story.disagreements:
+            print(f"  - {line}")
+        print()
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -197,7 +558,7 @@ def main(argv: list[str] | None = None) -> int:
     log = logging.getLogger("newsdigest")
 
     try:
-        config = load_config(args.sources, args.preferences)
+        config = load_config(args.sources, args.preferences, args.filters)
     except ConfigError as exc:
         log.error("%s", exc)
         return 2
@@ -212,320 +573,13 @@ def main(argv: list[str] | None = None) -> int:
     except ConfigError as exc:
         log.error("%s", exc)
         return 2
+    except MailboxError as exc:
+        log.error("mailbox: %s", exc)
+        return 3
     except KeyboardInterrupt:
         log.warning("interrupted")
         return 130
 
 
-def _cached_vectors(store, config, articles) -> dict:
-    """Vectors already in the cache, and never a model call.
-
-    `themes` is a reading command, so it reads the embedding_cache table the way it
-    reads the articles table. Building the provider is free -- the local model
-    loads lazily on its first `embed`, which never happens here -- and only its
-    `cache_key` is wanted, since vectors from different models are not comparable.
-    """
-    from .embeddings import get_provider
-
-    try:
-        key = get_provider(config.embeddings).cache_key()
-    except Exception:  # a provider we cannot even name has no cache to read
-        return {}
-    hashes = {a.id: a.content_hash() for a in articles}
-    cached = store.cached_vectors(list(set(hashes.values())), key)
-    return {aid: cached[h] for aid, h in hashes.items() if h in cached}
-
-
-#: Vector coverage below which dispersion is not attempted. Under this, clustering
-#: would fall back to comparing 1000+ articles by text similarity -- slow, and a
-#: reading command should not do that for a column.
-_MIN_VECTOR_COVERAGE = 0.5
-
-
-def _theme_spread(found, articles, vectors, config) -> dict:
-    """{theme key: (sub_clusters, mean similarity)} for every theme."""
-    if not articles or len(vectors) / len(articles) < _MIN_VECTOR_COVERAGE:
-        return {}
-    from . import clustering
-
-    events = clustering.cluster(
-        articles, vectors,
-        similarity_threshold=config.embeddings.similarity_threshold,
-        ambiguous_threshold=config.embeddings.ambiguous_threshold,
-        provider=None,
-    )
-    return {t.key: themes_module.dispersion(t, events, vectors) for t in found}
-
-
-def _spread_json(value, vectors) -> dict:
-    subs, mean = value
-    if not vectors:
-        return {"sub_clusters": None, "spread": None, "dispersed": None}
-    return {
-        "sub_clusters": subs,
-        "spread": round(mean, 4) if mean is not None else None,
-        "dispersed": themes_module.is_dispersed(subs, mean),
-    }
-
-
-def _themes_command(args: argparse.Namespace, config, log: logging.Logger) -> int:
-    """List what the window was about, or expand one theme.
-
-    Read-only by construction: it opens the store, reads articles, and prints. No
-    story, digest or cache row is written, and no provider is built -- which is why
-    it still works with no API key and an exhausted quota.
-    """
-    from .digest import select_candidates, weekly_window
-
-    if args.days:
-        window = rolling_window(args.days)
-    elif args.week:
-        window = parse_week(args.week)
-    else:
-        window = weekly_window(week_ends_on=config.digest.week_ends_on)
-
-    with Store(args.db) as store:
-        articles = select_candidates(
-            store.articles_in_window(
-                *window, languages=config.settings.supported_languages
-            )
-        )
-        vectors = _cached_vectors(store, config, articles)
-    if not articles:
-        log.warning("no articles between %s and %s", window[0].date(), window[1].date())
-        return 1
-
-    found = themes_module.group(
-        articles,
-        containers=config.themes.containers,
-        min_publishers=args.min_outlets or config.themes.min_publishers,
-    )
-    spread = _theme_spread(found, articles, vectors, config)
-
-    if args.theme:
-        theme = themes_module.find(found, args.theme)
-        if theme is None:
-            log.error("no theme matching %r; run without an argument to list them",
-                      args.theme)
-            return 1
-        if args.json:
-            payload = theme.to_json()
-            payload.update(_spread_json(spread.get(theme.key, (0, None)), vectors))
-            print(json.dumps(payload, indent=2, ensure_ascii=False))
-            return 0
-        subs, mean = spread.get(theme.key, (0, None))
-        print(f"{theme.key} · {len(theme.publishers)} outlets · "
-              f"{len(theme.articles)} articles · {theme.days}d · "
-              f"{'+'.join(theme.languages)}")
-        if vectors and subs:
-            note = " -- no single summary represents it" if themes_module.is_dispersed(
-                subs, mean) else ""
-            story = "story" if subs == 1 else "stories"
-            print(f"{subs} separate multi-outlet {story} inside it"
-                  + (f", spread {mean:.2f}{note}" if mean is not None else note))
-        if len(theme.keys) > 1:
-            shown = ", ".join(theme.keys[:8])
-            extra = len(theme.keys) - 8
-            print(f"merged keys: {shown}" + (f", and {extra} more" if extra > 0 else ""))
-        print()
-        for article in theme.newest_first():
-            stamp = (article.published_at or article.collected_at).strftime("%d %b %H:%M")
-            print(f"{stamp}  {article.language or '??'}  {article.publisher:<14} "
-                  f"{article.title}")
-            print(f"{'':<32}{article.url}")
-        print()
-        print("outlets: " + ", ".join(f"{p} ({n})" for p, n in theme.by_publisher()))
-        return 0
-
-    top = args.top or config.themes.top
-    if args.json:
-        print(json.dumps(
-            {
-                "window": [window[0].isoformat(), window[1].isoformat()],
-                "articles": len(articles),
-                "themes": [
-                    {**t.to_json(),
-                     **_spread_json(spread.get(t.key, (0, None)), vectors)}
-                    for t in found[:top]
-                ],
-            },
-            indent=2, ensure_ascii=False,
-        ))
-        return 0
-
-    print(f"{window[0].date()} .. {window[1].date()} · {len(articles)} articles · "
-          f"{len({a.publisher for a in articles})} outlets · {len(found)} themes")
-    print()
-    print(f"{'#':>3}  {'outlets':>7}  {'arts':>4}  {'days':>4}  {'sub':>4}  "
-          f"{'spread':>7}  theme")
-    dispersed_seen = False
-    for index, theme in enumerate(found[:top], 1):
-        label = theme.key
-        if len(theme.keys) > 1:
-            label += f"  ({', '.join(k for k in theme.keys[1:4] if k != theme.key)})"
-        subs, mean = spread.get(theme.key, (0, None))
-        flag = themes_module.is_dispersed(subs, mean)
-        dispersed_seen = dispersed_seen or flag
-        subs_col = "-" if not vectors else str(subs)
-        mean_col = "-" if mean is None else f"{mean:.2f}"
-        print(f"{index:>3}  {len(theme.publishers):>7}  {len(theme.articles):>4}  "
-              f"{theme.days:>4}  {subs_col:>4}  {mean_col:>7}  "
-              f"{'! ' if flag else '  '}{label}")
-    print()
-    if not vectors:
-        print("sub/spread need the embedding cache, which holds nothing for this "
-              "window; run `digest` for it, or ignore the columns")
-    else:
-        print("sub = separate multi-outlet stories inside the theme; spread = how "
-              "alike they are")
-        if dispersed_seen:
-            print("!   = holds several unlike stories, so no single summary "
-                  "represents it")
-    print(f"`{args.db.name if hasattr(args.db, 'name') else 'news.db'}` unchanged — "
-          f"run `news-digest themes <key>` for one theme's articles")
-    return 0
-
-
-def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
-    options = pipeline.Options(
-        db=args.db,
-        out=args.out,
-        site_url=getattr(args, "site_url", ""),
-        dry_run=getattr(args, "dry_run", False),
-        prune=not getattr(args, "no_prune", False),
-    )
-
-    if args.command == "collect":
-        stats = pipeline.run_collect(config, options)
-        print(
-            f"sources {stats.sources_ok}/{len(stats.sources)} ok | "
-            f"{stats.articles_new} new articles ({stats.duplicates} dupes) | "
-            f"languages {stats.languages or '{}'}"
-        )
-        for failure in stats.sources_failed:
-            print(f"  ! {failure.name}: {failure.error}")
-        if stats.sources and stats.sources_ok == 0:
-            log.error("every source failed")
-            return 1
-        return 0
-
-    if args.command == "digest":
-        window = None
-        if args.days:
-            window = rolling_window(args.days)
-        elif args.week:
-            window = parse_week(args.week)
-        stats = pipeline.run_weekly(config, options, window=window)
-        print(
-            f"digest {stats.digest_id} | {stats.stories_published} stories from "
-            f"{stats.clusters} clusters ({stats.cross_language_clusters} cross-language) | "
-            f"embeddings {stats.embedded} new/{stats.embed_cached} cached | "
-            f"enriched {stats.enriched} (+{stats.enrich_cached} cached) | "
-            f"{stats.llm_calls} llm + {stats.embed_calls} embed calls"
-        )
-        return 0
-
-    if args.command == "build":
-        with Store(args.db) as store:
-            payload = render.write_site(
-                args.out, config, store, None, site_url=args.site_url
-            )
-        print(f"wrote {payload.get('story_count', 0)} stories to {args.out}")
-        return 0
-
-    if args.command == "sources":
-        return _sources_command(args, config)
-
-    if args.command == "stats":
-        with Store(args.db) as store:
-            summary = store.summary()
-        if args.json:
-            print(json.dumps(summary, indent=2))
-        else:
-            print(f"database        {summary['db']} ({summary['size_kb']} KB)")
-            print(f"articles        {summary['articles']} "
-                  f"({summary['unenriched']} never enriched)")
-            print(f"languages       {summary['languages']}")
-            print(f"stories         {summary['stories']}")
-            print(f"digests         {summary['digests']} "
-                  f"(latest {summary['latest_digest'] or 'none'})")
-            print(f"cached llm      {summary['cached_enrichments']}")
-            print(f"cached vectors  {summary['cached_vectors']}")
-            last = summary["last_run"]
-            if last:
-                print(f"last run        {summary['last_run_kind']} at {last['finished_at']}")
-                for failure in last["sources_failed"]:
-                    print(f"  ! {failure['name']}: {failure['error']}")
-        return 0
-
-    if args.command == "themes":
-        return _themes_command(args, config, log)
-
-    if args.command == "explain":
-        with Store(args.db) as store:
-            story = store.get_story(args.story_id)
-            if story is None:
-                log.error("no story %r in %s", args.story_id, args.db)
-                return 1
-            articles = store.articles_by_story([story.id]).get(story.id, [])
-        print(f"{story.headline}\n")
-        print(f"  {len(articles)} articles from {len({a.publisher for a in articles})} "
-              f"outlets in {sorted({a.language for a in articles if a.language})}\n")
-        breakdown = scoring.explain(story, articles, config.preferences)
-        width = max(len(k) for k in breakdown)
-        for name, value in breakdown.items():
-            if name == "total":
-                print(f"  {'-' * (width + 8)}")
-            weight = config.preferences.ranking.get(name)
-            suffix = f"   (weight {weight})" if weight is not None else ""
-            print(f"  {name:<{width}}  {value:+.4f}{suffix}")
-        return 0
-
-    if args.command == "prune":
-        days = args.days if args.days is not None else config.storage.retention_days
-        with Store(args.db) as store:
-            removed = store.prune(days, config.storage.embedding_retention_days)
-        print(f"pruned {removed} rows older than {days} days")
-        return 0
-
-    return 2
-
-
-def _sources_command(args: argparse.Namespace, config) -> int:
-    health = {}
-    if args.db.exists():
-        with Store(args.db) as store:
-            health = {row["name"]: row for row in store.source_health()}
-
-    print(f"{'source':26} {'publisher':16} {'lang':6} {'w':>4}  status")
-    print("-" * 92)
-    for source in config.sources:
-        state = "enabled" if source.enabled else "disabled"
-        row = health.get(source.name)
-        if row and row["consecutive_failures"]:
-            state = f"failing x{row['consecutive_failures']}: {(row['last_error'] or '')[:28]}"
-        elif row and row["last_ok"]:
-            state = f"ok, {row['total_articles']} articles, last {row['last_ok'][:16]}"
-        print(f"{source.name[:25]:26} {source.publisher[:15]:16} "
-              f"{','.join(source.languages)[:5]:6} {source.weight:4.1f}  {state}")
-
-    if not args.check:
-        return 0
-
-    print("\nchecking enabled sources...")
-    failures = 0
-    with Fetcher(config.user_agent) as fetcher:
-        for source in config.enabled_sources:
-            try:
-                articles = adapter_for(source, fetcher).fetch(source)
-                newest = max((a.published_at for a in articles if a.published_at), default=None)
-                print(f"  ok    {source.name[:25]:26} {len(articles):3d} articles"
-                      f"{f', newest {newest:%Y-%m-%d %H:%M}' if newest else ''}")
-            except Exception as exc:
-                failures += 1
-                print(f"  FAIL  {source.name[:25]:26} {type(exc).__name__}: {exc}")
-    return 1 if failures else 0
-
-
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     raise SystemExit(main())

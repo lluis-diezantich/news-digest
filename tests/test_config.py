@@ -2,7 +2,7 @@ import pytest
 
 from newsdigest.config import (
     DEFAULT_LOCAL_TIMEOUT, DEFAULT_TIMEOUT, ConfigError, load_embedding_settings,
-    load_llm_settings, load_preferences, load_sources,
+    load_filters, load_llm_settings, load_preferences, load_sources,
 )
 
 
@@ -17,60 +17,110 @@ class TestShippedConfig:
         """What a first run actually loads."""
         sources = load_sources()
         settings, prefs, digest, storage, *_ = load_preferences()
+        # Section 2 names ten initial sources, five per language.
         assert len(sources) >= 10
         assert any(s.enabled for s in sources)
-        assert all(s.rss for s in sources if s.method == "rss")
-        assert settings.supported_languages == ["en", "es", "ca"]
+        assert all(s.senders for s in sources if s.enabled)
+        assert settings.supported_languages == ["en", "es"]
         assert digest.max_stories > 0
         assert storage.embedding_retention_days <= storage.retention_days
+        assert storage.email_body_retention_days <= storage.retention_days
+
+    def test_the_shipped_filters_are_valid(self):
+        filters = load_filters()
+        assert filters.excluded_topics
+        assert not set(filters.excluded_topics) & set(filters.include_topics)
 
     def test_every_enabled_source_declares_a_language(self):
         """Undeclared languages make detection guess on short headlines."""
         undeclared = [s.name for s in load_sources() if s.enabled and not s.languages]
         assert undeclared == []
 
-    def test_el_pais_sections_share_one_publisher(self):
-        """Otherwise seven feeds would read as seven corroborating outlets."""
-        sections = [s for s in load_sources() if s.name.startswith("El País")]
-        assert len(sections) > 1
-        assert {s.publisher for s in sections} == {"El País"}
+    def test_both_configured_languages_have_sources(self):
+        """Section 9: mixed-language input is the point, so neither side may be
+        empty -- a digest built from one language is not being tested."""
+        languages = {lang for s in load_sources() if s.enabled for lang in s.languages}
+        assert {"en", "es"} <= languages
+
+    def test_excluded_topics_are_in_the_classifier_vocabulary(self):
+        """A topic the classifier can never emit can never be excluded.
+
+        This silently disarmed the filter once already: closing the vocabulary
+        left `excluded_topics: [celebrity]` matching nothing at all, because no
+        model could return a word that was not on the list.
+        """
+        from newsdigest.llm.base import TOPICS
+
+        for topic in load_filters().excluded_topics:
+            assert topic in TOPICS, f"{topic!r} is not a topic any provider can emit"
+
+    def test_a_publisher_may_own_several_newsletters(self):
+        """Corroboration counts publishers, so this must be expressible."""
+        sources = load_sources()
+        assert all(s.publisher for s in sources)
+        # Two entries sharing a publisher must not be two corroborating outlets.
+        by_publisher: dict[str, int] = {}
+        for source in sources:
+            by_publisher[source.publisher] = by_publisher.get(source.publisher, 0) + 1
+        assert max(by_publisher.values()) >= 1
 
 
 class TestSources:
     def test_defaults_apply_per_source(self, tmp_path):
         path = write(tmp_path, "s.yaml", """
 defaults:
-  max_items_per_source: 5
   excerpt_chars: 300
 sources:
   - name: A
-    rss: https://a.invalid/rss
+    senders: ["@a.invalid"]
   - name: B
-    rss: https://b.invalid/rss
-    max_items: 50
+    senders: ["@b.invalid"]
+    excerpt_chars: 900
 """)
         sources = load_sources(path)
-        assert (sources[0].max_items, sources[0].excerpt_chars) == (5, 300)
-        assert sources[1].max_items == 50
+        assert sources[0].excerpt_chars == 300
+        assert sources[1].excerpt_chars == 900
 
-    def test_publisher_defaults_to_the_name(self, tmp_path):
+    def test_publisher_and_newsletter_default_to_the_name(self, tmp_path):
         path = write(tmp_path, "s.yaml",
-                     "sources:\n  - name: Solo\n    rss: https://a.invalid/rss\n")
-        assert load_sources(path)[0].publisher == "Solo"
+                     "sources:\n  - name: Solo\n    senders: ['@a.invalid']\n")
+        source = load_sources(path)[0]
+        assert source.publisher == "Solo"
+        assert source.newsletter == "Solo"
 
     def test_languages_are_lowercased(self, tmp_path):
         path = write(tmp_path, "s.yaml",
-                     "sources:\n  - name: A\n    rss: https://a.invalid/rss\n"
-                     "    languages: [EN, Ca]\n")
-        assert load_sources(path)[0].languages == ["en", "ca"]
+                     "sources:\n  - name: A\n    senders: ['@a.invalid']\n"
+                     "    languages: [EN, Es]\n")
+        assert load_sources(path)[0].languages == ["en", "es"]
+
+    def test_senders_are_lowercased(self, tmp_path):
+        """Addresses arrive in whatever case the sender chose."""
+        path = write(tmp_path, "s.yaml",
+                     "sources:\n  - name: A\n    senders: ['News@A.Invalid']\n")
+        assert load_sources(path)[0].senders == ["news@a.invalid"]
+
+    def test_subject_patterns_are_validated_as_regexes(self, tmp_path):
+        path = write(tmp_path, "s.yaml",
+                     "sources:\n  - name: A\n    senders: ['@a.invalid']\n"
+                     "    subject_patterns: ['saturday(']\n")
+        with pytest.raises(ConfigError, match="not a valid regex"):
+            load_sources(path)
+
+    def test_a_disabled_source_may_be_a_placeholder(self, tmp_path):
+        """No senders yet is fine while a subscription is still pending."""
+        path = write(tmp_path, "s.yaml",
+                     "sources:\n  - name: Pending\n    enabled: false\n")
+        assert load_sources(path)[0].senders == []
 
     @pytest.mark.parametrize("body,message", [
-        ("sources:\n  - name: NoUrl\n    method: scrape\n", "requires 'url'"),
-        ("sources:\n  - name: NoFeed\n", "requires 'rss'"),
-        ("sources:\n  - name: A\n    rss: x\n  - name: A\n    rss: y\n", "duplicate"),
-        ("sources:\n  - name: W\n    method: telepathy\n    rss: x\n", "unknown method"),
+        # An enabled source with no sender rule can never match a message, so it
+        # would sit in the config looking configured and contribute nothing.
+        ("sources:\n  - name: NoSender\n", "at least one 'senders'"),
+        ("sources:\n  - name: A\n    senders: ['@a.invalid']\n"
+         "  - name: A\n    senders: ['@b.invalid']\n", "duplicate"),
         ("sources: []\n", "non-empty list"),
-        ("sources:\n  - rss: https://a.invalid/rss\n", "missing 'name'"),
+        ("sources:\n  - senders: ['@a.invalid']\n", "missing 'name'"),
     ])
     def test_invalid_configs_are_rejected_with_the_reason(self, tmp_path, body, message):
         with pytest.raises(ConfigError, match=message):
@@ -125,9 +175,9 @@ class TestPreferences:
 
     def test_missing_file_uses_defaults(self, tmp_path):
         settings, prefs, digest, storage, *_ = load_preferences(tmp_path / "absent.yaml")
-        assert settings.supported_languages == ["en", "es", "ca"]
+        assert settings.supported_languages == ["en", "es"]
         assert prefs.topics == {}
-        assert digest.archive is True
+        assert digest.update_readme is True
 
     def test_output_language_outside_supported_is_allowed(self, tmp_path):
         """You may read Spanish sources and want an English digest."""
