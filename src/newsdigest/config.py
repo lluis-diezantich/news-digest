@@ -99,6 +99,16 @@ class NewsletterSource:
     #: is the fallback when a headline is too short to judge.
     languages: list[str] = field(default_factory=list)
     excerpt_chars: int = 1200
+    #: Most items to keep from one issue, in the order the newsletter put them.
+    #: 0 means no limit.
+    #:
+    #: A prose newsletter links far more than a digest one: the Guardian's "This
+    #: Is Europe" yielded 33 items in a week where Al Jazeera yielded 10, so a
+    #: third of the corpus -- and of the clustering, and of the pre-ranking --
+    #: came from one source regardless of its `weight`. Trimming from the END is
+    #: what makes this safe to apply: document order is the editor's own ranking,
+    #: which `prerank_score` already relies on.
+    max_items: int = 0
     #: Regexes matched against an item's URL, dropping it before it reaches the
     #: database. Still useful with newsletters, because an extracted item links
     #: the publisher's own article: `/deportes/`, `/horoscopo/`, `/loterias/`.
@@ -280,6 +290,16 @@ class DigestSettings:
     max_stories: int = 12
     #: Section 14's "Also worth knowing": stories just below the cut, as a list.
     minor_stories: int = 5
+    #: Largest share of the main stories one TOPIC may hold, the same soft cap
+    #: `regions` applies to geography. Lives here rather than in RegionSettings
+    #: because it is a property of the cut, not of the region vocabulary.
+    topic_max_share: float = 0.5
+    #: Off means the topic cap is not applied at all.
+    topic_spread: bool = True
+    #: Group published stories into narratives and write an entry across each.
+    #: Costs 1 + len(themes) requests; off means publish stories flat.
+    themes: bool = True
+    max_themes: int = 6
     #: Stories needing at least this many articles. 1, not the RSS project's 3:
     #: ten newsletters rarely triple-cover anything, and at 3 most weeks would
     #: publish nothing at all.
@@ -450,6 +470,9 @@ def load_sources(path: Path | str = DEFAULT_SOURCES) -> list[NewsletterSource]:
                 excerpt_chars=int(
                     entry.get("excerpt_chars", defaults.get("excerpt_chars", 1200))
                 ),
+                max_items=int(
+                    entry.get("max_items", defaults.get("max_items", 0))
+                ),
                 exclude_url_patterns=_regex_patterns(
                     global_excludes + _as_list(entry.get("exclude_url_patterns")),
                     path, name, "exclude_url_patterns",
@@ -602,9 +625,17 @@ def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
         max_stories=int(raw_digest.get("max_stories", digest_defaults.max_stories)),
         minor_stories=int(raw_digest.get("minor_stories", digest_defaults.minor_stories)),
         min_articles=int(raw_digest.get("min_articles", digest_defaults.min_articles)),
+        topic_max_share=float(
+            raw_digest.get("topic_max_share", digest_defaults.topic_max_share)
+        ),
+        topic_spread=bool(raw_digest.get("topic_spread", True)),
+        themes=bool(raw_digest.get("themes", True)),
+        max_themes=int(raw_digest.get("max_themes", digest_defaults.max_themes)),
         week_ends_on=week_ends_on,
         update_readme=bool(raw_digest.get("update_readme", True)),
     )
+    if not 0.0 < digest.topic_max_share <= 1.0:
+        raise ConfigError(f"{p}: digest.topic_max_share must be between 0 and 1")
     storage_defaults = StorageSettings()
     storage = StorageSettings(
         retention_days=int(

@@ -23,12 +23,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta, timezone
 
 from . import classify as classify_module
-from . import clustering, enrich, regions, scoring
+from . import clustering, enrich, regions, scoring, themes as themes_module
 from .config import Config
 from .embeddings.base import EmbeddingProvider
 from .embed import embed_articles
+from .extract import newsletter as extract_newsletter
 from .llm.base import Brief, Context, LLMProvider, LLMQuotaError
-from .models import Article, Digest, RunStats, Story, utcnow
+from .models import Article, Digest, RunStats, Story, Theme, utcnow
 from .store import Store
 from .text import normalize
 
@@ -134,6 +135,9 @@ class DigestResult:
     minor: list[tuple[Story, list[Article]]] = field(default_factory=list)
     #: Language the LLM was asked to write in, after `auto` was resolved.
     output_language: str = "en"
+    #: Narratives over `stories`. Empty means publish flat, which is what every
+    #: provider that cannot group returns.
+    themes: list[Theme] = field(default_factory=list)
 
 
 def _interleave(groups: list[list[Article]]) -> list[Article]:
@@ -338,16 +342,54 @@ def build_digest(
             pair for pair in ranked if len(pair[1]) >= config.digest.min_articles
         ] or ranked
 
+    # Topics are capped alongside regions in the SAME pass -- see `diversify`.
+    # A story's first topic is its primary one, the same convention the region
+    # cap uses, and an unclassified story is never deferred for it.
+    topic_caps = ()
+    if config.digest.topic_spread:
+        topic_cap = max(
+            1, int(config.digest.max_stories * config.digest.topic_max_share)
+        )
+        topic_caps = (
+            ("topic", lambda story: (story.topics or [""])[0], topic_cap),
+        )
     main = regions.diversify(
         ranked,
         limit=config.digest.max_stories,
         max_share=config.regions.max_share,
         enabled=config.regions.enabled,
+        extra_caps=topic_caps,
     )
     chosen_ids = {story.id for story, _ in main}
     minor = [pair for pair in ranked if pair[0].id not in chosen_ids][
         : config.digest.minor_stories
     ]
+
+    # AFTER the cut, deliberately. Theming the whole shortlist would spend a
+    # request grouping stories that are about to be dropped, and on a free tier
+    # the brief budget is the thing that runs out first.
+    themes: list[Theme] = []
+    if config.digest.themes:
+        # The editors' own framing, from the issues this window was built from.
+        editorial = [
+            summary
+            for summary in (
+                extract_newsletter.editorial_summary(email.html_body)
+                for email in store.emails_in_window(start, end)
+            )
+            if summary
+        ]
+        try:
+            themes = themes_module.group(
+                main, llm, context,
+                max_themes=config.digest.max_themes,
+                enabled=True,
+                editorial=editorial,
+            )
+        except LLMQuotaError:
+            # Same contract as the briefs: the digest publishes what it has.
+            log.warning("quota exhausted before themes; publishing stories flat")
+        stats.llm_calls = llm.calls
 
     for story, group in main + minor:
         if persist and store.replace_story(story, [a.id for a in group]):
@@ -378,6 +420,17 @@ def build_digest(
             "languages": _language_counts(articles),
             "regions": regions.spread([story for story, _ in main]),
             "output_language": context.output_language,
+            # What the digest could NOT see. Both are already derivable here and
+            # were thrown away: a reader cannot tell a quiet week from a week
+            # whose sources went silent, and neither can the next run.
+            "silent_sources": _silent_sources(config, articles),
+            "single_publisher_stories": sum(
+                1 for _, group in main
+                if len({a.publisher for a in group if a.publisher}) <= 1
+            ),
+            # `stats` is free-form JSON, so themes survive a rebuild from the
+            # database without a schema change.
+            "themes": [theme.as_dict() for theme in themes],
         },
     )
     if persist:
@@ -394,6 +447,22 @@ def build_digest(
         stories=main,
         minor=minor,
         output_language=context.output_language,
+        themes=themes,
+    )
+
+
+def _silent_sources(config: Config, articles: list[Article]) -> list[str]:
+    """Enabled sources that contributed nothing to this window.
+
+    Reported rather than inferred, because the two causes look identical in the
+    output and are not: a source whose mail did not arrive, and a source whose
+    match rules are wrong. `news-digest sources --check` tells them apart; the
+    digest's job is only to say that the gap exists.
+    """
+    seen = {article.source for article in articles}
+    return sorted(
+        source.name for source in config.sources
+        if source.enabled and source.name not in seen
     )
 
 

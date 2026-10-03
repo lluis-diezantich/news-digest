@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
+from collections.abc import Callable, Sequence
 
 from .text import normalize
 
@@ -119,8 +120,16 @@ def diversify(
     limit: int,
     max_share: float = 0.5,
     enabled: bool = True,
+    extra_caps: "Sequence[tuple[str, Callable, int]]" = (),
 ) -> list:
-    """Pick `limit` stories from `ranked`, capping any one region's share.
+    """Pick `limit` stories from `ranked`, capping any one bucket's share.
+
+    `extra_caps` adds further buckets to cap alongside the region, each as
+    (label, key, cap) where `key` maps a story to its bucket value. Geography was
+    the only cap for a while and it is not the only way a digest goes lopsided:
+    one real week came out half Spanish housing, every story in a different
+    region. One pass handles all the caps together, because applying them in
+    sequence lets the second shrink the first pass's result below `limit`.
 
     `ranked` is (story, articles) pairs in score order, and the return value is a
     subset of it still in score order: this changes WHICH stories are published,
@@ -139,25 +148,37 @@ def diversify(
         return ranked[:limit]
 
     cap = max(1, int(limit * max_share))
+    buckets: list = [
+        ("region", lambda story: (story.regions or [""])[0], cap),
+        *extra_caps,
+    ]
     chosen: list = []
     deferred: list = []
-    counts: Counter[str] = Counter()
+    #: Keyed by (bucket label, value), so two buckets cannot collide on a value
+    #: they happen to share -- "europe" as a region and as a topic.
+    counts: Counter[tuple[str, str]] = Counter()
 
     for pair in ranked:
         story = pair[0]
-        region = (story.regions or [""])[0]
-        if region and counts[region] >= cap:
+        values = [(label, key(story), bucket_cap)
+                  for label, key, bucket_cap in buckets]
+        # An unknown value is never deferred, here as for an unknown region:
+        # that would punish a classification failure rather than an imbalance.
+        if any(value and counts[(label, value)] >= bucket_cap
+               for label, value, bucket_cap in values):
             deferred.append(pair)
             continue
         chosen.append(pair)
-        counts[region] += 1
+        for label, value, _ in values:
+            if value:
+                counts[(label, value)] += 1
         if len(chosen) >= limit:
             break
 
     if len(chosen) < limit and deferred:
         filling = deferred[: limit - len(chosen)]
         log.info(
-            "diversity: %d slot(s) filled from over-represented regions "
+            "diversity: %d slot(s) filled from over-represented buckets "
             "(no alternatives left)", len(filling),
         )
         chosen.extend(filling)

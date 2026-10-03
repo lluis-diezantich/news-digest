@@ -22,7 +22,7 @@ from pathlib import Path
 
 from .config import Config
 from .digest import DigestResult
-from .models import Article, Digest, Story
+from .models import Article, Digest, Story, Theme
 from .urls import display_url
 from .store import Store
 
@@ -55,16 +55,10 @@ def _story_sources(articles: list[Article]) -> list[str]:
     newsletters from one outlet are one outlet's coverage -- the same reason
     corroboration counts publishers.
     """
-    by_publisher: dict[str, Article] = {}
-    for article in sorted(
-        articles, key=lambda a: (a.published_at or a.collected_at), reverse=True
-    ):
-        by_publisher.setdefault(article.publisher, article)
-
-    lines = []
-    for publisher, article in list(by_publisher.items())[:MAX_LINKS]:
-        lines.append(f"- [{_escape(publisher)}]({display_url(article.url)})")
-    return lines
+    return [
+        f"- [{_escape(publisher)}]({display_url(article.url)})"
+        for publisher, article in _by_publisher(articles).items()
+    ]
 
 
 def story_markdown(story: Story, articles: list[Article], index: int) -> str:
@@ -89,6 +83,71 @@ def story_markdown(story: Story, articles: list[Article], index: int) -> str:
         parts.append("")
 
     return "\n".join(parts)
+
+
+def theme_markdown(
+    theme: Theme,
+    members: list[tuple[Story, list[Article]]],
+    index: int,
+    *,
+    lead: bool = False,
+) -> str:
+    """One theme: the narrative, then the stories under it.
+
+    The theme's own write-up carries the entry. Its member stories follow as
+    headlines with their sources rather than full write-ups, because repeating
+    each story's summary underneath a narrative that already states it is how a
+    themed digest turns back into the list it was meant to replace.
+
+    A theme whose write-up failed falls back to its label and its members, which
+    is no worse than the flat output it replaced.
+    """
+    heading = theme.headline or theme.label
+    parts = [f"## {index}. {_escape(heading)}", ""]
+    if lead and theme.label and theme.label != heading:
+        # The grouping pass names the connection; the writer names the story.
+        # Both are useful on the lead and only there, where a reader is deciding
+        # whether to keep going.
+        parts += [f"*{_escape(theme.label)}*", ""]
+
+    if theme.narrative:
+        parts += [theme.narrative.strip(), ""]
+    if theme.why_it_matters:
+        parts += [f"**Why it matters:** {theme.why_it_matters.strip()}", ""]
+    if theme.open_questions:
+        parts.append("**Not answered by this week's coverage:**")
+        parts += [f"- {q.strip()}" for q in theme.open_questions]
+        parts.append("")
+
+    # Disagreements are per-story and must not be swallowed by the narrative:
+    # Section 15 applies whether a story is published alone or inside a theme.
+    for story, _ in members:
+        for line in story.disagreements:
+            parts.append(f"**Where sources differ:** {line.strip()}")
+    if any(story.disagreements for story, _ in members):
+        parts.append("")
+
+    if members:
+        parts.append("In this story:")
+        for story, articles in members:
+            links = ", ".join(
+                f"[{_escape(publisher)}]({display_url(article.url)})"
+                for publisher, article in _by_publisher(articles).items()
+            )
+            parts.append(f"- {_escape(story.headline)} — {links}")
+        parts.append("")
+
+    return "\n".join(parts)
+
+
+def _by_publisher(articles: list[Article]) -> dict[str, Article]:
+    """One representative article per publisher, newest first."""
+    out: dict[str, Article] = {}
+    for article in sorted(
+        articles, key=lambda a: (a.published_at or a.collected_at), reverse=True
+    ):
+        out.setdefault(article.publisher, article)
+    return dict(list(out.items())[:MAX_LINKS])
 
 
 def minor_markdown(minor: list[tuple[Story, list[Article]]]) -> str:
@@ -129,8 +188,23 @@ def digest_markdown(config: Config, result: DigestResult) -> str:
         ]
         return "\n".join(parts)
 
-    for index, (story, articles) in enumerate(result.stories, start=1):
+    by_id = {story.id: (story, articles) for story, articles in result.stories}
+    themed = {sid for theme in result.themes for sid in theme.story_ids}
+    index = 1
+    for position, theme in enumerate(result.themes):
+        members = [by_id[sid] for sid in theme.story_ids if sid in by_id]
+        if not members:
+            continue
+        parts.append(theme_markdown(theme, members, index, lead=position == 0))
+        index += 1
+    # Stories that belong to no narrative, in their original ranked order. Most
+    # weeks there are several, and forcing them into a theme would be the
+    # failure the grouping prompt is written to avoid.
+    for story, articles in result.stories:
+        if story.id in themed:
+            continue
         parts.append(story_markdown(story, articles, index))
+        index += 1
 
     minor = minor_markdown(result.minor)
     if minor:
@@ -166,6 +240,24 @@ def _footer(result: DigestResult) -> str:
         line += f"  \n*Sources: {', '.join(publishers)}.*"
     if stats.get("articles_filtered"):
         line += f"  \n*{stats['articles_filtered']} items filtered as not news.*"
+
+    # What the digest could not see. A reader comparing two weeks cannot
+    # otherwise tell a quiet week from one where half the sources went silent,
+    # and a story resting on a single outlet is not the same claim as one three
+    # outlets agree on -- corroboration is the whole basis of the ranking.
+    single = stats.get("single_publisher_stories") or 0
+    if single:
+        line += (
+            f"  \n*{single} of {len(result.stories)} stories rest on a single "
+            f"publisher.*"
+        )
+    silent = stats.get("silent_sources") or []
+    if silent:
+        line += (
+            f"  \n*Silent this week: {', '.join(silent)} "
+            f"({len(silent)} configured source{'s' if len(silent) != 1 else ''} "
+            f"contributed nothing).*"
+        )
     return line
 
 
@@ -263,6 +355,13 @@ def rebuild(out: Path, config: Config, store: Store, *, readme: Path | None = No
             stories=[(s, by_story.get(s.id, [])) for s in main],
             minor=[(s, by_story.get(s.id, [])) for s in minor],
             output_language=(digest.stats or {}).get("output_language", "en"),
+            # Restored from the free-form stats blob, so a rebuilt digest is the
+            # same document rather than a flat version of it.
+            themes=[
+                Theme.from_dict(t)
+                for t in ((digest.stats or {}).get("themes") or [])
+                if isinstance(t, dict)
+            ],
         )
         write_digest(Path(out), config, result)
         written += 1

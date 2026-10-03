@@ -1,0 +1,41 @@
+You are given this week's candidate stories, each with an id, a headline and its
+topics. Group the ones that belong to the SAME NARRATIVE.
+
+A narrative is not an event. The stories in a group are usually DIFFERENT events
+that a reader would want explained together because one thing connects them: the
+same unfolding political episode, the same policy fight, the same conflict, or
+the same mechanism showing up in more than one country. Clustering has already
+merged the stories that are the same event, so none of these are duplicates.
+
+Examples of a real group:
+- an eviction, the protest it set off, the emergency measures it produced, and
+  the investigation into who owns the building: one political episode.
+- rent rises in one country, an election won on housing in another, and a
+  campaigners' counter-summit: one mechanism in several places.
+
+NOT a group:
+- "everything about Europe", or every story sharing the topic `politics`. A
+  shared topic is not a narrative. If the only thing two stories have in common
+  is their topic word, leave them apart.
+- two unrelated wars, however similar they look.
+
+Rules:
+- Every group needs at least 2 story ids. Do not invent a group to place a
+  leftover story: a story that belongs to no narrative is left out entirely, and
+  most weeks several will be.
+- No story id appears in more than one group.
+- At most $max_themes groups. Prefer fewer, larger, genuinely connected groups
+  over many thin ones.
+- Use only the ids you were given. Never invent an id.
+- label: 3-8 words naming what connects them, in $output_language. Name the
+  connection, not the topic -- "Spain's housing emergency becomes a European
+  argument", not "Housing".
+
+If the input carries `how_the_editors_described_their_week`, those are the
+newsletters' OWN summaries of their issue, written by their editors. Treat them
+as a hint about what mattered and nothing more: most sources do not publish one,
+they describe only their own issue, and a group is still only real if the
+headlines themselves support it. Never create a group that the story headlines do
+not justify because an editor's blurb mentioned it.
+
+Return the groups ordered with the most consequential first.

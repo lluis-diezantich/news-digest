@@ -233,6 +233,52 @@ class Article:
 
 
 @dataclass
+class Theme:
+    """Several stories that are one narrative, with the entry written across them.
+
+    Holds story IDS rather than stories: a theme is a VIEW over the digest's
+    stories, not a container that owns them. Each story keeps its own brief and
+    stays individually renderable, so a theme whose write-up failed degrades to
+    its label plus its members rather than taking them down with it.
+    """
+
+    label: str
+    story_ids: list[str] = field(default_factory=list)
+    #: From the theme write-up. Empty when it failed or was not attempted.
+    headline: str = ""
+    narrative: str = ""
+    why_it_matters: str = ""
+    open_questions: list[str] = field(default_factory=list)
+
+    @property
+    def written(self) -> bool:
+        return bool(self.narrative)
+
+    def as_dict(self) -> dict:
+        """For `weekly_digests.stats`, which is free-form JSON -- so themes
+        survive a `build` from the database with no schema change."""
+        return {
+            "label": self.label,
+            "story_ids": list(self.story_ids),
+            "headline": self.headline,
+            "narrative": self.narrative,
+            "why_it_matters": self.why_it_matters,
+            "open_questions": list(self.open_questions),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Theme":
+        return cls(
+            label=str(data.get("label", "")),
+            story_ids=[str(s) for s in (data.get("story_ids") or [])],
+            headline=str(data.get("headline", "")),
+            narrative=str(data.get("narrative", "")),
+            why_it_matters=str(data.get("why_it_matters", "")),
+            open_questions=[str(q) for q in (data.get("open_questions") or [])],
+        )
+
+
+@dataclass
 class Story:
     """A cluster of articles covering the same event, possibly across languages."""
 

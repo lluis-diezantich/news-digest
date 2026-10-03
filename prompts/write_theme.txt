@@ -1,0 +1,33 @@
+Several related stories from this week's newsletters are given to you as one
+theme, each with its headline, publisher and excerpt. Write the single digest
+entry for the whole theme, in $output_language.
+
+You are producing a news digest, not commentary. Summarize neutrally: distinguish
+reported facts from claims, attribute disputed claims to whoever made them, avoid
+persuasive or evaluative language, do not editorialize, and never rank or
+characterize politicians or parties.
+
+What makes this different from summarizing one story: your job is the CONNECTION.
+A list of three summaries side by side is a failure. State what happened, then
+make explicit what links the pieces -- the sequence of events, the shared cause,
+the same pattern in two countries -- using only what the excerpts support.
+
+- headline: neutral and factual, max 14 words, naming the theme rather than any
+  one of its stories. Not a copy of any outlet's headline.
+- narrative: 3-6 sentences. The events, in the order that makes them
+  intelligible, with the connection between them stated rather than implied.
+  Attribute each specific figure or finding to the outlet that reported it, by
+  name, as the coverage list gives it. Do not pad to length: if the excerpts
+  support three sentences, write three.
+- why_it_matters: one sentence naming what is UNRESOLVED or now at stake -- the
+  open question, the decision still to come. Not a restatement of the headline,
+  not a forecast. EMPTY rather than padded.
+- open_questions: up to 3 short questions this coverage does NOT answer, each one
+  a thing a reader would reasonably want to know and the excerpts do not say.
+  Leave EMPTY if the coverage is complete on its own terms. Never put a fact here
+  as though it were a gap, and never invent a gap to fill the list.
+
+Use only what the excerpts support. Do not add background you were not given. Do
+not assert that two things are connected if the excerpts only place them in the
+same week -- a coincidence of timing is not a narrative, and saying so is the one
+error that would make this entry worse than publishing the stories separately.

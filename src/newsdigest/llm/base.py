@@ -243,6 +243,57 @@ class Brief:
 
 
 @dataclass
+class ThemeGroupInput:
+    """One candidate story, as the grouping pass sees it.
+
+    Headline and topics only. The grouping call is shown the whole shortlist at
+    once, so it has to stay small per item or the prompt grows past the point
+    where a model attends to all of it.
+    """
+
+    story_id: str
+    headline: str
+    topics: list[str] = field(default_factory=list)
+    publishers: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ThemeGroup:
+    """Several stories the model judges to be one narrative."""
+
+    label: str
+    story_ids: list[str]
+
+
+@dataclass
+class ThemeInput:
+    """A group of stories to write one connected entry for."""
+
+    label: str
+    #: (headline, publisher, excerpt) per story in the theme.
+    coverage: list[tuple[str, str, str]] = field(default_factory=list)
+
+
+@dataclass
+class ThemeBrief:
+    """The written form of a theme: a narrative, not a summary of summaries."""
+
+    headline: str
+    narrative: str
+    why_it_matters: str = ""
+    #: What the digest cannot answer from the coverage it has. Section 15's
+    #: reasoning applied to a gap rather than a conflict: better stated than
+    #: quietly absent.
+    open_questions: list[str] = field(default_factory=list)
+
+    def clamp(self) -> "ThemeBrief":
+        self.open_questions = [
+            q.strip() for q in self.open_questions if str(q).strip()
+        ][:3]
+        return self
+
+
+@dataclass
 class ClassifyInput:
     """One article for the cheap triage pass."""
 
@@ -300,6 +351,10 @@ class LLMProvider(ABC):
 
     name: str = ""
     model: str = ""
+    #: Most themes the grouping pass may return. A class attribute rather than a
+    #: constructor argument so the three providers and every test double keep
+    #: their existing signatures; `digest` sets it from config before use.
+    max_themes: int = 6
 
     def __init__(self) -> None:
         self.calls = 0
@@ -338,6 +393,30 @@ class LLMProvider(ABC):
         Keys may be omitted when the model is unsure; the caller then keeps the
         embedding's own decision.
         """
+
+    # The two theme calls are NOT abstract, deliberately. A provider that cannot
+    # group returns nothing and the digest publishes its stories flat, exactly as
+    # it did before themes existed -- which is also what the offline path and
+    # every test double want. Making them abstract would have broken three
+    # providers and six doubles to express "this is optional".
+
+    def group_themes(
+        self,
+        items: list[ThemeGroupInput],
+        context: Context,
+        *,
+        editorial: list[str] | None = None,
+    ) -> list[ThemeGroup]:
+        """Group a shortlist of stories into narratives.
+
+        Returns an empty list when the provider cannot do it, which the caller
+        reads as "publish flat" rather than as an error.
+        """
+        return []
+
+    def write_theme(self, item: ThemeInput, context: Context) -> ThemeBrief | None:
+        """Write one connected entry across the stories in a theme."""
+        return None
 
 
 def _topic_list() -> str:
@@ -378,3 +457,19 @@ def brief_system_prompt(context: Context) -> str:
 
 def same_event_system_prompt(context: Context | None = None) -> str:
     return prompts.render("cluster_stories")
+
+
+def group_themes_system_prompt(context: Context, max_themes: int = 6) -> str:
+    return prompts.render(
+        "group_themes",
+        output_language=language_name(context.output_language),
+        max_themes=max_themes,
+    )
+
+
+def write_theme_system_prompt(context: Context) -> str:
+    return prompts.render(
+        "write_theme",
+        output_language=language_name(context.output_language),
+        interests=", ".join(context.interests) or "general news",
+    )

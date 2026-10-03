@@ -247,6 +247,15 @@ def parse(
                 report.excluded += len(articles) - len(kept)
                 articles = kept
 
+                # Applied AFTER the exclusions, so the cap counts items that
+                # survived them rather than spending its budget on sport.
+                if source.max_items and len(articles) > source.max_items:
+                    log.debug(
+                        "%s: keeping the first %d of %d items",
+                        source.name, source.max_items, len(articles),
+                    )
+                    articles = articles[: source.max_items]
+
                 for article in articles:
                     article.language = lang.detect_article(
                         article.title,

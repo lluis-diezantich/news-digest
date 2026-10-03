@@ -39,10 +39,16 @@ from .base import (
     PairInput,
     Classification,
     ClassifyInput,
+    ThemeBrief,
+    ThemeGroup,
+    ThemeGroupInput,
+    ThemeInput,
     brief_system_prompt,
     classify_system_prompt,
     enrich_system_prompt,
+    group_themes_system_prompt,
     same_event_system_prompt,
+    write_theme_system_prompt,
 )
 
 log = logging.getLogger(__name__)
@@ -96,6 +102,31 @@ BRIEF_SCHEMA = {
         "headline", "summary", "why_it_matters", "key_facts", "topics",
         "disagreements",
     ],
+}
+
+THEME_GROUP_SCHEMA = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "label": {"type": "string"},
+            "story_ids": _STRINGS,
+        },
+        "required": ["label", "story_ids"],
+    },
+}
+
+THEME_BRIEF_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "headline": {"type": "string"},
+        "narrative": {"type": "string"},
+        "why_it_matters": {"type": "string"},
+        "open_questions": _STRINGS,
+    },
+    # `open_questions` required for the same reason `disagreements` is: the model
+    # has to answer the question, and an empty array is a real answer.
+    "required": ["headline", "narrative", "why_it_matters", "open_questions"],
 }
 
 CLASSIFY_SCHEMA = {
@@ -405,6 +436,83 @@ class GeminiProvider(LLMProvider):
             region=str(data.get("region", "")),
             importance=_optional_float(data.get("importance")),
             relevance=_optional_float(data.get("relevance")),
+        ).clamp()
+
+    def group_themes(
+        self,
+        items: list[ThemeGroupInput],
+        context: Context,
+        *,
+        editorial: list[str] | None = None,
+    ) -> list[ThemeGroup]:
+        if len(items) < 2:
+            return []
+        payload = {
+            "stories": [
+                {"id": i.story_id, "headline": i.headline,
+                 "topics": i.topics, "publishers": i.publishers}
+                for i in items
+            ]
+        }
+        if editorial:
+            payload["how_the_editors_described_their_week"] = editorial
+        data = _parse_json(
+            self._generate(
+                group_themes_system_prompt(context, self.max_themes),
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                THEME_GROUP_SCHEMA,
+            )
+        )
+        if not isinstance(data, list):
+            return []
+        known = {i.story_id for i in items}
+        groups: list[ThemeGroup] = []
+        used: set[str] = set()
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            label = str(entry.get("label", "")).strip()
+            # Only ids we actually sent, and only once each: a model that
+            # repeats a story across two themes would have it published twice,
+            # and one that invents an id would raise a KeyError downstream.
+            ids = [
+                sid for sid in (entry.get("story_ids") or [])
+                if isinstance(sid, str) and sid in known and sid not in used
+            ]
+            if not label or len(ids) < 2:
+                continue
+            used.update(ids)
+            groups.append(ThemeGroup(label=label, story_ids=ids))
+        return groups[: self.max_themes]
+
+    def write_theme(self, item: ThemeInput, context: Context) -> ThemeBrief | None:
+        payload = {
+            "theme": item.label,
+            "coverage": [
+                {"headline": headline, "publisher": publisher, "excerpt": excerpt}
+                for headline, publisher, excerpt in item.coverage
+            ],
+        }
+        data = _parse_json(
+            self._generate(
+                write_theme_system_prompt(context),
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                THEME_BRIEF_SCHEMA,
+            )
+        )
+        if not isinstance(data, dict):
+            return None
+        headline = str(data.get("headline", "")).strip()
+        narrative = str(data.get("narrative", "")).strip()
+        if not headline or not narrative:
+            return None
+        return ThemeBrief(
+            headline=headline,
+            narrative=narrative,
+            why_it_matters=str(data.get("why_it_matters", "")).strip(),
+            open_questions=[
+                str(q) for q in (data.get("open_questions") or [])
+            ],
         ).clamp()
 
     def same_event(self, pairs: list[PairInput], context: Context) -> dict[str, bool]:

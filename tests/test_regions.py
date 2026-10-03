@@ -169,3 +169,44 @@ class TestSpread:
 
     def test_unknown_is_reported_as_unknown(self):
         assert regions.spread([story("A", "", 1)]) == {"unknown": 1}
+
+
+class TestExtraCaps:
+    """Geography was the only cap for a while, and it is not the only way a
+    digest goes lopsided: 2026-W40 came out half Spanish housing with the
+    stories spread across regions, which the region cap cannot see."""
+
+    def test_a_topic_cap_defers_alongside_the_region_cap(self):
+        from newsdigest.models import Story
+
+        def story(sid, region, topic, score):
+            return Story(id=sid, headline=sid, regions=[region],
+                         topics=[topic], score=score)
+
+        pairs = [
+            (story("a", "europe", "housing", 5.0), []),
+            (story("b", "asia", "housing", 4.0), []),
+            (story("c", "africa", "housing", 3.0), []),
+            (story("d", "oceania", "defence", 2.0), []),
+        ]
+        got = regions.diversify(
+            pairs, limit=3, max_share=1.0,
+            extra_caps=(("topic", lambda s: (s.topics or [""])[0], 2),),
+        )
+        headlines = [p[0].id for p in got]
+        # Two housing stories fit the cap; the third is deferred for "defence",
+        # which outranks nothing but is the only story left under the cap.
+        assert headlines == ["a", "b", "d"]
+
+    def test_an_unknown_bucket_value_is_never_deferred(self):
+        from newsdigest.models import Story
+
+        pairs = [
+            (Story(id=x, headline=x, regions=["europe"], topics=[], score=s), [])
+            for x, s in (("a", 3.0), ("b", 2.0), ("c", 1.0))
+        ]
+        got = regions.diversify(
+            pairs, limit=3, max_share=1.0,
+            extra_caps=(("topic", lambda s: (s.topics or [""])[0], 1),),
+        )
+        assert [p[0].id for p in got] == ["a", "b", "c"]
