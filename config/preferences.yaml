@@ -7,12 +7,18 @@ settings:
   supported_languages:
     - en
     - es
+    - ca
 
   # Language the digest is WRITTEN in, independent of what it reads.
   #   auto  -> whichever language most of the week's items were in
   #   en|es -> always that
   # `auto` is resolved per run, after the window's languages are counted.
-  output_language: en
+  #
+  # `auto` since 2026-10-03. At `en` against a week of es 31 / en 35 / ca 1 the
+  # output was mixed in a way a reader notices: headlines stay in the source
+  # language -- they are quoted, not written -- while every summary beneath them
+  # was English. `auto` at least follows the majority instead of fighting it.
+  output_language: auto
 
 preferences:
   # Either form works:
@@ -104,6 +110,28 @@ digest:
   # Section 11 asks for 10-15 major stories plus a few smaller ones. The pipeline
   # enriches 2x (max_stories + minor_stories) candidates and publishes from those.
   max_stories: 12
+
+  # Largest share of the main stories one TOPIC may hold, the same soft cap
+  # `regions` applies to geography -- 2026-W40 published half a digest of Spanish
+  # housing, every story in a different region, which the region cap cannot see.
+  # At 0.5 with max_stories 12, no topic takes more than 6.
+  topic_spread: true
+  topic_max_share: 0.5
+
+  # Group the published stories into NARRATIVES and write one entry across each,
+  # instead of publishing a flat ranked list.
+  #
+  # Clustering's unit is an event -- several outlets on one thing, merged -- and
+  # a week is not a set of unrelated events. In 2026-W40 an eviction, the protest
+  # it caused, the emergency decrees, an investigation into the landlord and an
+  # election won on rent in Berlin published as five separate entries, where a
+  # person reading the same mail would have written one piece.
+  #
+  # Costs 1 + (number of themes) requests, and replaces nothing: each story keeps
+  # its own brief, so a theme that fails to write still has publishable stories
+  # under it. Off publishes flat, exactly as before.
+  themes: true
+  max_themes: 6
   # Section 14's "Also worth knowing": listed with a link, not written up.
   minor_stories: 5
 

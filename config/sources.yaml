@@ -43,6 +43,22 @@ defaults:
   # See doc/attribution.md.
   excerpt_chars: 1200
 
+  # Most items to keep from one ISSUE, trimmed from the end because document
+  # order is the editor's own ranking. 0 means no limit.
+  #
+  # Off by design. Measured per issue on 2026-10-03 the spread was 17, 16, 14,
+  # 11, 11, 10, 7, 5, 5 -- the Guardian's "This Is Europe" is a prose letter and
+  # sits at the top, the rest are digests -- and that is newsletters being
+  # different lengths, not one misbehaving. Any cap tight enough to level it
+  # would discard real articles from the longest issue.
+  #
+  # The knob is here for a source that genuinely floods (a daily mis-subscribed
+  # as a weekly, a template change that doubles its links). Share of the
+  # PUBLISHED digest is a separate question, handled at the cut by
+  # `regions.max_share` and `digest.topic_max_share`, which is the better place:
+  # it caps what a reader sees without throwing away candidates first.
+  max_items: 0
+
 # Dropped at parse time, before anything reaches the database. Regexes, matched
 # against the item's URL.
 #
@@ -83,7 +99,9 @@ sources:
     newsletter: Weekly Newsletter
     publisher: Al Jazeera
     languages: [en]
-    senders: ["@aljazeera.net"]
+    # Verified 2026-10-03: arrives from `newsletter@sbmail.aljazeera.com`.
+    # The .net domain never sent anything; kept in case it comes back.
+    senders: ["@aljazeera.com", "@aljazeera.net"]
     topics: [world]
 
   - name: guardian-saturday
@@ -94,6 +112,18 @@ sources:
     # The Guardian sends a dozen newsletters from one address, so this one has
     # to be named or every briefing it publishes becomes a source.
     subject_patterns: ["saturday edition"]
+
+  # Added 2026-10-03: subscribed and arriving. Note the domain is `editorial.`,
+  # not the `email.` that the account mail uses -- the two are separate senders.
+  # Every issue is written by a different correspondent, so the display name is
+  # an author's name and useless here; the subject suffix is the stable part.
+  - name: guardian-this-is-europe
+    newsletter: This Is Europe
+    publisher: The Guardian
+    languages: [en]
+    senders: ["@editorial.theguardian.com"]
+    subject_patterns: ["this is europe"]
+    topics: [world]
 
   - name: reuters-world
     newsletter: Reuters World News
@@ -131,6 +161,28 @@ sources:
     senders: ["@eldiario.es"]
     subject_patterns: ["boletin del director", "carta del director"]
 
+  # Added 2026-10-03: subscribed and arriving. Shares the @eldiario.es domain
+  # with the director's boletin, and its subjects are plain headlines with no
+  # recurring phrase -- so the display name, which names the newsletter
+  # ("elDiario.es | La Semana Internacional"), is the only reliable rule.
+  - name: eldiario-internacional
+    newsletter: La Semana Internacional
+    publisher: elDiario.es
+    languages: [es]
+    senders: ["@eldiario.es"]
+    sender_name_patterns: ["la semana internacional"]
+    topics: [world]
+
+  # Added 2026-10-03: subscribed and arriving. The inverse case -- the display
+  # name is the author's ("Neus Tomas"), which changes, while the address is
+  # fixed. Matched on the FULL address, not the domain, so it cannot swallow the
+  # other @eldiario.es newsletters.
+  - name: eldiario-catalunya
+    newsletter: Carta des de Catalunya
+    publisher: elDiario.es
+    languages: [ca]
+    senders: ["catalunya@eldiario.es"]
+
   - name: rne-7dias
     newsletter: 7 días
     publisher: RNE
@@ -143,7 +195,10 @@ sources:
     publisher: El Orden Mundial
     languages: [es]
     senders: ["@elordenmundial.com"]
-    subject_patterns: ["esta semana"]
+    # Verified 2026-10-03: the weekly subject is "Tu boletin semanal con los
+    # ultimos contenidos de EOM", not "esta semana". The "Blitz" issues arrive
+    # from the same address and deliberately do not match -- different cadence.
+    subject_patterns: ["esta semana", "boletin semanal"]
 
   # Not in the original source list. Added 2026-09-20 because it is subscribed
   # and is a genuine weekly round-up ("Actualidad semanal en El Salto"), which is
@@ -172,3 +227,16 @@ sources:
     senders: ["@publisher-news.com", "@publico.es"]
     sender_name_patterns: ["publico"]
     subject_patterns: ["en pocas palabras"]
+
+  # Added 2026-10-03: a SECOND Publico weekly, through the same Piano domain.
+  # Distinguished from "En pocas palabras" by subject alone -- both carry a
+  # "... de Publico" display name, so that rule only establishes the publisher.
+  # Shares `publisher: Publico` deliberately: corroboration counts publishers,
+  # so the two together are one outlet's view of a story, not two.
+  - name: publico-temas-semana
+    newsletter: Los temas de la semana
+    publisher: Público
+    languages: [es]
+    senders: ["@publisher-news.com", "@publico.es"]
+    sender_name_patterns: ["publico"]
+    subject_patterns: ["temas de la semana"]

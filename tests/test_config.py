@@ -21,7 +21,10 @@ class TestShippedConfig:
         assert len(sources) >= 10
         assert any(s.enabled for s in sources)
         assert all(s.senders for s in sources if s.enabled)
-        assert settings.supported_languages == ["en", "es"]
+        # ca joined en/es on 2026-10-03 with the elDiario Catalunya source: the
+        # detector is restricted to this set, so a source's language must be in
+        # it or its verdicts fall back to the other languages.
+        assert settings.supported_languages == ["en", "es", "ca"]
         assert digest.max_stories > 0
         assert storage.embedding_retention_days <= storage.retention_days
         assert storage.email_body_retention_days <= storage.retention_days
