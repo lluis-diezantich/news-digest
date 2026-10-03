@@ -14,7 +14,10 @@ from newsdigest.extract import (
     extract_html,
     extract_text,
     is_boilerplate_link,
+    is_masthead,
     is_sponsored,
+    looks_like_caption,
+    looks_like_fragment,
     looks_like_tracker,
     plausible_title,
     resolve,
@@ -600,3 +603,162 @@ class TestCallToActionTails:
             '</td></tr></table>'
         )
         assert extract_html(html)[0].blurb.startswith("Leer es importante")
+
+
+class TestSentenceFragments:
+    """A newsletter links WORDS as well as headlines, and an inline citation link
+    has an item's exact shape. 23 of one real week's 145 items were these."""
+
+    @pytest.mark.parametrize("text", [
+        "anger over the eviction",
+        "surge 208% in the same time period",
+        "as a Guardian editorial pointed out",
+        "said Guardian Europe columnist Fatma Aydemir",
+        "housing crisis across Europe",
+        "the vagueness of the EU offer to Canada",
+        "para ver este e-mail en tu navegador",
+    ])
+    def test_a_lowercase_opening_is_a_cut_sentence(self, text):
+        assert looks_like_fragment(text)
+
+    @pytest.mark.parametrize("text", [
+        ". Fins dissabte se celebra la setena edicio del Festival",
+        ": an outer ring of countries bound by shared values",
+        ", according to Eurostat figures published on Monday",
+    ])
+    def test_opening_punctuation_is_a_cut_sentence(self, text):
+        """Proof of a cut on its own: the next word is often capitalised, so the
+        lowercase test alone lets these through."""
+        assert looks_like_fragment(text)
+
+    @pytest.mark.parametrize("text", [
+        "How Europe's housing crisis is fuelling a new movement",
+        "Todas las guerras de Etiopia: que hay detras del nuevo conflicto",
+        # A digit, an inverted mark and a quote are all real headline openers.
+        "7 anos de sueldo para comprar un piso: el problema de la vivienda",
+        "\u00bfSalvara la vivienda a la izquierda?",
+        "\u201cNo imagino una Cuba multipartidista a corto plazo\u201d: Carlos Alzugaray",
+        "'Hell on earth': last residents eat weeds to survive in Oleshky",
+    ])
+    def test_real_headlines_survive(self, text):
+        assert not looks_like_fragment(text)
+
+    def test_an_inline_link_is_not_an_item(self):
+        """The structural form, and the only thing that catches a fragment which
+        happens to start with a capital."""
+        html = page(
+            "<table><tr><td>"
+            '<h2><a href="https://x.example/a">The first story of the week</a></h2>'
+            "<p>The commission went further than expected, as "
+            '<a href="https://x.example/b">Ursula von der Leyen said</a> '
+            "in a speech that surprised nobody at all.</p>"
+            "</td></tr></table>"
+        )
+        titles = [i.title for i in extract_html(html)]
+        assert titles == ["The first story of the week"]
+
+    def test_a_fragment_does_not_become_a_paragraph(self):
+        """Rejecting the fragment inside `plausible_title` made `_title_from`
+        fall through to its longest-line fallback and publish body prose
+        instead, which is why the test lives at the drop gate."""
+        html = page(
+            "<table><tr><td><p>"
+            "Rents across the continent have climbed for a decade now, and "
+            '<a href="https://x.example/b">surge 208% in the same time period</a> '
+            "according to figures nobody disputes any more.</p></td></tr></table>"
+        )
+        assert extract_html(html) == []
+
+
+class TestCaptionsAndMastheads:
+    def test_an_agency_credit_marks_a_caption(self):
+        assert looks_like_caption(
+            "Miembros del FLTP recorren las calles de Mekele, "
+            "capital de la region de Tigray, el 23 de septiembre de 2026. | AFP"
+        )
+
+    def test_an_author_credit_does_not(self):
+        """The Guardian ends real headlines the same way, so only a known agency
+        counts -- the shape alone cannot separate them."""
+        assert not looks_like_caption(
+            "Switzerland's love of referendums helps us keep the far right at bay "
+            "| Joseph de Weck"
+        )
+
+    def test_the_publication_naming_itself_is_not_a_story(self):
+        email = make_email("El Orden Mundial", subject="Tu boletin semanal")
+        assert is_masthead("El Orden Mundial El Orden Mundial newsletter", email)
+        assert not is_masthead("Todas las guerras de Etiopia", email)
+
+
+class TestTextFallbackIsNotASecondChance:
+    def test_html_filtered_to_nothing_does_not_fall_back(self):
+        """The plain-text path is for HTML with no item structure. Running it
+        after we rejected every HTML candidate re-admits what was just
+        rejected, and more: 4 real messages with 1 junk item became 45."""
+        html = page(
+            "<table><tr><td><p>"
+            "The rent debate continued all week, and "
+            '<a href="https://x.example/b">anger over the eviction</a> '
+            "grew louder.</p></td></tr></table>"
+        )
+        email = make_email(
+            "Example",
+            html=html,
+            text="Una noticia de verdad sobre la vivienda\nhttps://x.example/c\n",
+        )
+        assert extract(email) == []
+
+    def test_html_with_no_links_at_all_still_falls_back(self):
+        email = make_email(
+            "Example",
+            html=page("<p>Just a note from the editor, with no links in it.</p>"),
+            text="Una noticia de verdad sobre la vivienda\nhttps://x.example/c\n",
+        )
+        assert [i.title for i in extract(email)] == [
+            "Una noticia de verdad sobre la vivienda"
+        ]
+
+
+class TestEncodedTrackerPaths:
+    """The hole that let three vendors through at once: a base64 token is full of
+    four-letter runs, so a test that only asks "are there letters here" reads
+    every tracker as a real article URL. 47 of 67 stored URLs, and 11 of the 17
+    links in a published digest, pointed at a tracker that will expire."""
+
+    @pytest.mark.parametrize("url", [
+        # Guardian, via its own ESP subdomain.
+        "https://ablink.editorial.theguardian.com/ss/c/u001.zFrJr-OAD6MUXPGx"
+        "MNJG7JWM3rcrR0R48aTRSRaOx3IF5rKLrpZ7i5OYjw2FpxFpAF/4uh/PVi1pYoXQhmy",
+        # HubSpot.
+        "https://cXK-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XL"
+        "N9llC2M6d3L4W2QY3Nh5VF2VYMJvQnv3qn9qW7Y8-PT6lZ3l6",
+        # Brevo / Sendinblue.
+        "https://7aet5.r.a.d.sendibm1.com/mk/mr/sh/7nVTPdZCTJDXPITl5L3sqYEN5MsuSwO",
+    ])
+    def test_an_encoded_token_is_a_tracker(self, url):
+        assert looks_like_tracker(url)
+
+    @pytest.mark.parametrize("url", [
+        "https://www.publico.es/politica/brazo-inmobiliario-morgan-stanley-"
+        "convierte-grandes-desahuciadores-espana.html",
+        "https://www.theguardian.com/world/2026/sep/18/floods-displace-thousands",
+        "https://elpais.com/internacional/2026-09-18/inundaciones-nigeria.html",
+        "https://www.aljazeera.com/news/2026/10/1/un-security-council-paralysed",
+    ])
+    def test_a_real_article_url_is_not(self, url):
+        """Lower case and hyphens are the convention precisely because a slug is
+        meant to be read and typed; an encoder needs both cases for the bits."""
+        assert not looks_like_tracker(url)
+
+    def test_the_test_is_per_segment(self):
+        """A tracker puts its blob in ONE segment and short routing crumbs in the
+        others, so a test applied to the joined path is satisfied by the blob."""
+        assert looks_like_tracker(
+            "https://mail.example.com/ss/c/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2"
+        )
+
+    def test_a_long_lowercase_slug_is_not_a_token(self):
+        assert not looks_like_tracker(
+            "https://news.example.com/world/parliament-approves-the-housing-decree"
+        )

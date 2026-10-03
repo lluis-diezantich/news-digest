@@ -58,6 +58,28 @@ _SKIP_TEXT = (
     r"advertisement", r"publicidad",
     # A bare date or section word is a navigation crumb, not a headline.
     r"^(?:home|inicio|portada|menu|top|index)$",
+    # Added 2026-10-03, all five extracted as stories from one week's mail.
+    # The existing `if you cannot (see|read)` missed Al Jazeera's wording, and
+    # `ver en el navegador` missed elDiario's, which puts the object in between.
+    r"if you are not able to (?:see|read|view)", r"para ver este e-?mail",
+    r"sign up for", r"join our", r"all-?access", r"digital subscription",
+    # A donation appeal that names neither donation nor support.
+    r"one-off payment", r"monthly amount",
+    r"if you have any questions", r"te ha gustado est",
+    r"hasta la semana que viene", r"conoces nuestros boletines",
+    # --- Catalan ---------------------------------------------------------
+    # Added 2026-10-03 with the elDiario Catalunya source. The module was
+    # written for en/es and `ca` joined `supported_languages` on the same day,
+    # so none of this vocabulary existed: every Catalan appeal and pointer came
+    # through as a story. These newsletters are a columnist's letter, so the
+    # links are mostly the writer pointing at their own work -- "aqui podeu
+    # llegir-ne la critica" -- which opens its paragraph and so survives the
+    # structural test in `newsletter.py`. Only wording rejects it.
+    r"fes-te soci", r"et fessis soci", r"fer-te soci",
+    r"aqui (?:podeu|pots|teniu|en teniu|trobareu)",
+    r"us (?:recomano|deixo|convido)", r"he escrit aquesta",
+    # elDiario's standing Spanish appeal, which names neither support nor member.
+    r"periodismo valiente",
 )
 _SKIP_TEXT_RE = re.compile("|".join(_SKIP_TEXT))
 
@@ -69,9 +91,18 @@ SOCIAL_HOSTS = frozenset(
     bsky.app threads.net mastodon.social reddit.com pinterest.com
     apps.apple.com play.google.com itunes.apple.com open.spotify.com
     podcasts.apple.com soundcloud.com flipboard.com
-    list-manage.com mailchimp.com sendgrid.net constantcontact.com
     """.split()
 )
+# The four ESP hosts that used to end this list -- list-manage.com,
+# mailchimp.com, sendgrid.net, constantcontact.com -- were removed 2026-10-03.
+# They are mail vendors, not social networks, and a vendor's host is what EVERY
+# link in a newsletter wears: elDiario sends through `eldiario.us6.list-manage.com`,
+# so 23 of its 24 links were discarded here and both elDiario sources had never
+# yielded an item. The one survivor was the "ver este e-mail" line.
+#
+# Rejecting a tracker is the wrong response to it anyway. `links._MAILER_HOSTS`
+# already names these, where the answer is to RESOLVE the link to the article
+# behind it -- which is the whole point of that module.
 
 #: Wording that marks a block as paid placement. A sponsor slot is deliberately
 #: built to look like editorial, so the label is the only reliable signal -- and

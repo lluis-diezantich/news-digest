@@ -49,6 +49,8 @@ _MAILER_HOSTS = frozenset(
     salesforce-communities.com sailthru.com email.mailgun.net
     substack.com beehiiv.com ghost.io convertkit-mail.com
     bit.ly ow.ly tinyurl.com buff.ly trib.al dlvr.it
+    hubspotlinks.com hs-sendgrid.net sendibm1.com sendibm2.com sendibm3.com
+    sendibt2.com sendibt3.com na1.hubspotlinks.com
     """.split()
 )
 
@@ -56,6 +58,38 @@ _MAILER_HOSTS = frozenset(
 #: rather than an identifier. "internacional" and "floods" clear it; "2090179c18",
 #: "30394" and "-c" do not.
 _WORD_RUN = re.compile(r"[^\W\d_]{4,}")
+
+#: Below this a segment is too short to judge, and a real slug is longer anyway.
+_TOKEN_MIN_CHARS = 12
+#: A mixed-case segment with no digit has to be this long before it reads as a
+#: blob rather than a CamelCase slug.
+_TOKEN_LONG = 20
+
+
+def _is_token(segment: str) -> bool:
+    """True when a path segment is an encoded blob, not words.
+
+    This is the hole `_opaque_path` had, and it let three vendors through at
+    once. A base64 token is FULL of four-letter runs --
+    `u001.zFrJr-OAD6MUXPGxMNJG7JWM3rcrR0R48aTRSRaOx3IF5rKLrpZ7i5OYjw2FpxFpAF`
+    contains dozens -- so a test that only asks "are there letters here" reads
+    every one of them as wordy and reports the tracker as a real article URL.
+    Measured on one week's mail, that was 47 of 67 stored URLs, and 11 of the 17
+    links in the published digest pointed at a tracker that will expire.
+
+    What separates them is CASE, not letters. A news slug is lowercase and
+    hyphenated by convention -- `brazo-inmobiliario-morgan-stanley` -- because it
+    is meant to be read and typed. An encoder emits both cases to get more bits
+    per character. So a long segment carrying upper case, lower case and a digit
+    is a token, and a digit is required precisely so a CamelCase slug has to be
+    very long indeed before it qualifies.
+    """
+    if len(segment) < _TOKEN_MIN_CHARS:
+        return False
+    has_upper = any(c.isupper() for c in segment)
+    has_lower = any(c.islower() for c in segment)
+    has_digit = any(c.isdigit() for c in segment)
+    return has_upper and has_lower and (has_digit or len(segment) >= _TOKEN_LONG)
 
 #: Subdomain labels a publisher uses for its own click tracker.
 _TRACKER_LABELS = ("link", "links", "click", "clicks", "track", "tracking",
@@ -73,13 +107,20 @@ def _opaque_path(url: str) -> bool:
         /internacional/2026-09-18/inundaciones-nigeria.html   -> wordy
         /world/2026/sep/18/floods-displace-thousands          -> wordy
         /-c/117/30394/671878/20018313/860429/2090179c18       -> opaque
+        /ss/c/u001.zFrJr-OAD6MUXPGxMNJG7JWM3rcrR0R48aTRSRa    -> opaque (token)
+
+    Judged per SEGMENT rather than over the whole path, because a tracker puts
+    its blob in one segment and short routing crumbs (`/ss/c/`, `/mk/mr/sh/`) in
+    the others, and a test applied to the joined path is satisfied by the blob.
 
     A date-only archive URL (`/2026/09/18/`) reads as opaque too. That is the
     safe direction: it is treated as unresolved, which keeps the article and
     counts it, rather than being silently trusted.
     """
-    path = urlsplit(url).path
-    return not _WORD_RUN.search(path)
+    segments = [seg for seg in urlsplit(url).path.split("/") if seg]
+    return not any(
+        _WORD_RUN.search(seg) and not _is_token(seg) for seg in segments
+    )
 
 
 def looks_like_tracker(url: str) -> bool:

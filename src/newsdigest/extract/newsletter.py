@@ -58,6 +58,9 @@ MAX_TITLE_CHARS = 300
 _IMAGE_LABEL_RE = re.compile(
     r"^(?:logo|logotipo|imagen|image|foto|photo|banner|cabecera|header|icon)\b"
     r"|\blogo (?:de|of)\b|_cab$|\bcampana\b"
+    # Trailing, not leading: "Al Jazeera Network logo" is the masthead's alt text
+    # and was published as a story.
+    r"|\blogo(?:tipo)?$"
 )
 
 #: Blocks bigger than this are the whole newsletter, not one item -- which
@@ -142,6 +145,78 @@ def _title_from(block, anchor) -> str:
     return re.sub(r"\s+", " ", longest).strip()
 
 
+#: Leading characters a headline may legitimately open with -- quotes of several
+#: nationalities, Spanish inverted marks, dashes and bullets from the template.
+#: Sentence punctuation is NOT here; see `_CUT_MARKS`.
+_LEAD_PUNCT = "\"'\u201c\u201d\u2018\u2019\u00ab\u00bb\u00bf\u00a1()[]{}-\u2013\u2014*\u2022\u00b7/ \t"
+
+#: Punctuation that cannot open a headline at all, because it closes or joins a
+#: clause. Leading one is proof of a cut on its own, whatever follows: ". Fins
+#: dissabte se celebra..." capitalises its next word and would otherwise pass.
+_CUT_MARKS = ".,;:\u2026"
+
+#: Photo agencies, as they appear in a credit. A caption carries one and a
+#: headline does not -- which is the only thing separating them, because the
+#: Guardian also ends real headlines with "| Author Name".
+_AGENCY_CREDITS = frozenset(
+    """
+    afp reuters efe ap getty epa shutterstock
+    """.split()
+) | {"associated press", "getty images", "europa press", "ap photo"}
+
+
+def looks_like_fragment(text: str) -> bool:
+    """True when a string starts mid-sentence, so it cannot be a headline.
+
+    A newsletter links an article from its headline, but it also links WORDS --
+    "as a Guardian editorial pointed out", "surge 208% in the same time period" --
+    and a mid-paragraph citation link has the same shape as an item: a link, some
+    text, a sentence around it. 23 of one week's 145 extracted items were these.
+
+    A headline always begins a sentence. It may open with a quote, an inverted
+    Spanish mark or a digit ("7 anos de sueldo para comprar un piso"), so the
+    test is on the first LETTER after any such opener -- and a lowercase one means
+    the string was cut out of a running sentence.
+    """
+    raw = (text or "").strip()
+    if not raw:
+        return True
+    if raw[0] in _CUT_MARKS:
+        return True
+    stripped = raw.lstrip(_LEAD_PUNCT)
+    if not stripped:
+        return True
+    first = stripped[0]
+    return first.isalpha() and first.islower()
+
+
+def looks_like_caption(text: str) -> bool:
+    """True when a string is an image caption rather than a headline.
+
+    Captions pass every shape test a headline does -- they are a sentence of the
+    right length about a newsworthy thing -- so the credit is what gives them
+    away: "... el 23 de septiembre de 2026. | AFP" was published as a story.
+    """
+    tail = normalize(text).rpartition("|")[2].strip()
+    return bool(tail) and tail in _AGENCY_CREDITS
+
+
+def is_masthead(text: str, email: Email) -> bool:
+    """True when a title is just the publication naming itself.
+
+    Every newsletter links its own masthead, and the alt text is the outlet's
+    name plus the newsletter's -- "El Orden Mundial Esta Semana" -- which is long
+    enough and wordy enough to pass as a headline.
+    """
+    title = normalize(text)
+    parts = [p for p in (normalize(email.sender_name), normalize(email.newsletter)) if p]
+    names = set(parts)
+    if len(parts) == 2:
+        names.add(f"{parts[0]} {parts[1]}")
+        names.add(f"{parts[1]} {parts[0]}")
+    return title in names
+
+
 # --------------------------------------------------------------------------- #
 # blocks
 # --------------------------------------------------------------------------- #
@@ -189,6 +264,39 @@ def _item_block(anchor, targets: dict[int, str]):
             best = node
         node = node.parent
     return best
+
+
+#: Tags that hold ONE run of prose. Deliberately not `td` or `div`: a newsletter
+#: builds its layout from those and a single cell routinely holds several items,
+#: so the nearest one is the container, not the sentence. Including them dropped
+#: every item after the first in a shared cell.
+_PROSE_TAGS = ("p", "li", "blockquote")
+
+
+def _opens_its_block(anchor) -> bool:
+    """True when this link starts the prose it sits in.
+
+    The structural form of the mid-paragraph citation link, and a better test
+    than any wording: an item's link leads its block, while a citation is buried
+    in a sentence that began before it. Measured over one week's mail, 60 of 65
+    real items opened their block and 16 of 17 fragments did not.
+
+    An image-wrapped link has no text, so it trivially "opens" its block and is
+    never rejected here -- which is correct, because it is the lead story and its
+    headline comes from the block instead.
+    """
+    text = anchor.get_text(" ", strip=True)
+    if not text:
+        return True
+    node = anchor.parent
+    while node is not None and getattr(node, "name", None) not in (None, "[document]"):
+        if node.name in _PROSE_TAGS:
+            prose = node.get_text(" ", strip=True)
+            # Compared on a prefix: the two differ in whitespace once bs4 has
+            # joined the tags, and an exact compare never matches.
+            return normalize(prose).startswith(normalize(text)[:24])
+        node = node.parent
+    return True
 
 
 #: A byline left behind once the headline is removed: "Por Cristina Fallarás",
@@ -273,7 +381,8 @@ def _clean_blurb(text: str) -> str:
 # --------------------------------------------------------------------------- #
 
 def extract_html(
-    html: str, *, sender_domain: str = "", excerpt_chars: int = 1200
+    html: str, *, sender_domain: str = "", excerpt_chars: int = 1200,
+    email: Email | None = None,
 ) -> list[ExtractedItem]:
     """Items from an HTML newsletter, in the order the newsletter put them."""
     soup = BeautifulSoup(html or "", "html.parser")
@@ -313,6 +422,20 @@ def extract_html(
         if is_boilerplate_text(title):
             log.debug("dropped boilerplate title: %s", title[:60])
             continue
+        # Rejected HERE rather than inside `plausible_title`, which was tried
+        # first and is worse: `_title_from` falls through to its longest-line
+        # fallback, so a rejected fragment comes back as a paragraph of body
+        # prose and the item count goes UP. A fragment means this link is not an
+        # item at all, so the item is what has to go.
+        if looks_like_fragment(title) or not _opens_its_block(anchor):
+            log.debug("dropped sentence fragment: %s", title[:60])
+            continue
+        if looks_like_caption(title):
+            log.debug("dropped image caption: %s", title[:60])
+            continue
+        if email is not None and is_masthead(title, email):
+            log.debug("dropped masthead: %s", title[:60])
+            continue
 
         items.append(
             ExtractedItem(
@@ -351,7 +474,7 @@ def extract_text(text: str, *, excerpt_chars: int = 1200) -> list[ExtractedItem]
             stripped = line.replace(url, " ").strip(" |-–—·•")
             if plausible_title(stripped):
                 title = stripped
-        if not title:
+        if not title or looks_like_fragment(title):
             continue
         blurb = " ".join(
             l for l in lines[index + 1:index + 4] if l and not _URL_RE.search(l)
@@ -433,17 +556,109 @@ def _dedupe_items(items: list[ExtractedItem]) -> list[ExtractedItem]:
     return ordered
 
 
+#: How far into the body text the editor's framing can be. Past this we are
+#: reading the first article, not a description of the issue. 3000 because the
+#: real cue sat at character 2030 and 2232 in the two issues that have one --
+#: a masthead, a date line and a membership appeal come first.
+_EDITORIAL_SCAN_CHARS = 3_000
+
+#: Wording that introduces an ISSUE'S CONTENTS. Deliberately specific: a bare
+#: "this week" or "esta semana" also appears in ordinary article prose -- it
+#: matched "the UN General Assembly's high-level debate is under way this week"
+#: on the first attempt -- so each cue pairs the time phrase with a verb of
+#: telling, which is what a table of contents does and a news sentence does not.
+_EDITORIAL_CUE = re.compile(
+    r"esta semana (?:analizamos|te contamos|hablamos|repasamos|vemos)"
+    r"|aquesta setmana (?:analitzem|us expliquem|parlem)"
+    r"|this week (?:we|,? in)"
+    r"|en (?:el|este) (?:boletin|boletín|newsletter) (?:de hoy)?"
+    r"|in (?:this|today's) (?:newsletter|edition|issue)"
+    r"|coming up (?:this week|today)",
+    re.IGNORECASE,
+)
+
+#: Sentence end, for trimming the summary back to whole sentences.
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s")
+
+
+def editorial_summary(html: str, *, limit: int = 400) -> str:
+    """The newsletter's own description of its week, if it gives one.
+
+    Free editorial signal that was being thrown away. El Orden Mundial opens with
+    "Esta semana analizamos la guerra hibrida de Rusia en Europa y hablamos de la
+    Asamblea General de la ONU" -- a human editor naming the issue's themes,
+    which the extractor was treating as one more article to rank.
+
+    Searched over the BODY TEXT rather than the block tree. Both bugs the first
+    attempt had came from the tree: the sentence sits in a `<span>` inside a
+    `<p>`, so reading each block's direct text missed it, and the second block in
+    the document is a `<div>` wrapping the whole newsletter, so a per-block
+    character budget was spent before reaching anything real.
+
+    Returned as TEXT, never as an item: it is a prior for grouping, not a story.
+    Nothing ranks or publishes it, so a false positive costs a slightly worse
+    grouping prompt rather than a junk entry in the digest.
+    """
+    soup = BeautifulSoup(html or "", "html.parser")
+    strip_chrome(soup)
+    text = re.sub(r"\s+", " ", soup.get_text(" ", strip=True)).strip()
+    if not text:
+        return ""
+    match = _EDITORIAL_CUE.search(text[:_EDITORIAL_SCAN_CHARS])
+    if not match:
+        return ""
+    # From the start of the sentence the cue is in, so the summary reads as one.
+    head = text[: match.start()]
+    sentence_start = 0
+    for end_match in _SENTENCE_END.finditer(head):
+        sentence_start = end_match.end()
+    summary = text[sentence_start : sentence_start + limit].strip()
+    if is_boilerplate_text(summary):
+        return ""
+    # Trim a dangling half-sentence at the cut.
+    if len(summary) == limit:
+        cuts = list(_SENTENCE_END.finditer(summary))
+        if cuts:
+            summary = summary[: cuts[-1].start() + 1]
+    return summary
+
+
 def extract(email: Email, *, excerpt_chars: int = 1200) -> list[ExtractedItem]:
-    """Items from whichever body this message has."""
+    """Items from whichever body this message has.
+
+    The plain-text fallback is for a message whose HTML carries no item
+    structure at all. It is NOT a second attempt at one we filtered: plain text
+    has no markup to tell a headline from a caption, so falling back after
+    rejecting every HTML candidate re-admits exactly what was just rejected, and
+    more of it -- 4 messages, 1 junk item between them, became 45.
+    """
     sender_domain = email.sender.rpartition("@")[2]
     if email.html_body:
         items = extract_html(
-            email.html_body, sender_domain=sender_domain, excerpt_chars=excerpt_chars
+            email.html_body, sender_domain=sender_domain,
+            excerpt_chars=excerpt_chars, email=email,
         )
         if items:
             return items
+        if _has_candidates(email.html_body, sender_domain):
+            log.info(
+                "%s: HTML had links but none was an item; not falling back",
+                email.source,
+            )
+            return []
         log.info("%s: HTML body yielded no items, trying plain text", email.source)
     return extract_text(email.text_body, excerpt_chars=excerpt_chars)
+
+
+def _has_candidates(html: str, sender_domain: str) -> bool:
+    """Did the HTML offer any link that could have been an article?
+
+    Re-parses, which only happens on the path where extraction already found
+    nothing, so the cost is paid once for a message that produced no items.
+    """
+    soup = BeautifulSoup(html or "", "html.parser")
+    strip_chrome(soup)
+    return bool(_candidate_anchors(soup, sender_domain))
 
 
 # --------------------------------------------------------------------------- #
