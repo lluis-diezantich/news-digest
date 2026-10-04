@@ -11,14 +11,28 @@ venv/
 # has no business in the history.
 debug/
 
-# Local scratch DBs. The canonical pipeline state (data/news.db) IS committed --
-# it is how deduplication and the "already parsed" flag survive between runs.
-# Raw email bodies live in it until `prune` empties them, so the retention
-# setting `email_body_retention_days` is what keeps mailbox content out of the
-# published history. Keep it short.
+# The database is NOT committed, as of 2026-10-04. It used to be: it is how
+# deduplication and the "already parsed" flag survive between runs, which is a
+# real thing to give up, and the trade is deliberate. This repository is public
+# and the database holds raw newsletter HTML fetched from a personal mailbox,
+# including per-subscriber tracking tokens in the stored URLs -- about 1.3 MB of
+# it on the day this changed, because `prune` only empties bodies older than
+# `email_body_retention_days`.
+#
+# What this costs, so it is not a surprise later:
+#   * A scheduled Actions run starts with no state, so it re-fetches, re-parses,
+#     re-classifies and re-enriches the whole window every time. On a free LLM
+#     tier that is the cost that runs out.
+#   * Cross-run deduplication is gone, so one article arriving in two weeks of
+#     mail can appear in two digests.
+#   * `.github/workflows/weekly.yml` still names `data` in its commit step. It
+#     now adds nothing there, which is harmless but misleading.
+#
+# To keep the incremental behaviour without publishing the mail, cache the file
+# in Actions (actions/cache on data/news.db) instead of committing it.
+data/*.db
 data/*.db-wal
 data/*.db-shm
-data/local*.db
 data/*.db.bak
 
 # Real newsletter fixtures. They carry the mailbox address in their Received
