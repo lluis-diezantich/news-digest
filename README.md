@@ -73,43 +73,5 @@ news-digest run --no-llm --no-embeddings
 | **[Rebuilding](doc/rebuilding.md)** | Starting over, what must survive, and the failure modes that look like bugs |
 | **[Development](doc/development.md)** | Tests, layout, adding a provider, schema changes |
 
-## This week
-
-<!-- digest:start -->
-
-# The Week in Global News
-28 Sep – 4 Oct 2026
-
-*Synthesized from ten newsletters, in two languages*
-
-## This week
-
-- La crisis de vivienda en España y la falta de definición de fondos buitre — [Público](https://www.publico.es/politica/brazo-inmobiliario-morgan-stanley-convierte-grandes-desahuciadores-espana.html?segment=registrados&tpcc=nl_temas0625&pnespid=HOAx9EpX9XwPl0XE_8jeDFtSrA1pwrlmpxtPRaAYLIDKdpOvxy7tYI6yvemjiiI7meSWDSugYA)
-- La guerra en Ucrania intensifica su impacto en la vida cotidiana — [The Guardian](https://www.theguardian.com/world/2026/sep/26/after-summer-respite-kyiv-winter-dread)
-- Todas las guerras de Etiopía: qué hay detrás del nuevo conflicto armado — [El Orden Mundial](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQp43qn9qW95jsWP6lZ3mkW78XzJ51PBb83W7_25Nb5QMftVW98Vn7T5LhkGpW4Ly7Z46CG0tsN2fY_cTjjNL2MgZB0ccv-hBW4G0NKH87ZXcXVmF_dw2dZmDNW2t3GFV9jDDVDW6g2cbc7bGMFzW2QXF_b5XPwrPW6wBs2j11zFbFW1XCThv1ZXfgCW5LJZV17Y07xzW5Z366y7VgSwhW5P3ynB4GYPKYW98T8Pq6RY7ZZW4Lk6Sv90WVZ-W4lLKG954-F9jW57Vf2K2qN6wnF537PkbXknwN1CMXL2mBQ4kW5L6MYB2G3MldW3jKGwc1sf6xPN3QMm6YtdXY-W1L9wPQ7JZvCYW6zQ3vm3ZBwXFW5wC3fc55xkypW3J_XMQ7LWYJ6N2hLBWyZk4Wcf8k56DP04)
-- Indian firm building $15bn Trump-announced steel mill has deep Russia ties — [Al Jazeera](https://7aet5.r.a.d.sendibm1.com/mk/cl/f/sh/7nVU1aA2nfwFS2Kg5hF8Cra9EjYQrye/RvxHmrbNt2IC)
-- Un adelanto electoral con ventajas para el PSOE pero riesgos para la izquierda: las cuentas que sopesa Sánchez — [Público](https://www.publico.es/politica/gobierno/adelanto-electoral-ventajas-psoe-pero-riesgos-izquierda-cuentas-sopesa-sanchez.html?segment=registrados&tpcc=nl_temas0625&pnespid=VuN09BxK_yoUz1eT94jRGF1X_0phzr1z9BQdQqEBaZ3KR3idWyJoa8BpWwE6eizRHf_F02APeQ)
-- “No imagino una Cuba multipartidista a corto plazo”: Carlos Alzugaray, exembajador cubano — [El Orden Mundial](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQm05nXHCW50kH_H6lZ3pQW5_RB1x5Z0c_HN8vRwqS5M5-FW3HBysD4n0q6cW392-bb25hKtzW61pDw47yhF4cW3ZSJdZ7NjBqfW7lfl3B6kRhQFW4rY1kV92NVvgW8bYdbL92Bv5sW19JxXk8wMZ8gVWBMgT7pBGdxW4pCgLw1tvdHQW2Jmnwp5szngSW58187Y2rWC79W50R0hk2-kSTtW78wlGc5T7vM4N963GyttDgqDVGS0ph7gKGN_W7l5fc341Z13QW2QxMQX4Yl2pLW1WsTmn3mXvhJW7KFy_78zf_r6W53Xn1y3QFG3RW79Xnqt22BQlkW7w5rJM68MN80W769QK_7KMH_PW7FNyz_6xBzp9W3pr2Wk5rxv84VNktY-2v_drRW8SMVWp8mcWfDW5MjNDb3Wn1J1W7ZSntH67Z8c7f5h7fGl04)
-- Tecnoptimismo, o cómo Silicon Valley quiere convencernos de que ellos deben gobernar el futuro — [El Orden Mundial](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQm05nXHCW50kH_H6lZ3mrV3YdlX5lHb2TW5N7tY61hy4QsW44mQ2w65zF0zW4yfnML8v7TCLVXR5vR27nWfbW2_Zdf04-fNfBVkwpdT1SYHptW4Dlmb_7ZjLKCW8X9Vb520PmcLW2WPGQT460WNSW6L3r-04X71dkW7pwH5c986BJyW54n4W23FStTgW1N3-Z96kBb0CN2qFVgYQP30KW4v_51539clv2W7w7wJK8pMC_7W5xvkzT1RcltbW2SsPWW5MGhWSW4JTFg94p_P5LW6RfCmC7_R3-gW2_9xhS3qbtTWVBY5Mt77sPJ9VDK80Q6hDCgvW5_Yg8s3Vl55-W2wY7jP7RVs5tN6tWzCJV1WqsN6ZZ80hy8WmfN1p4Qjx_DbHPW1PLRlw8761FYW6wrpPN7s6MVtW5k1CdJ3zDw6-f7bQd-j04)
-- Satellite images show Gaza in ruins three years into Israel’s genocidal war — [Al Jazeera](https://7aet5.r.a.d.sendibm1.com/mk/cl/f/sh/7nVU1aA2ng01R5LI2pi2HaDlZSY0Lrg/d6YlvmOYIVJm)
-- Mapas para entender las elecciones en Brasil — [El Orden Mundial](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQp43qn9qW95jsWP6lZ3kzN68wM8pxjc7HV3lbjB826hMDW8C260b2pd9_lW5-9Sss97p3mDW6v0PwN8Sq-tLW45FNBw9jPDzHW40zLCV76c-S_W527JF99f2DZnW7y0LxK3xhTD7W7jc54x7BxZXqVNYTbl3mHmkpW6l2qyH8q8vthW3yTlG17jTK1WVmwHh_5TGTLCW5nCPZW8cyX1MW4wyyrn8nhWjdW4jtcly63DQmlW6N-fYc8vcYsrW4sDHRR71p3ghW3SvqNC4YxLTNW4FV07q4f8DvZW1sM88n98Km2lW1WMFnb5BTbjmW6Qbt9D6ZC2bXW4GhLkl8cBbj9W18ydfF8HwDFnVpT-LN3MlZQ4W50l4v-3pVfmKW3VlzH48czmcfN62KKp3xP6Wbddxg-W04)
-
----
-
-## Also worth knowing
-
-- [Estonia blames Russia for arson attack](https://www.theguardian.com/world/2026/sep/29/estonia-blames-russia-arson-attack-drone-maker-ukraine) — The Guardian
-- [España enfrenta crisis de vivienda tras desahucio de anciana](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQnP3qn9qW8wLKSR6lZ3nNW8-43jd4MQf56W2l_lbx8zWJf4W2T8hx08rs3T-W7pHPgy8ZCfkHW9d0nG-1y5MfyW5HRC9299RX-JVHRvTL7N7WCVW87Bcrr5-9VSxW3DRzv06_Mt5pW1f25-k94r74HW97fP1R6TcprKN1XdQ3BKBJ7HN8CRd8Z2V4PJW33PV4b70HyNCW5--xZx2K21MpW16tjfx4zBK4QW49XHCC6zPcfnW4c0D795tR1yLW5tW_h51qRl9PW7vTylP6GZHd_W5ZrB982rYDwmW4g9Jzw2Fh7PcMhwYd0NzY-gVYm7W429LXPxW3H-9vD16SMfJW6xgKyY6tYC5xW1plxJs7Yvd_nW2sCBSL1T56-fdYrKln04) — El Orden Mundial
-- [El Gobierno madrileño y el Poder Judicial firmaron en 2019 un convenio para hacer frente a los desahucios que nunca se aplicó](https://www.publico.es/economia/vivienda/gobierno-madrileno-poder-judicial-firmaron-2019-convenio-frente-desahucios-nunca-aplico.html?segment=registrados&tpcc=nl_temas0625&pnespid=G_Uu_hkE5zwSklGdsZjUT1gV_xw0xacvpxxWFKEYI5TK1J_EeGrlsMkkiJit1bI_YXIizOwe2g) — Público
-- [Polonia, el nuevo muro de la UE para defenderse de Rusia](https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/cXK-504/VX0R6-55G6XLN9llC2M6d3L4W2QY3Nh5VF2VYMJvQp43qn9qW95jsWP6lZ3kRVksz5v8LknkjVjpV9s4jxw3QW9lFlch80H_j5W88Y-1640l7DrN2NqHQK4Nrz5W1SfFlc6_BSJxN29znkyDZqfVW2mfyWw9968RRW7JpsbQ5cY_BZW1b6tcS5D0SBlW8m38Rx2CbJtGW8dBJxR3YhF3bVzG40p8JK8Y2VnJvsc6wCMY8W6HQzwz27Tdj3W47LRjl2yjWxvW8Nmklh67PjCsW3S0QZk5Gf9vJW5G_Jjr4VvJCCW7Bxy1H312X3GW5jkDG86mkcpMVXrvBb1w60NJW6G8srB4QdqGQVZ-s397Kfy5ZW28lpkB3Y4WDHW3mL1-243L-bgW3Sk6_L8xXrnvN8lZD_7X6b4sW8Q9sNw1sQlRDV_FqxB5cqzjWf91sLQ204) — El Orden Mundial
-- [El PP promovió leyes para facilitar los desahucios y endurecer la condición de inquilino vulnerable](https://www.publico.es/politica/congreso/pp-promovio-leyes-facilitar-desahucios-endurecer-condicion-inquilino-vulnerable.html?segment=registrados&tpcc=nl_temas0625&pnespid=WeAg7FNBtHkWhUjN5IrAGlJO_EMyy6Z5pA8RD.JdPpzKaFuVMFLI9Zall0b7k2wiOSHXwPaAyw) — Público
-
----
-
-*Built from 12 stories, 21 items, 4 publishers, en/es.*  
-*Sources: Al Jazeera, El Orden Mundial, Público, The Guardian.*  
-*10 items filtered as not news.*  
-*12 of 12 stories rest on a single publisher.*  
-*Silent this week: economist-weekly, el-salto, eldiario-catalunya, eldiario-director, eldiario-internacional, elpais-weekly, guardian-saturday, reuters-world, rne-7dias, semafor-flagship (10 configured sources contributed nothing).*
-
-<!-- digest:end -->
+The digests themselves live in [`digests/`](digests/), one Markdown file per
+week, newest listed in [digests/README.md](digests/README.md).

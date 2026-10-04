@@ -33,7 +33,12 @@ def story(sid, headline="A headline of a plausible length", publisher="Público"
 
 
 def ranked(n=5):
-    return [story(f"s{i}", publisher=f"Pub{i}") for i in range(n)]
+    """Distinct headlines, so a test can tell the stories apart in the output."""
+    return [
+        story(f"s{i}", headline=f"Headline number {i} of the week",
+              publisher=f"Pub{i}")
+        for i in range(n)
+    ]
 
 
 class TestGrouping:
@@ -134,10 +139,10 @@ class TestRendering:
         theme = Theme(label="L", story_ids=["s0", "s1"],
                       headline="Themed", narrative="Connected.")
         out = render.digest_markdown(load_config(), self._result([theme]))
-        lines = [l for l in out.splitlines() if l.startswith("- ")]
-        assert lines[0].startswith("- Themed")
-        # s2 and s3 belong to no narrative and must not vanish.
-        assert len(lines) == 3
+        # The themed entry leads, as a topic heading over its coverage; the two
+        # stories in no narrative follow with their own headlines.
+        assert out.index("Themed") < out.index("Headline number 2")
+        assert "Headline number 2" in out and "Headline number 3" in out
 
     def test_a_story_is_not_published_twice(self):
         from newsdigest.config import load_config
@@ -167,9 +172,12 @@ class TestRendering:
                           headline="One narrative", narrative="N")],
         )
         out = render.digest_markdown(load_config(), res)
-        line = next(l for l in out.splitlines() if l.startswith("- One narrative"))
+        # The topic is the heading; each outlet keeps its own headline beneath.
+        assert "## One narrative" in out
         for pub in ("Reuters", "El Pais", "BBC"):
-            assert f"[{pub}]" in line
+            assert f"**{pub}**" in out
+        for n in range(3):
+            assert f"Story {n}" in out  # this test builds its own stories
 
     def test_a_per_story_disagreement_survives_inside_a_theme(self):
         """Section 15 applies whether a story publishes alone or in a theme --

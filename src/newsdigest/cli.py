@@ -153,6 +153,14 @@ def build_parser() -> argparse.ArgumentParser:
                                       help="summarize the database")
     stats_cmd.add_argument("--json", action="store_true")
 
+    headlines = subparsers.add_parser(
+        "headlines", parents=[common, window],
+        help="every stored headline for a window, grouped by source",
+    )
+    # `--source` comes from the window parent, which collects into `only`.
+    headlines.add_argument("--urls", action="store_true", help="print the URL too")
+    headlines.add_argument("--json", action="store_true")
+
     explain = subparsers.add_parser("explain", parents=[common],
                                     help="per-term ranking breakdown for one story")
     explain.add_argument("story_id")
@@ -346,6 +354,9 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
     if command == "inspect":
         return _inspect(args, config, log)
 
+    if command == "headlines":
+        return _headlines(args, config, log)
+
     if command == "build":
         with Store(args.db) as store:
             written = render.rebuild(
@@ -385,6 +396,70 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
 
     log.error("unknown command %r", args.command)
     return 2
+
+
+def _headlines(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    """Every stored headline for a window, grouped by source.
+
+    Read-only, and reads the ARTICLES table rather than re-running extraction:
+    these are the headlines the digest was built from. `inspect` reports the
+    same window as counts per source; this is the list behind those counts, for
+    "that story is missing and I want to see whether it was ever extracted".
+
+    Works after `prune` has emptied the raw bodies at `email_body_retention_days`,
+    which re-extraction cannot -- see `scripts/headlines.py` for that, and for
+    why it is a script rather than a command.
+    """
+    start, end = resolve_window(args, config)
+    with Store(args.db) as store:
+        articles = store.articles_in_window(start, end)
+
+    if args.only:
+        needles = [n.lower() for n in args.only]
+        articles = [
+            a for a in articles
+            if any(n in a.source.lower() for n in needles)
+        ]
+
+    grouped: dict[str, list] = {}
+    for article in articles:
+        grouped.setdefault(article.source, []).append(article)
+
+    if args.json:
+        print(json.dumps(
+            {
+                source: [
+                    {"title": a.title, "url": a.url, "publisher": a.publisher,
+                     "newsworthy": a.newsworthy}
+                    for a in items
+                ]
+                for source, items in sorted(grouped.items())
+            },
+            ensure_ascii=False, indent=2,
+        ))
+        return 0
+
+    if not articles:
+        print(f"no stored headlines in {start.date()} .. {end.date()}")
+        return 1
+
+    for source in sorted(grouped):
+        items = grouped[source]
+        print(f"--- {source} ({len(items)})")
+        for article in items:
+            # `x` is the classifier's verdict, which only the stored view has:
+            # classification runs after parse.
+            mark = " x " if article.newsworthy is False else "   "
+            print(f"{mark}{article.title}")
+            if args.urls:
+                print(f"      {article.url}")
+        print()
+
+    dropped = sum(1 for a in articles if a.newsworthy is False)
+    plural = "" if len(grouped) == 1 else "s"
+    print(f"{len(articles)} headlines across {len(grouped)} source{plural}"
+          f"{f', {dropped} filtered as not news' if dropped else ''}")
+    return 0
 
 
 def _inspect(args: argparse.Namespace, config, log: logging.Logger) -> int:

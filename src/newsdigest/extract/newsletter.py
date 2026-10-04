@@ -112,14 +112,27 @@ def plausible_title(text: str) -> bool:
     return not (letters and all(c.isupper() for c in letters))
 
 
-def _title_from(block, anchor) -> str:
+def _title_from(
+    block, anchor, *, use_anchor: bool = True, allow_prose: bool = True
+) -> str:
     """The best headline for one item, trying four sources in order.
 
     The anchor's own text comes first and is usually right. It is empty when the
     link is wrapped around an image, which every newsletter does for its lead
     story -- so the fallbacks matter for exactly the item that matters most.
+
+    `use_anchor=False, allow_prose=False` asks the narrower question "does this
+    block carry a headline of its own?", using only MARKED-UP candidates: a
+    heading, a bold run, an image's alt. That is what a columnist's letter needs
+    -- elDiario puts the article's title in a `<strong>` on its own line and
+    links to it from a citation buried in the paragraph below, so the anchor
+    text is a fragment while the real headline sits two lines up. Excluding the
+    prose fallback is what makes it safe: with it, a rejected fragment came back
+    as a paragraph of body text and the item count went UP.
     """
-    candidates: list[str] = [anchor.get_text(" ", strip=True)]
+    candidates: list[str] = []
+    if use_anchor:
+        candidates.append(anchor.get_text(" ", strip=True))
 
     for tag in _HEADING_TAGS:
         for heading in block.find_all(tag):
@@ -139,6 +152,9 @@ def _title_from(block, anchor) -> str:
     for candidate in candidates:
         if plausible_title(candidate):
             return re.sub(r"\s+", " ", candidate).strip()
+
+    if not allow_prose:
+        return ""
 
     # Last resort: the longest line of the block's own text.
     lines = [line.strip() for line in block.get_text("\n", strip=True).split("\n")]
@@ -429,8 +445,24 @@ def extract_html(
         # prose and the item count goes UP. A fragment means this link is not an
         # item at all, so the item is what has to go.
         if looks_like_fragment(title) or not _opens_its_block(anchor):
-            log.debug("dropped sentence fragment: %s", title[:60])
-            continue
+            # The anchor text is a citation -- but the block may still carry the
+            # article's own headline, marked up as a heading or a bold run. A
+            # columnist's letter is built exactly that way, and dropping the
+            # item here lost elDiario entirely: 0 articles from two issues that
+            # each had several real headlines in them.
+            recovered = _title_from(
+                block, anchor, use_anchor=False, allow_prose=False
+            )
+            if (
+                recovered
+                and not looks_like_fragment(recovered)
+                and not is_boilerplate_text(recovered)
+                and not looks_like_caption(recovered)
+            ):
+                title = recovered
+            else:
+                log.debug("dropped sentence fragment: %s", title[:60])
+                continue
         if looks_like_caption(title):
             log.debug("dropped image caption: %s", title[:60])
             continue

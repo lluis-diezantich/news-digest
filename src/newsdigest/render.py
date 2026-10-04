@@ -201,6 +201,8 @@ class Entry:
     title: str
     #: publisher -> the article to link for it, newest first and capped.
     sources: dict
+    #: Every article in the entry, so each outlet's own headline can be shown.
+    raw: list
     #: Numbered, for the anchor and the expanded heading.
     heading: str
     block: str
@@ -223,9 +225,11 @@ def _entries(result: DigestResult) -> list[Entry]:
             continue
         index = len(entries) + 1
         title = theme.headline or theme.label
+        member_articles = [a for _, articles in members for a in articles]
         entries.append(Entry(
             title=title,
-            sources=_by_publisher([a for _, articles in members for a in articles]),
+            sources=_by_publisher(member_articles),
+            raw=member_articles,
             heading=f"{index}. {title}",
             block=theme_markdown(theme, members, index, lead=position == 0),
         ))
@@ -240,37 +244,109 @@ def _entries(result: DigestResult) -> list[Entry]:
         entries.append(Entry(
             title=story.headline,
             sources=_by_publisher(articles),
+            raw=list(articles),
             heading=f"{index}. {story.headline}",
             block=story_markdown(story, articles, index),
         ))
     return entries
 
+#: Months, for the short date beside each headline. Rendered rather than
+#: localized: three letters reads the same to a Spanish or English reader and
+#: needs no locale on the runner.
+_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _short_date(article: Article) -> str:
+    """The day this item is from, as "3 Oct".
+
+    ABSOLUTE, not relative. A digest is a file that is committed and read for
+    months, so "15 hours ago" is wrong the morning after it is written -- it
+    describes when the file was generated rather than when the story ran.
+    """
+    when = article.published_at or article.received_at or article.collected_at
+    if not when:
+        return ""
+    return f"{when.day} {_MONTHS[when.month - 1]}"
+
+
+def _coverage_lines(articles: list[Article]) -> list[str]:
+    """One line per outlet, carrying that outlet's OWN headline.
+
+    This is the point of the format: several newspapers covered one thing and
+    each wrote its own headline, so showing all of them is showing the coverage.
+    Collapsing them into one synthesized headline with a row of source links --
+    which this did until 2026-10-04 -- throws away the thing a reader is
+    scanning for.
+
+    One line per ARTICLE, newest first -- deliberately not one per publisher.
+    Collapsing by publisher was the first attempt and it defeats the format: a
+    topic's three headlines frequently come from one outlet across its several
+    newsletters, and keeping one of them leaves a "full coverage" list with a
+    single line in it.
+    """
+    ordered = sorted(
+        articles,
+        key=lambda a: (a.published_at or a.received_at or a.collected_at),
+        reverse=True,
+    )
+    lines = []
+    for article in ordered[:MAX_LINKS]:
+        when = _short_date(article)
+        stamp = f" · {when}" if when else ""
+        lines.append(
+            f"- **{_escape(article.publisher)}**{stamp} — "
+            f"[{_escape(article.title)}]({display_url(article.url)})"
+        )
+    return lines
+
+
 def contents_markdown(entries: list["Entry"], *, detail: bool) -> str:
-    """The week as one scannable list: headline, then every outlet that ran it.
+    """The digest body, in whichever shape the two modes need.
 
-    This is the digest's whole body unless `detail` is on, and the SOURCES carry
-    the links rather than the headline -- with no section below, a headline
-    linking to an in-page anchor would point at nothing, and a reader who wants
-    the story wants an outlet, not a bookmark.
+    They are genuinely different documents rather than one with a section
+    hidden, which is why this branches instead of sharing a renderer:
 
-    A theme's line names every publisher across its stories, which is the point
-    of grouping: "three outlets ran this" belongs on the line, not three lines
-    apart.
+      * Default: a topic heading per entry, then every outlet's OWN headline
+        beneath it. The body IS this -- nothing expands.
+      * `detail`: a bullet contents list anchored to the expanded sections
+        below. Headings here would collide with those sections' headings and
+        GitHub would silently suffix the duplicate slugs, so the index is a
+        list and the headings belong to the sections.
     """
     if not entries:
         return ""
-    lines = ["## This week", ""]
+    if detail:
+        lines = ["## This week", ""]
+        for entry in entries:
+            who = ", ".join(
+                f"[{_escape(publisher)}]({display_url(article.url)})"
+                for publisher, article in entry.sources.items()
+            )
+            lines.append(
+                f"- [{_escape(entry.title)}](#{heading_slug(entry.heading)})"
+                + (f" — {who}" if who else "")
+            )
+        return "\n".join(lines + [""])
+
+    blocks: list[str] = []
     for entry in entries:
-        who = ", ".join(
-            f"[{_escape(publisher)}]({display_url(article.url)})"
-            for publisher, article in entry.sources.items()
-        )
-        title = _escape(entry.title)
-        if detail:
-            title = f"[{title}](#{heading_slug(entry.heading)})"
-        lines.append(f"- {title}" + (f" \u2014 {who}" if who else ""))
-    lines.append("")
-    return "\n".join(lines)
+        if len(entry.raw) == 1:
+            # Its headline IS the topic, so a heading plus a line repeating it
+            # word for word would be the same text twice.
+            article = entry.raw[0]
+            when = _short_date(article)
+            blocks.append("\n".join([
+                f"## [{_escape(article.title)}]({display_url(article.url)})",
+                "",
+                f"**{_escape(article.publisher)}**" + (f" · {when}" if when else ""),
+                "",
+            ]))
+            continue
+        blocks.append("\n".join(
+            [f"## {_escape(entry.title)}", ""] + _coverage_lines(entry.raw) + [""]
+        ))
+    return "\n".join(blocks)
 
 def digest_markdown(config: Config, result: DigestResult) -> str:
     """The whole digest, as one Markdown document."""
@@ -294,10 +370,12 @@ def digest_markdown(config: Config, result: DigestResult) -> str:
         parts.append(contents)
     if detail:
         parts += ["---", ""] + [entry.block for entry in entries]
-
-    minor = minor_markdown(result.minor)
-    if minor:
-        parts += ["---", "", minor]
+        # Section 14's "Also worth knowing" belongs to the expanded form. The
+        # list is a scan of what mattered, and a second ranked list below it
+        # reads as more of the same rather than less.
+        minor = minor_markdown(result.minor)
+        if minor:
+            parts += ["---", "", minor]
 
     parts += ["---", "", _footer(result), ""]
     return "\n".join(parts)

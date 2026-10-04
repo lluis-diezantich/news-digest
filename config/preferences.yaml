@@ -132,6 +132,14 @@ digest:
   # under it. Off publishes flat, exactly as before.
   themes: true
   max_themes: 6
+
+  # Inline the newest digest into README.md between its markers. Off since
+  # 2026-10-04: the digests live in digests/ and the README is about the
+  # project, not this week's news. `render.update_readme` also needs the
+  # <!-- digest:start --> / <!-- digest:end --> markers, which were removed with
+  # the section, so this is belt and braces -- without them it would leave the
+  # file alone anyway rather than appending to it.
+  update_readme: false
   # Section 14's "Also worth knowing": listed with a link, not written up.
   minor_stories: 5
 

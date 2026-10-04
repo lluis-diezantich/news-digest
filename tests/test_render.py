@@ -60,12 +60,15 @@ class TestDigestMarkdown:
         assert "## 2. Second thing" in text
         assert text.index("## 1.") < text.index("## 2.")
 
-    def test_each_story_links_every_publisher_once(self, config):
+    def test_the_expanded_sources_list_each_publisher_once(self, config):
+        """Attribution, in the expanded form: two newsletters from one outlet
+        are one outlet's coverage. The list above does the opposite on purpose
+        -- see TestFullCoverage."""
         text = render.digest_markdown(
-            config, result([one("A thing", publishers=("BBC", "Reuters", "BBC"))])
+            detailed(config), result([one("A thing", publishers=("BBC", "Reuters", "BBC"))])
         )
-        assert text.count("[BBC]") == 1
-        assert "[Reuters]" in text
+        assert text.count("- [BBC]") == 1
+        assert "- [Reuters]" in text
 
     def test_why_it_matters_appears_when_there_is_one(self, config):
         s, a = one("A thing", why_it_matters="It changes the budget.")
@@ -128,9 +131,18 @@ class TestDisagreements:
 class TestMinorStories:
     """Section 14's "Also worth knowing": listed, not written up."""
 
-    def test_they_are_listed_under_their_own_heading(self, config):
+    def test_they_are_not_published_by_default(self, config):
+        """Dropped 2026-10-04. The list is a scan of what mattered, and a second
+        ranked list below it reads as more of the same rather than less."""
         text = render.digest_markdown(
             config, result([one("Main thing")], minor=[one("Smaller thing")])
+        )
+        assert "## Also worth knowing" not in text
+        assert "Smaller thing" not in text
+
+    def test_they_are_listed_under_their_own_heading_with_detail(self, config):
+        text = render.digest_markdown(
+            detailed(config), result([one("Main thing")], minor=[one("Smaller thing")])
         )
         assert "## Also worth knowing" in text
         assert "Smaller thing" in text
@@ -229,75 +241,92 @@ class TestReadme:
         assert not readme.exists()
 
 
-class TestTheWeekList:
-    """The digest's body: one line per story, headline then every outlet."""
+class TestFullCoverage:
+    """The digest body: a topic, then every outlet's OWN headline under it."""
 
-    def _result(self, headlines, publishers=("Pub",)):
-        stories = []
-        for n, head in enumerate(headlines):
-            st = Story(id=f"s{n}", headline=head, summary="A summary.",
-                       why_it_matters="A stake.", score=10.0 - n)
-            ar = [make_article(title=head, url=f"https://example.com/news/{n}-{i}",
-                               publisher=pub)
-                  for i, pub in enumerate(publishers)]
-            stories.append((st, ar))
+    def _result(self, groups):
+        """`groups` is [[(publisher, headline), ...], ...] -- one list per story."""
+        stories, n = [], 0
+        for g, items in enumerate(groups):
+            arts = []
+            for publisher, headline in items:
+                arts.append(make_article(
+                    title=headline, publisher=publisher,
+                    url=f"https://example.com/news/{n}",
+                ))
+                n += 1
+            st = Story(id=f"s{g}", headline=items[0][1], summary="A summary.",
+                       why_it_matters="A stake.", score=10.0 - g)
+            stories.append((st, arts))
         digest = Digest(
             id="2026-W40",
             period_start=datetime(2026, 9, 28, tzinfo=timezone.utc),
             period_end=datetime(2026, 10, 5, tzinfo=timezone.utc),
-            article_count=len(stories),
+            article_count=n,
         )
         return DigestResult(digest=digest, stories=stories)
 
-    def test_the_list_is_the_whole_body_by_default(self, config):
-        """No expanded sections, so none of the prose is published."""
-        text = render.digest_markdown(config, self._result(["A headline of a story"]))
-        assert "## This week" in text
-        assert "A headline of a story" in text
-        assert "## 1." not in text
+    def test_each_outlet_keeps_its_own_headline(self, config):
+        text = render.digest_markdown(config, self._result([[
+            ("Infobae", "Lula y Bolsonaro se mostraron optimistas"),
+            ("AP", "Abren centros de votacion para elecciones de Brasil"),
+            ("Houston Chronicle", "Lula campaigns in a key state"),
+        ]]))
+        for headline in ("Lula y Bolsonaro se mostraron optimistas",
+                         "Abren centros de votacion para elecciones de Brasil",
+                         "Lula campaigns in a key state"):
+            assert headline in text
+        for publisher in ("Infobae", "AP", "Houston Chronicle"):
+            assert f"**{publisher}**" in text
+
+    def test_two_headlines_from_one_outlet_both_appear(self, config):
+        """The first implementation collapsed by publisher, which defeats the
+        format: a topic's headlines frequently come from one outlet across its
+        several newsletters, and keeping one leaves a coverage list of one."""
+        text = render.digest_markdown(config, self._result([[
+            ("Publico", "Morgan Stanley, uno de los grandes desahuciadores"),
+            ("Publico", "Los detalles del decreto de vivienda"),
+        ]]))
+        assert "Morgan Stanley, uno de los grandes desahuciadores" in text
+        assert "Los detalles del decreto de vivienda" in text
+        assert text.count("**Publico**") == 2
+
+    def test_a_single_article_is_not_printed_twice(self, config):
+        """Its headline IS the topic, so a heading plus a line repeating it word
+        for word would be the same text twice."""
+        text = render.digest_markdown(
+            config, self._result([[("BBC", "A single outlet covered this")]])
+        )
+        assert text.count("A single outlet covered this") == 1
+        assert "**BBC**" in text
+
+    def test_the_date_is_absolute(self, config):
+        """A digest is committed and read for months, so "15 hours ago" is wrong
+        the morning after it is written."""
+        text = render.digest_markdown(
+            config, self._result([[("BBC", "A headline")]])
+        )
+        assert "ago" not in text
+        assert "hace" not in text.lower()
+
+    def test_no_prose_is_published(self, config):
+        text = render.digest_markdown(config, self._result([[("BBC", "A headline")]]))
         assert "A summary." not in text
         assert "**Why it matters:**" not in text
 
-    def test_the_sources_carry_the_links(self, config):
-        """Not the headline: with nothing to expand to, an in-page anchor would
-        point at nothing and a reader wants the outlet."""
-        text = render.digest_markdown(
-            config, self._result(["A headline"], publishers=("Público",))
-        )
-        assert "- A headline — [Público](https://example.com/news/0-0)" in text
-
-    def test_every_outlet_that_ran_it_is_named(self, config):
-        text = render.digest_markdown(
-            config,
-            self._result(["A headline"], publishers=("Reuters", "El País", "BBC")),
-        )
-        line = next(l for l in text.splitlines() if l.startswith("- A headline"))
-        for publisher in ("Reuters", "El País", "BBC"):
-            assert f"[{publisher}]" in line
-        assert line.count("](") == 3
-
-    def test_one_publisher_is_named_once(self, config):
-        text = render.digest_markdown(
-            config, self._result(["A headline"], publishers=("BBC", "BBC"))
-        )
-        assert text.count("[BBC]") == 1
-
-    def test_with_detail_the_headline_anchors_to_its_section(self, config):
+    def test_with_detail_every_anchor_resolves(self, config):
         import re
-        text = render.digest_markdown(
-            detailed(config),
-            self._result(["La crisis de vivienda en España y los fondos buitre",
-                          "Kyiv has become a frontline city \u2013 and winter is on the way"]),
-        )
+        text = render.digest_markdown(detailed(config), self._result([
+            [("Publico", "La crisis de vivienda en Espana")],
+            [("The Guardian", "Kyiv has become a frontline city \u2013 and winter")],
+        ]))
         anchors = re.findall(r"\]\(#([^)]+)\)", text)
         slugs = {render.heading_slug(h) for h in re.findall(r"^## (.+)$", text, re.M)}
-        assert anchors, "no anchors produced with detail on"
-        assert [a for a in anchors if a not in slugs] == []
+        assert anchors and [a for a in anchors if a not in slugs] == []
 
     def test_whitespace_runs_become_one_hyphen_each(self):
-        """github-slugger substitutes per character, not per run. Collapsing
-        runs would give `city-and` for a heading anchored at `city--and`, and a
-        dead anchor looks exactly like a live one until someone clicks it."""
+        """github-slugger substitutes per character, not per run; collapsing
+        runs gives a dead anchor that looks exactly like a live one."""
         assert render.heading_slug("1. City \u2013 and winter") == "1-city--and-winter"
 
     def test_accents_survive_and_punctuation_does_not(self):

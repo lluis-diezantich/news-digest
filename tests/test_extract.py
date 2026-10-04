@@ -830,3 +830,71 @@ class TestNonEditorialDestinations:
         assert len(articles) == 1
         assert unresolved == 1
         assert articles[0].description
+
+
+class TestHeadlineRecoveredFromTheBlock:
+    """A columnist's letter puts the article's title in a heading or a bold run
+    and links to it from a citation buried in the paragraph below. Dropping the
+    item on its fragment anchor text lost elDiario entirely -- 0 articles from
+    two issues that each carried several real headlines."""
+
+    def test_a_bold_headline_beats_a_citation_anchor(self):
+        html = page(
+            "<table><tr><td>"
+            "<p><strong>L'instructor de vol i l'empresa amb negocis sospitosos</strong></p>"
+            "<p>Aquesta es una investigacio de Pol Pareja i el protagonista es "
+            'en Pere. Us convido a llegir <a href="https://x.example/a">'
+            "el reportatge amb tots els detalls</a>.</p>"
+            "</td></tr></table>"
+        )
+        items = extract_html(html)
+        assert [i.title for i in items] == [
+            "L'instructor de vol i l'empresa amb negocis sospitosos"
+        ]
+        assert items[0].url == "https://x.example/a"
+
+    def test_a_heading_works_the_same_way(self):
+        html = page(
+            "<table><tr><td>"
+            "<h2>Estonia blames Russia for an arson attack</h2>"
+            '<p>European leaders responded, <a href="https://x.example/b">as a '
+            "Guardian editorial noted</a> on Monday.</p>"
+            "</td></tr></table>"
+        )
+        assert [i.title for i in extract_html(html)] == [
+            "Estonia blames Russia for an arson attack"
+        ]
+
+    def test_prose_alone_is_still_not_a_headline(self):
+        """The guard that makes the recovery safe. With the longest-line
+        fallback allowed here, a rejected fragment came back as a paragraph of
+        body text and the item count went UP."""
+        html = page(
+            "<table><tr><td><p>"
+            "Rents across the continent have climbed for a decade now, and "
+            '<a href="https://x.example/c">surge 208% in the same time period</a> '
+            "according to figures nobody disputes any more.</p></td></tr></table>"
+        )
+        assert extract_html(html) == []
+
+    def test_a_recovered_headline_must_itself_be_plausible(self):
+        """A bold run is often a label rather than a headline."""
+        html = page(
+            "<table><tr><td>"
+            "<p><strong>El reportatge</strong></p>"
+            '<p>Text that continues, <a href="https://x.example/d">'
+            "us convido a llegir</a>.</p>"
+            "</td></tr></table>"
+        )
+        assert extract_html(html) == []
+
+    def test_boilerplate_is_not_recovered_either(self):
+        html = page(
+            "<table><tr><td>"
+            "<p><strong>Support our journalism and fund independent reporting"
+            "</strong></p>"
+            '<p>Help us, <a href="https://x.example/e">as many readers have'
+            "</a>.</p>"
+            "</td></tr></table>"
+        )
+        assert extract_html(html) == []
