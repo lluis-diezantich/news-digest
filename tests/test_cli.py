@@ -21,10 +21,11 @@ LOG = logging.getLogger("test")
 
 
 def _args(store, **overrides):
-    """The namespace `_headlines` reads, as `build_parser` would produce it."""
+    """The namespace the read-only commands take, as `build_parser` makes it."""
     ns = argparse.Namespace(
         db=store.path, only=[], urls=False, json=False,
         week=None, days=30, from_date=None, to_date=None,
+        out=store.path.parent / "digests",
     )
     for key, value in overrides.items():
         setattr(ns, key, value)
@@ -108,3 +109,47 @@ class TestHeadlines:
         assert "https://example.com/a-story" not in capsys.readouterr().out
         cli._headlines(_args(store, urls=True), config, LOG)
         assert "https://example.com/a-story" in capsys.readouterr().out
+
+
+class TestStages:
+    """The fourteen steps, with what narrowed where."""
+
+    def test_it_prints_every_step_in_order(self, store, config, capsys):
+        assert cli._stages(_args(store), config, LOG) == 0
+        out = capsys.readouterr().out
+        for number in range(1, 15):
+            assert f"{number:>3}. " in out
+        assert out.index("  1. ") < out.index(" 14. ")
+
+    def test_the_discarding_steps_say_so_rather_than_zero(self, store, config, capsys):
+        """A `0` there would read as "nothing was dropped", which is a different
+        claim from "this stage keeps no record"."""
+        cli._stages(_args(store), config, LOG)
+        out = capsys.readouterr().out
+        bin_junk = out.split("Bin the junk")[1].splitlines()[1].strip()
+        deduped = out.split("Drop articles already stored")[1].splitlines()[1].strip()
+        assert bin_junk == "--"
+        assert deduped == "--"
+        assert "nothing survives to count" in out
+
+    def test_counts_come_from_the_window(self, store, config, capsys):
+        _stored(
+            store,
+            make_article("A headline about housing", source="publico"),
+            make_article("Another about Ukraine", source="guardian"),
+        )
+        cli._stages(_args(store), config, LOG)
+        assert "2 articles from 0 emails" in capsys.readouterr().out
+
+    def test_an_empty_window_says_there_is_no_digest(self, store, config, capsys):
+        cli._stages(_args(store), config, LOG)
+        out = capsys.readouterr().out
+        assert "no digest for this window" in out
+        assert "not written" in out
+
+    def test_unclassified_is_not_reported_as_nothing_dropped(
+        self, store, config, capsys
+    ):
+        _stored(store, make_article("A headline about housing", source="publico"))
+        cli._stages(_args(store), config, LOG)
+        assert "not classified yet" in capsys.readouterr().out

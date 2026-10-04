@@ -39,7 +39,8 @@ from .config import (
 )
 from .digest import select_candidates, weekly_window
 from .inbox import MailboxError, Matcher, get_mailbox, parse_message
-from .models import utcnow
+from .extract.links import looks_like_tracker
+from .models import Digest, utcnow
 from .store import Store
 
 log = logging.getLogger(__name__)
@@ -152,6 +153,11 @@ def build_parser() -> argparse.ArgumentParser:
     stats_cmd = subparsers.add_parser("stats", parents=[common],
                                       help="summarize the database")
     stats_cmd.add_argument("--json", action="store_true")
+
+    subparsers.add_parser(
+        "stages", parents=[common, window],
+        help="the pipeline stage by stage, with what went in and came out",
+    )
 
     headlines = subparsers.add_parser(
         "headlines", parents=[common, window],
@@ -357,6 +363,9 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
     if command == "headlines":
         return _headlines(args, config, log)
 
+    if command == "stages":
+        return _stages(args, config, log)
+
     if command == "build":
         with Store(args.db) as store:
             written = render.rebuild(
@@ -396,6 +405,106 @@ def _dispatch(args: argparse.Namespace, config, log: logging.Logger) -> int:
 
     log.error("unknown command %r", args.command)
     return 2
+
+
+#: The pipeline as a reader sees it, paired with what the database can say about
+#: each step. `None` means the number is NOT recoverable afterwards, which is a
+#: property of the stage rather than a gap in this command: steps 5 and 6 drop
+#: things, and a dropped item is never stored, so nothing survives to count. The
+#: run's own stdout reports them, and `--debug` writes the items themselves.
+_STAGES: tuple[tuple[str, str | None], ...] = (
+    ("Read the inbox. Read-only -- nothing is marked or deleted.", "emails"),
+    ("Work out which newsletter each email is.", "matched"),
+    ("Pull the individual articles out of each email.", "extracted"),
+    ("Unwrap the tracking links to find the real article URLs.", "resolved"),
+    ("Bin the junk: sentence fragments, boilerplate, mastheads, sport.", None),
+    ("Drop articles already stored.", None),
+    ("Ask the model what each article is about, and drop what is not news.",
+     "classified"),
+    ("Turn each one into numbers, so they can be compared across languages.",
+     "embedded"),
+    ("Group articles covering the same event.", "clusters"),
+    ("Score and rank the groups.", "ranked"),
+    ("Write a short summary for each.", "enriched"),
+    ("Group related stories into bigger narratives.", "themes"),
+    ("Pick the top stories, without letting one region or topic take over.",
+     "published"),
+    ("Write the Markdown file.", "written"),
+)
+
+
+def _stages(args: argparse.Namespace, config, log: logging.Logger) -> int:
+    """The pipeline stage by stage, for one window, from stored data.
+
+    Read-only and provider-free, like `inspect`. The point is to make the
+    fourteen steps checkable rather than documentation: a story that is missing
+    went missing at one of them, and this says which numbers narrowed where.
+
+    Two steps cannot report: binning junk and dropping duplicates both DISCARD,
+    and a discarded item is never written, so there is nothing left to count.
+    They print `--` rather than `0`, which would read as "nothing was dropped".
+    """
+    start, end = resolve_window(args, config)
+    with Store(args.db) as store:
+        emails = store.emails_in_window(start, end)
+        articles = store.articles_in_window(start, end)
+        digest = store.get_digest(Digest.week_id(end - timedelta(days=1)))
+        main = store.digest_stories(digest.id, tier="main") if digest else []
+        minor = store.digest_stories(digest.id, tier="minor") if digest else []
+
+    stats = (digest.stats if digest else {}) or {}
+    trackers = sum(1 for a in articles if looks_like_tracker(a.url))
+    classified = sum(1 for a in articles if a.newsworthy is not None)
+    dropped = sum(1 for a in articles if a.newsworthy is False)
+    enriched = sum(1 for a in articles if a.enriched_by)
+
+    counts = {
+        "emails": f"{len(emails)} messages stored",
+        "matched": f"{len(emails)} matched a source",
+        "extracted": f"{len(articles)} articles from {len(emails)} emails",
+        "resolved": (
+            f"{len(articles) - trackers} real URLs, {trackers} still trackers"
+        ),
+        "classified": (
+            f"{classified} classified, {dropped} dropped as not news"
+            if classified else "not classified yet"
+        ),
+        "embedded": f"{stats.get('embedded', 0)} embedded"
+                    + (f", {stats['embed_cached']} cached"
+                       if stats.get("embed_cached") else ""),
+        "clusters": (
+            f"{stats['clusters']} clusters"
+            + (f", {stats['cross_language_clusters']} cross-language"
+               if stats.get("cross_language_clusters") else "")
+            if stats.get("clusters") else "no run recorded"
+        ),
+        "ranked": f"{len(main) + len(minor)} groups kept after the cut"
+                  if digest else "no run recorded",
+        "enriched": f"{enriched} articles have a summary",
+        "themes": (
+            f"{len(stats.get('themes') or [])} narratives over "
+            f"{sum(len(t.get('story_ids') or []) for t in (stats.get('themes') or []))}"
+            f" stories"
+        ),
+        "published": f"{len(main)} stories" + (f" (+{len(minor)} minor)" if minor else ""),
+        "written": (
+            str(render.digest_path(args.out, digest).relative_to(Path.cwd()))
+            if digest and render.digest_path(args.out, digest).exists()
+            else "not written"
+        ),
+    }
+
+    print(f"{start.date()} .. {end.date()}"
+          + (f"   digest {digest.id}" if digest else "   no digest for this window"))
+    print()
+    for number, (text, key) in enumerate(_STAGES, start=1):
+        value = counts.get(key) if key else "--"
+        print(f"{number:>3}. {text}")
+        print(f"     {value}")
+    print()
+    print("`--` means the stage discards, so nothing survives to count. The run's")
+    print("own output reports those two; `--debug` writes the dropped items out.")
+    return 0
 
 
 def _headlines(args: argparse.Namespace, config, log: logging.Logger) -> int:

@@ -22,7 +22,11 @@ The goal is not to reproduce ten newsletters. It is to answer one question:
 11. Write a short summary for each.
 12. Group related stories into bigger narratives.
 13. Pick the top 12 plus 5 extras, without letting one region or topic take over.
-14. Write the Markdown file and update this README.
+14. Write the Markdown file.
+
+`news-digest stages` prints these fourteen steps for a given week with what went
+into each and what came out, so a missing story can be traced to the step that
+dropped it.
 
 About 3-5 minutes on Gemini, about 13 locally on Ollama.
 
