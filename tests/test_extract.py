@@ -15,6 +15,7 @@ from newsdigest.extract import (
     extract_text,
     is_boilerplate_link,
     is_masthead,
+    is_never_article,
     is_sponsored,
     looks_like_caption,
     looks_like_fragment,
@@ -762,3 +763,70 @@ class TestEncodedTrackerPaths:
         assert not looks_like_tracker(
             "https://news.example.com/world/parliament-approves-the-housing-decree"
         )
+
+
+class TestNonEditorialDestinations:
+    """A link's HOST is the only thing left to judge once resolution has
+    happened and the link text is gone."""
+
+    @pytest.mark.parametrize("url", [
+        "https://support.theguardian.com/eu/contribute?utm_source=eml",
+        "https://donate.example.com/give",
+        "https://open.spotify.com/episode/abc",
+        "https://shop.example.com/mug",
+        "https://myaccount.example.com/preferences",
+    ])
+    def test_a_non_editorial_host_is_never_an_article(self, url):
+        assert is_never_article(url)
+
+    @pytest.mark.parametrize("url", [
+        "https://www.theguardian.com/world/2026/sep/30/housing-crisis",
+        "https://www.publico.es/politica/brazo-inmobiliario.html",
+        "https://news.example.com/world/a",
+        # An unresolved tracker's host is the MAILER's and says nothing about
+        # where it goes, so it must not be judged here.
+        "https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/x",
+    ])
+    def test_an_article_host_is_not_rejected(self, url):
+        assert not is_never_article(url)
+
+    def test_a_resolved_donate_link_is_dropped(self):
+        """The regression that prompted this: `support.theguardian.com` became
+        the stored URL for the week's LEAD story, because the screening happened
+        on the tracker and nothing re-checked the destination."""
+        from newsdigest.extract import to_articles
+        from newsdigest.extract.newsletter import ExtractedItem
+
+        class Resolver:
+            def resolve(self, url):
+                return "https://support.theguardian.com/eu/contribute"
+
+        email = make_email("Example", sender="news@example.invalid")
+        items = [ExtractedItem(
+            title="How Europe's housing crisis is fuelling a new movement",
+            url="https://link.example.com/c/eJx1kMtuAyE",
+            blurb="As soaring rents and house prices across Europe feed in.",
+        )]
+        articles, unresolved = to_articles(email, items, resolver=Resolver())
+        assert articles == []
+
+    def test_an_unresolvable_tracker_still_yields_an_article(self):
+        """The newsletter already gave us the text, so the story is publishable
+        even though the link is only a tracker."""
+        from newsdigest.extract import to_articles
+        from newsdigest.extract.newsletter import ExtractedItem
+
+        class Resolver:
+            def resolve(self, url):
+                return None
+
+        email = make_email("Example", sender="news@example.invalid")
+        items = [ExtractedItem(
+            title="Todas las guerras de Etiopia: que hay detras del conflicto",
+            url="https://cxk-504.na1.hubspotlinks.com/Ctc/OQ+113/x",
+            blurb="En el segundo pais mas poblado de Africa confluyen.",
+        )]
+        articles, unresolved = to_articles(email, items, resolver=Resolver())
+        assert len(articles) == 1
+        assert unresolved == 1
+        assert articles[0].description

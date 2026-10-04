@@ -6,6 +6,7 @@ from .boilerplate import (
     is_boilerplate_link,
     is_boilerplate_text,
     is_housekeeping,
+    is_never_article,
     is_sponsored,
     strip_chrome,
 )
@@ -31,6 +32,7 @@ __all__ = [
     "is_boilerplate_text",
     "is_housekeeping",
     "is_masthead",
+    "is_never_article",
     "is_sponsored",
     "looks_like_caption",
     "looks_like_fragment",

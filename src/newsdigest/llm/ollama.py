@@ -51,10 +51,16 @@ from .base import (
     PairInput,
     Classification,
     ClassifyInput,
+    ThemeBrief,
+    ThemeGroup,
+    ThemeGroupInput,
+    ThemeInput,
     brief_system_prompt,
     classify_system_prompt,
     enrich_system_prompt,
+    group_themes_system_prompt,
     same_event_system_prompt,
+    write_theme_system_prompt,
 )
 
 log = logging.getLogger(__name__)
@@ -112,6 +118,29 @@ BRIEF_SCHEMA: dict[str, Any] = {
         "headline", "summary", "why_it_matters", "key_facts", "topics",
         "disagreements",
     ],
+}
+
+THEME_GROUP_SCHEMA: dict[str, Any] = {
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "label": {"type": "string"},
+            "story_ids": {"type": "array", "items": {"type": "string"}},
+        },
+        "required": ["label", "story_ids"],
+    },
+}
+
+THEME_BRIEF_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "headline": {"type": "string"},
+        "narrative": {"type": "string"},
+        "why_it_matters": {"type": "string"},
+        "open_questions": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["headline", "narrative", "why_it_matters", "open_questions"],
 }
 
 CLASSIFY_SCHEMA: dict[str, Any] = {
@@ -333,6 +362,77 @@ class OllamaProvider(LLMProvider):
             region=str(data.get("region") or ""),
             importance=_optional_number(data.get("importance")),
             relevance=_optional_number(data.get("relevance")),
+        ).clamp()
+
+    def group_themes(
+        self,
+        items: list[ThemeGroupInput],
+        context: Context,
+        *,
+        editorial: list[str] | None = None,
+    ) -> list[ThemeGroup]:
+        if len(items) < 2:
+            return []
+        payload: dict[str, Any] = {
+            "stories": [
+                {"id": i.story_id, "headline": i.headline,
+                 "topics": i.topics, "publishers": i.publishers}
+                for i in items
+            ]
+        }
+        if editorial:
+            payload["how_the_editors_described_their_week"] = editorial
+        data = _parse_json(
+            self._generate(
+                group_themes_system_prompt(context, self.max_themes),
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                THEME_GROUP_SCHEMA,
+            )
+        )
+        if not isinstance(data, list):
+            return []
+        known = {i.story_id for i in items}
+        groups: list[ThemeGroup] = []
+        for entry in data:
+            if not isinstance(entry, dict):
+                continue
+            label = str(entry.get("label") or "").strip()
+            # Only ids we sent. An 8B model paraphrases an id it half-remembers
+            # more readily than a large one does, and an invented id would raise
+            # downstream. Cross-theme duplicates are `themes.group`'s job.
+            ids = [
+                sid for sid in _strings(entry.get("story_ids")) if sid in known
+            ]
+            if not label or len(ids) < 2:
+                continue
+            groups.append(ThemeGroup(label=label, story_ids=ids))
+        return groups[: self.max_themes]
+
+    def write_theme(self, item: ThemeInput, context: Context) -> ThemeBrief | None:
+        payload = {
+            "theme": item.label,
+            "coverage": [
+                {"headline": headline, "publisher": publisher, "excerpt": excerpt}
+                for headline, publisher, excerpt in item.coverage
+            ],
+        }
+        data = _parse_json(
+            self._generate(
+                write_theme_system_prompt(context),
+                json.dumps(payload, ensure_ascii=False, indent=1),
+                THEME_BRIEF_SCHEMA,
+            )
+        )
+        if not isinstance(data, dict) or not data.get("headline"):
+            return None
+        narrative = str(data.get("narrative") or "").strip()
+        if not narrative:
+            return None
+        return ThemeBrief(
+            headline=str(data["headline"]).strip(),
+            narrative=narrative,
+            why_it_matters=str(data.get("why_it_matters") or "").strip(),
+            open_questions=_strings(data.get("open_questions")),
         ).clamp()
 
     def same_event(self, pairs: list[PairInput], context: Context) -> dict[str, bool]:

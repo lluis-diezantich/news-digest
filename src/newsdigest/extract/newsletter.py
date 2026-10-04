@@ -37,6 +37,7 @@ from .boilerplate import (
     is_boilerplate_link,
     is_boilerplate_text,
     is_housekeeping,
+    is_never_article,
     is_sponsored,
     strip_chrome,
 )
@@ -678,8 +679,16 @@ def to_articles(
 
     Returns (articles, unresolved), where `unresolved` counts items whose real
     URL we never established. Those are KEPT: a story we can only link through a
-    tracker is still a story, and dropping it would silently shrink the digest
-    whenever a publisher changed mailers. They are counted so the run can say so.
+    tracker is still a story, the newsletter already gave us its text, and
+    dropping it would silently shrink the digest whenever a publisher changed
+    mailers. They are counted so the run can say so.
+
+    A resolved link is re-screened, which is NOT redundant with the check
+    `_candidate_anchors` already did. That one saw the tracker, and a tracker
+    tells you nothing about where it goes -- so the host blocklist was bypassed
+    at exactly the moment it would have worked. Once resolution started
+    succeeding, `support.theguardian.com` and `open.spotify.com` arrived as
+    articles, one of them wearing the week's lead headline.
 
     `collected_at` is the email's own timestamp rather than the clock. It is the
     honest answer -- the item reached us when the newsletter did -- and it makes
@@ -691,6 +700,12 @@ def to_articles(
 
     for item in items:
         url, real = links.resolve(item.url, resolver)
+        if real and is_never_article(url):
+            # Only when RESOLVED: an unresolved tracker's host is the mailer's,
+            # which says nothing about the destination, and judging it here
+            # would throw away every story behind an unresolvable link.
+            log.debug("dropped non-editorial destination: %s -> %s", item.title[:40], url)
+            continue
         if not real:
             unresolved += 1
         articles.append(

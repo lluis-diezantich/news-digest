@@ -47,6 +47,9 @@ _SKIP_TEXT = (
     # three of these were extracted from real issues.
     r"apoya (?:el|nuestro) periodismo", r"unete a[l]? ", r"leernos es",
     r"apoyarnos", r"support (?:our|independent) journalism", r"donate",
+    # "Fund independent journalism" sat in the Guardian's lead item block and
+    # the `support` spelling above did not reach it.
+    r"fund (?:our|independent) journalism", r"contribute",
     r"colabora con", r"haz(?:te)? una donacion",
     r"read more", r"leer mas", r"seguir leyendo", r"continue reading",
     r"leer (?:el )?articulo", r"ver (?:la )?noticia", r"full (?:story|article)",
@@ -103,6 +106,36 @@ SOCIAL_HOSTS = frozenset(
 # Rejecting a tracker is the wrong response to it anyway. `links._MAILER_HOSTS`
 # already names these, where the answer is to RESOLVE the link to the article
 # behind it -- which is the whole point of that module.
+
+#: Subdomain labels a publisher uses for everything that is NOT editorial.
+#: `support.theguardian.com` was stored as the URL for "How Europe's housing
+#: crisis is fuelling a new movement" -- the week's lead story, attributed to a
+#: donate page. The host is the only reliable signal, because the link sits
+#: inside the item's own block and wears the article's headline.
+_NON_EDITORIAL_LABELS = frozenset(
+    """
+    support donate donations donaciones give giving contribute
+    shop store checkout payment pay secure billing
+    account myaccount accounts profile login signin
+    subscribe suscripcion suscribete membership
+    """.split()
+)
+
+
+def is_never_article(url: str) -> bool:
+    """True when a URL's HOST cannot be an article, whatever it is labelled.
+
+    Host-only, deliberately: this runs both before resolution (on whatever the
+    newsletter wrote) and again after, where the link text is long gone and the
+    only thing left to judge is where the link actually went.
+    """
+    host = domain(url)
+    if not host:
+        return False
+    if host in SOCIAL_HOSTS or any(host.endswith("." + h) for h in SOCIAL_HOSTS):
+        return True
+    return host.split(".")[0] in _NON_EDITORIAL_LABELS
+
 
 #: Wording that marks a block as paid placement. A sponsor slot is deliberately
 #: built to look like editorial, so the label is the only reliable signal -- and
@@ -175,10 +208,10 @@ def is_boilerplate_link(href: str, text: str, *, sender_domain: str = "") -> boo
     if not url or url.startswith(("mailto:", "tel:", "#", "javascript:")):
         return True
 
-    host = domain(url)
-    if host in SOCIAL_HOSTS or any(host.endswith("." + h) for h in SOCIAL_HOSTS):
+    if is_never_article(url):
         return True
 
+    host = domain(url)
     label = normalize(text)
     if label and _SKIP_TEXT_RE.search(label):
         return True
