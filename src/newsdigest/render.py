@@ -18,6 +18,8 @@ per-story metadata is one line.
 from __future__ import annotations
 
 import logging
+import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from .config import Config
@@ -173,6 +175,103 @@ def _publishers(articles: list[Article]) -> list[str]:
     return seen
 
 
+#: Characters GitHub drops when it builds a heading anchor. Everything that is
+#: not a word character, whitespace or a hyphen -- so accents survive and
+#: punctuation does not, which is why a Spanish headline anchors on its accents.
+_SLUG_DROP = re.compile(r"[^\w\s-]", re.UNICODE)
+
+
+def heading_slug(heading: str) -> str:
+    """The anchor GitHub will generate for this heading.
+
+    Each whitespace character becomes one hyphen, NOT each run of them:
+    github-slugger substitutes per character, so "city - and" (where the dash is
+    dropped, leaving two spaces) anchors as `city--and`. Collapsing runs here
+    would produce `city-and` and a link that silently goes nowhere, which is the
+    whole risk of a contents list -- a dead anchor looks exactly like a live one
+    until someone clicks it.
+    """
+    return re.sub(r"\s", "-", _SLUG_DROP.sub("", heading.lower()).strip())
+
+
+@dataclass
+class Entry:
+    """One line of the digest, and the section it expands to when asked."""
+
+    title: str
+    #: publisher -> the article to link for it, newest first and capped.
+    sources: dict
+    #: Numbered, for the anchor and the expanded heading.
+    heading: str
+    block: str
+
+
+def _entries(result: DigestResult) -> list[Entry]:
+    """The week in published order.
+
+    The ONE place the running order is decided, so the list and the expanded
+    sections cannot drift apart: both are built from this, and an anchor is
+    always the slug of a heading that exists.
+    """
+    by_id = {story.id: (story, articles) for story, articles in result.stories}
+    themed = {sid for theme in result.themes for sid in theme.story_ids}
+    entries: list[Entry] = []
+
+    for position, theme in enumerate(result.themes):
+        members = [by_id[sid] for sid in theme.story_ids if sid in by_id]
+        if not members:
+            continue
+        index = len(entries) + 1
+        title = theme.headline or theme.label
+        entries.append(Entry(
+            title=title,
+            sources=_by_publisher([a for _, articles in members for a in articles]),
+            heading=f"{index}. {title}",
+            block=theme_markdown(theme, members, index, lead=position == 0),
+        ))
+
+    # Stories in no narrative, in ranked order. Most weeks there are several,
+    # and forcing them into a theme would be the failure the grouping prompt is
+    # written to avoid.
+    for story, articles in result.stories:
+        if story.id in themed:
+            continue
+        index = len(entries) + 1
+        entries.append(Entry(
+            title=story.headline,
+            sources=_by_publisher(articles),
+            heading=f"{index}. {story.headline}",
+            block=story_markdown(story, articles, index),
+        ))
+    return entries
+
+def contents_markdown(entries: list["Entry"], *, detail: bool) -> str:
+    """The week as one scannable list: headline, then every outlet that ran it.
+
+    This is the digest's whole body unless `detail` is on, and the SOURCES carry
+    the links rather than the headline -- with no section below, a headline
+    linking to an in-page anchor would point at nothing, and a reader who wants
+    the story wants an outlet, not a bookmark.
+
+    A theme's line names every publisher across its stories, which is the point
+    of grouping: "three outlets ran this" belongs on the line, not three lines
+    apart.
+    """
+    if not entries:
+        return ""
+    lines = ["## This week", ""]
+    for entry in entries:
+        who = ", ".join(
+            f"[{_escape(publisher)}]({display_url(article.url)})"
+            for publisher, article in entry.sources.items()
+        )
+        title = _escape(entry.title)
+        if detail:
+            title = f"[{title}](#{heading_slug(entry.heading)})"
+        lines.append(f"- {title}" + (f" \u2014 {who}" if who else ""))
+    lines.append("")
+    return "\n".join(lines)
+
 def digest_markdown(config: Config, result: DigestResult) -> str:
     """The whole digest, as one Markdown document."""
     digest = result.digest
@@ -188,23 +287,13 @@ def digest_markdown(config: Config, result: DigestResult) -> str:
         ]
         return "\n".join(parts)
 
-    by_id = {story.id: (story, articles) for story, articles in result.stories}
-    themed = {sid for theme in result.themes for sid in theme.story_ids}
-    index = 1
-    for position, theme in enumerate(result.themes):
-        members = [by_id[sid] for sid in theme.story_ids if sid in by_id]
-        if not members:
-            continue
-        parts.append(theme_markdown(theme, members, index, lead=position == 0))
-        index += 1
-    # Stories that belong to no narrative, in their original ranked order. Most
-    # weeks there are several, and forcing them into a theme would be the
-    # failure the grouping prompt is written to avoid.
-    for story, articles in result.stories:
-        if story.id in themed:
-            continue
-        parts.append(story_markdown(story, articles, index))
-        index += 1
+    entries = _entries(result)
+    detail = config.digest.detail
+    contents = contents_markdown(entries, detail=detail)
+    if contents:
+        parts.append(contents)
+    if detail:
+        parts += ["---", ""] + [entry.block for entry in entries]
 
     minor = minor_markdown(result.minor)
     if minor:

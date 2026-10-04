@@ -300,6 +300,12 @@ class DigestSettings:
     #: Costs 1 + len(themes) requests; off means publish stories flat.
     themes: bool = True
     max_themes: int = 6
+    #: Publish the expanded write-up for each entry below the list. Off means
+    #: the digest is the list alone -- headline plus every outlet that ran it.
+    #: The summaries and narratives are still WRITTEN either way, because
+    #: `importance` and `relevance` from enrichment decide what reaches the
+    #: list at all; `detail` only decides whether the prose is published.
+    detail: bool = False
     #: Stories needing at least this many articles. 1, not the RSS project's 3:
     #: ten newsletters rarely triple-cover anything, and at 3 most weeks would
     #: publish nothing at all.
@@ -631,6 +637,7 @@ def load_preferences(path: Path | str = DEFAULT_PREFERENCES) -> tuple[
         topic_spread=bool(raw_digest.get("topic_spread", True)),
         themes=bool(raw_digest.get("themes", True)),
         max_themes=int(raw_digest.get("max_themes", digest_defaults.max_themes)),
+        detail=bool(raw_digest.get("detail", False)),
         week_ends_on=week_ends_on,
         update_readme=bool(raw_digest.get("update_readme", True)),
     )

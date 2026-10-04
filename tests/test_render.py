@@ -8,6 +8,17 @@ from newsdigest.models import Digest, Story
 
 from conftest import make_article
 
+
+def detailed(config):
+    """Config with the expanded write-ups switched on.
+
+    The digest publishes the list alone by default as of 2026-10-04, so every
+    test that asserts a `## N. Headline` section is testing `digest.detail` and
+    says so here rather than silently depending on the old default.
+    """
+    config.digest.detail = True
+    return config
+
 MONDAY = datetime(2026, 9, 14, tzinfo=timezone.utc)
 
 
@@ -43,7 +54,7 @@ class TestDigestMarkdown:
 
     def test_stories_are_numbered_in_order(self, config):
         text = render.digest_markdown(
-            config, result([one("First thing"), one("Second thing")])
+            detailed(config), result([one("First thing"), one("Second thing")])
         )
         assert "## 1. First thing" in text
         assert "## 2. Second thing" in text
@@ -58,7 +69,7 @@ class TestDigestMarkdown:
 
     def test_why_it_matters_appears_when_there_is_one(self, config):
         s, a = one("A thing", why_it_matters="It changes the budget.")
-        text = render.digest_markdown(config, result([(s, a)]))
+        text = render.digest_markdown(detailed(config), result([(s, a)]))
         assert "**Why it matters:** It changes the budget." in text
 
     def test_an_empty_section_is_omitted_entirely(self, config):
@@ -83,7 +94,9 @@ class TestDigestMarkdown:
         assert "\\[bracketed\\]" in text
 
     def test_a_headline_cannot_smuggle_in_a_heading(self, config):
-        text = render.digest_markdown(config, result([one("### Not a heading")]))
+        text = render.digest_markdown(
+            detailed(config), result([one("### Not a heading")])
+        )
         assert "## 1. Not a heading" in text
 
 
@@ -96,7 +109,7 @@ class TestDisagreements:
             "A thing", publishers=("Reuters", "EL PAÍS"),
             disagreements=["Reuters reported 12 dead, while EL PAÍS reported 14."],
         )
-        text = render.digest_markdown(config, result([(s, a)]))
+        text = render.digest_markdown(detailed(config), result([(s, a)]))
         assert "**Where sources differ:**" in text
         assert "Reuters reported 12 dead" in text
 
@@ -180,7 +193,7 @@ class TestFiles:
             id="2026-W38", period_start=MONDAY, period_end=MONDAY + timedelta(days=7),
             story_ids=[main.id], minor_story_ids=[minor.id],
         ))
-        render.rebuild(tmp_path, config, store)
+        render.rebuild(tmp_path, detailed(config), store)
         text = (tmp_path / "2026" / "2026-W38.md").read_text(encoding="utf-8")
         assert "## 1. Main thing" in text
         assert "## Also worth knowing" in text
@@ -214,3 +227,79 @@ class TestReadme:
         readme = tmp_path / "README.md"
         render.update_readme(readme, config, result([one("A thing")]))
         assert not readme.exists()
+
+
+class TestTheWeekList:
+    """The digest's body: one line per story, headline then every outlet."""
+
+    def _result(self, headlines, publishers=("Pub",)):
+        stories = []
+        for n, head in enumerate(headlines):
+            st = Story(id=f"s{n}", headline=head, summary="A summary.",
+                       why_it_matters="A stake.", score=10.0 - n)
+            ar = [make_article(title=head, url=f"https://example.com/news/{n}-{i}",
+                               publisher=pub)
+                  for i, pub in enumerate(publishers)]
+            stories.append((st, ar))
+        digest = Digest(
+            id="2026-W40",
+            period_start=datetime(2026, 9, 28, tzinfo=timezone.utc),
+            period_end=datetime(2026, 10, 5, tzinfo=timezone.utc),
+            article_count=len(stories),
+        )
+        return DigestResult(digest=digest, stories=stories)
+
+    def test_the_list_is_the_whole_body_by_default(self, config):
+        """No expanded sections, so none of the prose is published."""
+        text = render.digest_markdown(config, self._result(["A headline of a story"]))
+        assert "## This week" in text
+        assert "A headline of a story" in text
+        assert "## 1." not in text
+        assert "A summary." not in text
+        assert "**Why it matters:**" not in text
+
+    def test_the_sources_carry_the_links(self, config):
+        """Not the headline: with nothing to expand to, an in-page anchor would
+        point at nothing and a reader wants the outlet."""
+        text = render.digest_markdown(
+            config, self._result(["A headline"], publishers=("Público",))
+        )
+        assert "- A headline — [Público](https://example.com/news/0-0)" in text
+
+    def test_every_outlet_that_ran_it_is_named(self, config):
+        text = render.digest_markdown(
+            config,
+            self._result(["A headline"], publishers=("Reuters", "El País", "BBC")),
+        )
+        line = next(l for l in text.splitlines() if l.startswith("- A headline"))
+        for publisher in ("Reuters", "El País", "BBC"):
+            assert f"[{publisher}]" in line
+        assert line.count("](") == 3
+
+    def test_one_publisher_is_named_once(self, config):
+        text = render.digest_markdown(
+            config, self._result(["A headline"], publishers=("BBC", "BBC"))
+        )
+        assert text.count("[BBC]") == 1
+
+    def test_with_detail_the_headline_anchors_to_its_section(self, config):
+        import re
+        text = render.digest_markdown(
+            detailed(config),
+            self._result(["La crisis de vivienda en España y los fondos buitre",
+                          "Kyiv has become a frontline city \u2013 and winter is on the way"]),
+        )
+        anchors = re.findall(r"\]\(#([^)]+)\)", text)
+        slugs = {render.heading_slug(h) for h in re.findall(r"^## (.+)$", text, re.M)}
+        assert anchors, "no anchors produced with detail on"
+        assert [a for a in anchors if a not in slugs] == []
+
+    def test_whitespace_runs_become_one_hyphen_each(self):
+        """github-slugger substitutes per character, not per run. Collapsing
+        runs would give `city-and` for a heading anchored at `city--and`, and a
+        dead anchor looks exactly like a live one until someone clicks it."""
+        assert render.heading_slug("1. City \u2013 and winter") == "1-city--and-winter"
+
+    def test_accents_survive_and_punctuation_does_not(self):
+        got = render.heading_slug("3. Todas las guerras de Etiop\u00eda: \u00bfqu\u00e9 hay?")
+        assert got == "3-todas-las-guerras-de-etiopía-qué-hay"

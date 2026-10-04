@@ -127,14 +127,17 @@ class TestRendering:
         return DigestResult(digest=digest, stories=stories, themes=themes_list)
 
     def test_ungrouped_stories_are_still_published(self):
+        """The digest publishes the list alone by default, so this checks the
+        running order rather than the expanded sections: a story in no
+        narrative still gets its line."""
         from newsdigest.config import load_config
         theme = Theme(label="L", story_ids=["s0", "s1"],
                       headline="Themed", narrative="Connected.")
         out = render.digest_markdown(load_config(), self._result([theme]))
-        assert "## 1. Themed" in out
+        lines = [l for l in out.splitlines() if l.startswith("- ")]
+        assert lines[0].startswith("- Themed")
         # s2 and s3 belong to no narrative and must not vanish.
-        assert "## 2." in out and "## 3." in out
-        assert out.count("## ") >= 3
+        assert len(lines) == 3
 
     def test_a_story_is_not_published_twice(self):
         from newsdigest.config import load_config
@@ -143,13 +146,41 @@ class TestRendering:
         out = render.digest_markdown(load_config(), self._result([theme]))
         assert out.count("https://example.com/news/s0") == 1
 
-    def test_a_per_story_disagreement_survives_inside_a_theme(self):
-        """Section 15 applies whether a story publishes alone or in a theme."""
+    def test_a_theme_names_every_outlet_on_one_line(self):
+        """The point of grouping: "three outlets ran this" belongs on the line,
+        not three lines apart."""
         from newsdigest.config import load_config
+        from newsdigest.models import Article, Story
+        st = [(Story(id=f"s{i}", headline=f"Story {i}", score=1.0),
+               [Article(id=f"a{i}", title=f"Story {i}", source="src",
+                        publisher=pub, url=f"https://example.com/{i}")])
+              for i, pub in enumerate(("Reuters", "El Pais", "BBC"))]
+        from newsdigest.digest import DigestResult
+        from newsdigest.models import Digest
+        from datetime import datetime, timezone
+        res = DigestResult(
+            digest=Digest(id="2026-W40",
+                          period_start=datetime(2026, 9, 28, tzinfo=timezone.utc),
+                          period_end=datetime(2026, 10, 5, tzinfo=timezone.utc)),
+            stories=st,
+            themes=[Theme(label="L", story_ids=["s0", "s1", "s2"],
+                          headline="One narrative", narrative="N")],
+        )
+        out = render.digest_markdown(load_config(), res)
+        line = next(l for l in out.splitlines() if l.startswith("- One narrative"))
+        for pub in ("Reuters", "El Pais", "BBC"):
+            assert f"[{pub}]" in line
+
+    def test_a_per_story_disagreement_survives_inside_a_theme(self):
+        """Section 15 applies whether a story publishes alone or in a theme --
+        in the expanded form, which is the only form that carries prose."""
+        from newsdigest.config import load_config
+        config = load_config()
+        config.digest.detail = True
         result = self._result([Theme(label="L", story_ids=["s0", "s1"],
                                      headline="T", narrative="N")])
         result.stories[0][0].disagreements = ["A said 12, B said 14."]
-        out = render.digest_markdown(load_config(), result)
+        out = render.digest_markdown(config, result)
         assert "A said 12, B said 14." in out
 
     def test_an_unwritten_theme_still_renders_its_stories(self):
